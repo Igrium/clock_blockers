@@ -122,7 +122,7 @@ public partial class Weapon : AnimatedEntity
 
 		var trace = Trace.Ray( start, end )
 				.UseHitboxes()
-				.WithAnyTags( "solid", "player", "npc" )
+				.WithAnyTags( "solid", "player", "npc", "glass" )
 				.Ignore( this )
 				.Size( radius );
 
