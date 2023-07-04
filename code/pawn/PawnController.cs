@@ -1,12 +1,14 @@
-﻿using Sandbox;
+﻿#nullable enable
+
+using Sandbox;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace MyGame;
+namespace ClockBlockers;
 
-/// <summary>
-/// Handles pawn movement
-/// </summary>
 public class PawnController : EntityComponent<Pawn>
 {
 	public int StepSize => 24;
@@ -14,37 +16,39 @@ public class PawnController : EntityComponent<Pawn>
 	public int JumpSpeed => 300;
 	public float Gravity => 800f;
 
-	HashSet<string> ControllerEvents = new( StringComparer.OrdinalIgnoreCase );
-
 	bool Grounded => Entity.GroundEntity.IsValid();
 
-	public void Simulate( IClient cl )
+	/// <summary>
+	/// Whether the pawn jumped this tick.
+	/// </summary>
+	public bool DidJump { get; protected set; }
+
+	public void Simulate( IClient client )
 	{
-		ControllerEvents.Clear();
+		DidJump = false;
 
 		var movement = Entity.InputDirection.Normal;
 		var angles = Entity.ViewAngles.WithPitch( 0 );
-		var moveVector = Rotation.From( angles ) * movement * 320f;
+		var moveVector = Rotation.From( angles ) * movement * 320;
 		var groundEntity = CheckForGround();
 
-		if ( groundEntity.IsValid() )
+		if ( groundEntity != null && groundEntity.IsValid )
 		{
 			if ( !Grounded )
 			{
 				Entity.Velocity = Entity.Velocity.WithZ( 0 );
-				AddEvent( "grounded" );
 			}
 
-			Entity.Velocity = Accelerate( Entity.Velocity, moveVector.Normal, moveVector.Length, 200.0f * ( Input.Down( "run" ) ? 2.5f : 1f ), 7.5f );
+			Entity.Velocity = Accelerate( Entity.Velocity, moveVector.Normal, moveVector.Length, 200f * ( Input.Down( "run" ) ? 2.5f : 1f ), 7.5f );
 			Entity.Velocity = ApplyFriction( Entity.Velocity, 4.0f );
-		}
+		} 
 		else
 		{
 			Entity.Velocity = Accelerate( Entity.Velocity, moveVector.Normal, moveVector.Length, 100, 20f );
 			Entity.Velocity += Vector3.Down * Gravity * Time.Delta;
 		}
 
-		if ( Input.Pressed( "jump" ) )
+		if (Input.Pressed("jump"))
 		{
 			DoJump();
 		}
@@ -52,7 +56,7 @@ public class PawnController : EntityComponent<Pawn>
 		var mh = new MoveHelper( Entity.Position, Entity.Velocity );
 		mh.Trace = mh.Trace.Size( Entity.Hull ).Ignore( Entity );
 
-		if ( mh.TryMoveWithStep( Time.Delta, StepSize ) > 0 )
+		if ( mh.TryMoveWithStep(Time.Delta, StepSize ) > 0 )
 		{
 			if ( Grounded )
 			{
@@ -65,28 +69,51 @@ public class PawnController : EntityComponent<Pawn>
 		Entity.GroundEntity = groundEntity;
 	}
 
-	void DoJump()
+	/// <summary>
+	/// Attempt to jump.
+	/// </summary>
+	/// <returns>Whether the jump was successful.</returns>
+	public bool DoJump()
 	{
-		if ( Grounded )
+		if ( Grounded && !DidJump )
 		{
-			Entity.Velocity = ApplyJump( Entity.Velocity, "jump" );
+			Entity.Velocity += Vector3.Up * JumpSpeed;
+			DidJump = true;
+			return true;
 		}
+		return false;
 	}
 
-	Entity CheckForGround()
+
+	Entity? CheckForGround()
 	{
-		if ( Entity.Velocity.z > 100f )
-			return null;
+		if ( Entity.Velocity.z > 100f ) return null;
 
 		var trace = Entity.TraceBBox( Entity.Position, Entity.Position + Vector3.Down, 2f );
 
-		if ( !trace.Hit )
-			return null;
-
-		if ( trace.Normal.Angle( Vector3.Up ) > GroundAngle )
-			return null;
+		if ( !trace.Hit ) return null;
+		if ( trace.Normal.Angle( Vector3.Up ) > GroundAngle ) return null;
 
 		return trace.Entity;
+	}
+
+	Vector3 Accelerate( Vector3 input, Vector3 wishdir, float wishSpeed, float speedLimit, float acceleration )
+	{
+		if ( speedLimit > 0 && wishSpeed > speedLimit )
+			wishSpeed = speedLimit;
+
+		var currentSpeed = input.Dot( wishdir );
+		var addSpeed = wishSpeed - currentSpeed;
+
+		if ( addSpeed <= 0 ) return input;
+
+		var accelSpeed = acceleration * Time.Delta * wishSpeed;
+
+		if ( accelSpeed > addSpeed )
+			accelSpeed = addSpeed;
+
+		input += wishdir * accelSpeed;
+		return input;
 	}
 
 	Vector3 ApplyFriction( Vector3 input, float frictionAmount )
@@ -114,34 +141,6 @@ public class PawnController : EntityComponent<Pawn>
 		return input;
 	}
 
-	Vector3 Accelerate( Vector3 input, Vector3 wishdir, float wishspeed, float speedLimit, float acceleration )
-	{
-		if ( speedLimit > 0 && wishspeed > speedLimit )
-			wishspeed = speedLimit;
-
-		var currentspeed = input.Dot( wishdir );
-		var addspeed = wishspeed - currentspeed;
-
-		if ( addspeed <= 0 )
-			return input;
-
-		var accelspeed = acceleration * Time.Delta * wishspeed;
-
-		if ( accelspeed > addspeed )
-			accelspeed = addspeed;
-
-		input += wishdir * accelspeed;
-
-		return input;
-	}
-
-	Vector3 ApplyJump( Vector3 input, string jumpType )
-	{
-		AddEvent( jumpType );
-
-		return input + Vector3.Up * JumpSpeed;
-	}
-
 	Vector3 StayOnGround( Vector3 position )
 	{
 		var start = position + Vector3.Up * 2;
@@ -151,7 +150,7 @@ public class PawnController : EntityComponent<Pawn>
 		var trace = Entity.TraceBBox( position, start );
 		start = trace.EndPosition;
 
-		// Now trace down from a known safe position
+		// Trace down from a known safe position
 		trace = Entity.TraceBBox( start, end );
 
 		if ( trace.Fraction <= 0 ) return position;
@@ -160,18 +159,5 @@ public class PawnController : EntityComponent<Pawn>
 		if ( Vector3.GetAngle( Vector3.Up, trace.Normal ) > GroundAngle ) return position;
 
 		return trace.EndPosition;
-	}
-
-	public bool HasEvent( string eventName )
-	{
-		return ControllerEvents.Contains( eventName );
-	}
-
-	void AddEvent( string eventName )
-	{
-		if ( HasEvent( eventName ) )
-			return;
-
-		ControllerEvents.Add( eventName );
 	}
 }

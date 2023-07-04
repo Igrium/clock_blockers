@@ -1,23 +1,54 @@
-﻿using Sandbox;
-using System.ComponentModel;
+﻿#nullable enable
 
-namespace MyGame;
+using Sandbox;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ClockBlockers;
 
 public partial class Pawn : AnimatedEntity
 {
-	[Net, Predicted]
-	public Weapon ActiveWeapon { get; set; }
+	/// <summary>
+	/// How is this pawn being controlled?
+	/// </summary>
+	public enum PawnControlMethod
+	{
+		/// <summary>
+		/// Controlled by a player. If no player possesses this entity, does nothing.
+		/// </summary>
+		Player,
 
+		/// <summary>
+		/// Animated remnant from a previous round.
+		/// </summary>
+		Animated,
+
+		/// <summary>
+		/// Controlled by AI.
+		/// </summary>
+		AI
+	}
+
+	[Net]
+	public PawnControlMethod ControlMethod { get; set; } = PawnControlMethod.Player;
+
+	[Net, Predicted]
+	public Weapon? ActiveWeapon { get; set; }
+
+	// TODO: Store / calculate input direction globally so it can manipulated easier.
 	[ClientInput]
 	public Vector3 InputDirection { get; set; }
-	
+
 	[ClientInput]
 	public Angles ViewAngles { get; set; }
 
 	/// <summary>
-	/// Position a player should be looking from in world space.
+	/// Position a player should be looking from in global space.
 	/// </summary>
-	[Browsable( false )]
 	public Vector3 EyePosition
 	{
 		get => Transform.PointToWorld( EyeLocalPosition );
@@ -25,13 +56,13 @@ public partial class Pawn : AnimatedEntity
 	}
 
 	/// <summary>
-	/// Position a player should be looking from in local to the entity coordinates.
+	/// Position a player should be looking from in local space.
 	/// </summary>
 	[Net, Predicted, Browsable( false )]
 	public Vector3 EyeLocalPosition { get; set; }
 
 	/// <summary>
-	/// Rotation of the entity's "eyes", i.e. rotation for the camera when this entity is used as the view entity.
+	/// The rotation of the camera for this entity, in world space.
 	/// </summary>
 	[Browsable( false )]
 	public Rotation EyeRotation
@@ -41,35 +72,36 @@ public partial class Pawn : AnimatedEntity
 	}
 
 	/// <summary>
-	/// Rotation of the entity's "eyes", i.e. rotation for the camera when this entity is used as the view entity. In local to the entity coordinates.
+	/// The rotation of the camera for this entity, in local space.
 	/// </summary>
 	[Net, Predicted, Browsable( false )]
 	public Rotation EyeLocalRotation { get; set; }
 
 	public BBox Hull
 	{
-		get => new
+		get => new BBox
 		(
 			new Vector3( -16, -16, 0 ),
 			new Vector3( 16, 16, 64 )
 		);
 	}
 
-	[BindComponent] public PawnController Controller { get; }
-	[BindComponent] public PawnAnimator Animator { get; }
+	[BindComponent] public PawnController? Controller { get; }
+	[BindComponent] public PawnAnimator? Animator { get; }
 
 	public override Ray AimRay => new Ray( EyePosition, EyeRotation.Forward );
 
-	/// <summary>
-	/// Called when the entity is first created 
-	/// </summary>
 	public override void Spawn()
 	{
-		SetModel( "models/citizen/citizen.vmdl" );
+		base.Spawn();
 
+		SetModel( "models/citizen/citizen.vmdl" );
 		EnableDrawing = true;
 		EnableHideInFirstPerson = true;
 		EnableShadowInFirstPerson = true;
+
+		Components.Create<PawnController>();
+		Components.Create<PawnAnimator>();
 	}
 
 	public void SetActiveWeapon( Weapon weapon )
@@ -79,14 +111,8 @@ public partial class Pawn : AnimatedEntity
 		ActiveWeapon.OnEquip( this );
 	}
 
-	/// <summary>
-	/// Called after the pawn spawns and is assigned a client (if any)
-	/// </summary>
-	public void Respawn()
+	public void PostSpawn()
 	{
-		Components.Create<PawnController>();
-		Components.Create<PawnAnimator>();
-
 		SetActiveWeapon( new Pistol() );
 	}
 
@@ -99,9 +125,11 @@ public partial class Pawn : AnimatedEntity
 
 	public override void Simulate( IClient cl )
 	{
+		if ( ControlMethod != PawnControlMethod.Player ) return;
+
 		SimulateRotation();
 		Controller?.Simulate( cl );
-		Animator?.Simulate();
+		Animator?.Animate();
 		ActiveWeapon?.Simulate( cl );
 		EyeLocalPosition = Vector3.Up * (64f * Scale);
 	}
@@ -110,20 +138,19 @@ public partial class Pawn : AnimatedEntity
 	{
 		InputDirection = Input.AnalogMove;
 
-		if ( Input.StopProcessing )
-			return;
+		if ( Input.StopProcessing ) return;
 
 		var look = Input.AnalogLook;
-
 		if ( ViewAngles.pitch > 90f || ViewAngles.pitch < -90f )
 		{
+			// TODO: figure out what this is for
 			look = look.WithYaw( look.yaw * -1f );
 		}
 
 		var viewAngles = ViewAngles;
 		viewAngles += look;
 		viewAngles.pitch = viewAngles.pitch.Clamp( -89f, 89f );
-		viewAngles.roll = 0f;
+		viewAngles.roll = 0;
 		ViewAngles = viewAngles.Normal;
 	}
 
@@ -131,7 +158,7 @@ public partial class Pawn : AnimatedEntity
 
 	public override void FrameSimulate( IClient cl )
 	{
-		SimulateRotation();
+		if ( ControlMethod == PawnControlMethod.Player ) SimulateRotation();
 
 		Camera.Rotation = ViewAngles.ToRotation();
 		Camera.FieldOfView = Screen.CreateVerticalFieldOfView( Game.Preferences.FieldOfView );
@@ -143,11 +170,12 @@ public partial class Pawn : AnimatedEntity
 
 		if ( IsThirdPerson )
 		{
+			// Calculate third person camera pos
 			Vector3 targetPos;
 			var pos = Position + Vector3.Up * 64;
 			var rot = Camera.Rotation * Rotation.FromAxis( Vector3.Up, -16 );
 
-			float distance = 80.0f * Scale;
+			float distance = 80f * Scale;
 			targetPos = pos + rot.Right * ((CollisionBounds.Mins.x + 50) * Scale);
 			targetPos += rot.Forward * -distance;
 
@@ -156,7 +184,7 @@ public partial class Pawn : AnimatedEntity
 				.Ignore( this )
 				.Radius( 8 )
 				.Run();
-			
+
 			Camera.FirstPersonViewer = null;
 			Camera.Position = tr.EndPosition;
 		}
@@ -167,12 +195,12 @@ public partial class Pawn : AnimatedEntity
 		}
 	}
 
-	public TraceResult TraceBBox( Vector3 start, Vector3 end, float liftFeet = 0.0f )
+	public TraceResult TraceBBox( Vector3 start, Vector3 end, float liftFeet = 0f )
 	{
 		return TraceBBox( start, end, Hull.Mins, Hull.Maxs, liftFeet );
 	}
 
-	public TraceResult TraceBBox( Vector3 start, Vector3 end, Vector3 mins, Vector3 maxs, float liftFeet = 0.0f )
+	public TraceResult TraceBBox( Vector3 start, Vector3 end, Vector3 mins, Vector3 maxs, float liftFeet = 0f )
 	{
 		if ( liftFeet > 0 )
 		{
@@ -181,10 +209,10 @@ public partial class Pawn : AnimatedEntity
 		}
 
 		var tr = Trace.Ray( start, end )
-					.Size( mins, maxs )
-					.WithAnyTags( "solid", "playerclip", "passbullets" )
-					.Ignore( this )
-					.Run();
+			.Size( mins, maxs )
+			.WithAnyTags( "solid", "playerclip", "passbullets" )
+			.Ignore( this )
+			.Run();
 
 		return tr;
 	}

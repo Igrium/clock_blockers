@@ -1,7 +1,7 @@
 using Sandbox;
 using System.Collections.Generic;
 
-namespace MyGame;
+namespace ClockBlockers;
 
 public partial class Weapon : AnimatedEntity
 {

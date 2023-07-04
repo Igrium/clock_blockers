@@ -1,6 +1,6 @@
 using Sandbox;
 
-namespace MyGame;
+namespace ClockBlockers;
 
 public partial class Pistol : Weapon
 {

@@ -6,7 +6,7 @@ using System.Linq;
 //
 // You don't need to put things in a namespace, but it doesn't hurt.
 //
-namespace MyGame;
+namespace ClockBlockers;
 
 /// <summary>
 /// This is your game class. This is an entity that is created serverside when
@@ -24,7 +24,7 @@ public partial class MyGame : Sandbox.GameManager
 	{
 		if ( Game.IsClient )
 		{
-			Game.RootPanel = new Hud();
+			//Game.RootPanel = new Hud();
 		}
 	}
 
@@ -38,7 +38,7 @@ public partial class MyGame : Sandbox.GameManager
 		// Create a pawn for this client to play with
 		var pawn = new Pawn();
 		client.Pawn = pawn;
-		pawn.Respawn();
+		pawn.PostSpawn();
 		pawn.DressFromClient( client );
 
 		// Get all of the spawnpoints
