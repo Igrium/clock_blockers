@@ -1,8 +1,4 @@
-# Animation Recording & Playback Design Notes
-
----
-
-## Design Goals
+# Design Goals
 
 - Efficiently store player gameplay data in a format that doesn't eat memory space and *possibly* can be serialized to disk.
 
@@ -14,7 +10,7 @@
 
 - Store discrete "events" so they can be located without scanning through frames
 
-## Notes
+# Notes
 
 - Although metadata at the beginning may store the tickrate, it cannot be assumed that it will play back properly at a different tickrate than that at which it was recorded.
 
@@ -30,7 +26,15 @@
 
 - Store clothing container with animation because it's serializable 🙂
 
-### Events
+- How to keep track of non-player entities that may impact animation for unlinking purposes? (grenades, etc.)
+  
+  - Entity component storing some kind of ID, which gets added to the animation?
+
+- Do we keep track of remnant health or just when they're killed?
+  
+  - We need to in order to allow free agents to kill them. The question is whether remnants damaging remnants should be tracked.
+
+## Events
 
 - Putting an event table at the beginning of the file makes them easily accessible globally, but is less efficient on a per-frame basis, as each event would have to be checked on each frame.
 
@@ -44,4 +48,40 @@
 
 - Some events impact frames going forward (changing weapon, etc). How to read while scrubbing?
 
+**Solution:** Two types of events:
 
+- *Events*
+  
+  - Indexed at the beginning of file with timecode
+  
+  - Not stored with frame
+  
+  - Must have a corresponding *action* in order to be seen during playback
+  
+  - *ex: player killed, grenade thrown, button pressed, etc*
+
+- *Actions*
+  
+  - Stored as part of individual frames
+  
+  - Represent discrete animation data (rather than continuous such as position)
+  
+  - Only used in animation playback
+  
+  - Not indexed
+  
+  - Action failed: unlink
+  
+  - *ex: jump, shoot, button press (animation)*
+
+## What frames store
+
+- Frame actions
+
+- Position
+
+- Rotation
+
+- Eye rotation
+
+- Velocity

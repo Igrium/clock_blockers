@@ -46,6 +46,30 @@ public partial class Pawn : AnimatedEntity
 	[ClientInput]
 	public Angles ViewAngles { get; set; }
 
+	private ClothingContainer? _clothing;
+
+	public ClothingContainer? Clothing
+	{
+		get => _clothing; set
+		{
+			//if ( _clothing != null )
+			//{
+			//	_clothing.ClearEntities();
+			//}
+			if (value == null)
+			{
+				_clothing = null;
+				return;
+			}
+			_clothing = new ClothingContainer();
+			_clothing.Deserialize( value.Serialize() );
+			if (_clothing != null )
+			{
+				_clothing.DressEntity( this );
+			}
+		}
+	}
+
 	/// <summary>
 	/// Position a player should be looking from in global space.
 	/// </summary>
@@ -120,7 +144,7 @@ public partial class Pawn : AnimatedEntity
 	{
 		var c = new ClothingContainer();
 		c.LoadFromClient( cl );
-		c.DressEntity( this );
+		this.Clothing = c;
 	}
 
 	public override void Simulate( IClient cl )
