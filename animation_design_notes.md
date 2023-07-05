@@ -58,6 +58,8 @@
   
   - Must have a corresponding *action* in order to be seen during playback
   
+  - Action failed: unlink
+  
   - *ex: player killed, grenade thrown, button pressed, etc*
 
 - *Actions*
@@ -70,11 +72,35 @@
   
   - Not indexed
   
-  - Action failed: unlink
-  
   - *ex: jump, shoot, button press (animation)*
 
-## What frames store
+## Damage Tracking & Unlinks
+
+Damage & health pose a unique challenge when it comes to handling remnants. While a remnant's health must be tracked so it can interact with free agents, its time of death also needs to remain predictable (unless interfered with).
+
+- Store which entities were damaged by how much in `Shoot` action. That way, even if the weapon itself acts non-deterministically (random bullet spread, etc.) it can be ensured that the damage done to other remnants remains consistent.
+
+- Do we use auto health regen so accidental damage doesn't cause unpredictability down the line?
+
+- How much non-canon damage causes an unlink (if any)?
+
+It's also important to decide how deviations from the canon are handled when it comes to *infliction.* For instance, if a remnant is supposed to kill another remnant, but the other remnant has slightly more health this time around, what happens? If we consider the amount of damage inflicted canon, then it will cause an unlink even if the other remnant still died (bad). However, only considering kills canon can fail to account for other scenarios where there was a scrimmage but no kill.
+
+- Fights that end slightly early should not cause an unlink, but fights that end *too* early should.
+
+- Auto health regen could help contain unknown variables within a single encounter.
+
+Ultimately, it makes sense to consider a "attack" and its outcome canon. However, it could be hard to determine where an attack starts and ends. For instance, if someone starts spraying a minigun at their opponent, and only hit some of their shots but still manage to kill them, what happens? 
+
+- Possible solution: consider the beginning of the attack and the final kill canon, and give a small time buffer for when the kill happens.
+
+### Player intent
+
+It will be important to come up with a system to distinguish player intent. For instance, a player firing randomly and accidentally hitting an explosive barrel needs to be treated differently than if they intended to shoot that barrel.
+
+- Potentially based on the outcome of the explosion. Did it kill someone?
+
+## What to store in a frame
 
 - Frame actions
 
@@ -85,3 +111,17 @@
 - Eye rotation
 
 - Velocity
+
+## Map / gameplay ideas
+
+- Mounted minigun that can be destroyed.
+
+- Elevator / moving walkway with two possible positions. Wrong position -> unlink
+
+- Can only carry one weapon at a time, but can swap with weapons on the ground (from dead players or placed in map).
+  
+  - Missing weapon -> unlink
+
+- Doors that only open if another agent is standing on or holding a button
+
+- Explosive barrels that can only be triggered once per round.
