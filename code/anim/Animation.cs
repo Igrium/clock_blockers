@@ -27,6 +27,8 @@ public class Animation
 
 	public ClothingContainer? Clothing { get; set; } = new();
 
+	public bool IsEmpty => Segments.Count == 0 || Segments[0].Count == 0;
+
 	/// <summary>
 	/// Get the correct segment for a given timecode.
 	/// </summary>

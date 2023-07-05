@@ -12,17 +12,22 @@ namespace ClockBlockers.Anim;
 /// <summary>
 /// Responsible for playing an animation back on a pawn.
 /// </summary>
-public class AnimPlayer
+public class AnimPlayer : EntityComponent<Pawn>, ISingletonComponent
 {
-	/// <summary>
-	/// The pawn to play the animation on.
-	/// </summary>
-	public Pawn Pawn { get; }
+
+	private Animation _animation = new Animation();
 
 	/// <summary>
 	/// The animation to play.
 	/// </summary>
-	public Animation Animation { get; }
+	public Animation Animation
+	{
+		get => _animation; set
+		{
+			if ( IsPlaying ) throw new InvalidOperationException( "Cannot change animation while playing." );
+			_animation = value;
+		}
+	}
 
 	/// <summary>
 	/// Whether we're currently playing the animation
@@ -39,26 +44,15 @@ public class AnimPlayer
 	private int _localTick = 0;
 	private int _lastCurrentSegment;
 
-	public AnimPlayer( Pawn pawn, Animation animation )
-	{
-		Pawn = pawn;
-		Animation = animation;
-
-		if ( Animation.Segments.Count <= 0 )
-		{
-			throw new ArgumentException( "Supplied animation is empty." );
-		}
-	}
-
 	/// <summary>
 	/// Start (or restart) animation playback.
 	/// </summary>
 	public void Start()
 	{
-		if (Pawn.ControlMethod != Pawn.PawnControlMethod.Animated)
+		if (Entity.ControlMethod != Pawn.PawnControlMethod.Animated)
 		{
-			Log.Warning( $"Pawn {Pawn} was not set to PawnControlMethod.Animated before animation playback." );
-			Pawn.ControlMethod = Pawn.PawnControlMethod.Animated;
+			Log.Warning( $"Pawn {Entity} was not set to PawnControlMethod.Animated before animation playback." );
+			Entity.ControlMethod = Pawn.PawnControlMethod.Animated;
 		}
 
 		IsPlaying = true;
@@ -84,7 +78,7 @@ public class AnimPlayer
 		}
 
 		var frame = Animation.Segments[currentSegment].GetFrame( _localTick );
-		frame.ApplyTo( Pawn );
+		frame.ApplyTo( Entity );
 
 		_localTick++;
 	}
@@ -99,17 +93,22 @@ public class AnimPlayer
 	/// </summary>
 	/// <param name="animation">The animation to use</param>
 	/// <returns>The animation player (the pawn can be extracted from this)</returns>
-	public static AnimPlayer Create( Animation animation )
+	public static Pawn Create( Animation animation )
 	{
+		if ( animation.IsEmpty )
+		{
+			throw new ArgumentException( "Supplied animation is empty." );
+		}
+
+
 		Pawn pawn = new();
 		pawn.Clothing = animation.Clothing;
 		pawn.ControlMethod = Pawn.PawnControlMethod.Animated;
 
-		AnimPlayer player = new AnimPlayer( pawn, animation );
+		animation.Segments[0].Frames[0].ApplyTo( pawn );
 
-		AnimFrame firstFrame = animation.Segments[0].Frames[0];
-		firstFrame.ApplyTo( pawn );
+		pawn.PlayAnimation( animation );
 
-		return player;
+		return pawn;
 	}
 }

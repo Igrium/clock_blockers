@@ -67,6 +67,7 @@ public class PawnController : EntityComponent<Pawn>
 		}
 
 		Entity.GroundEntity = groundEntity;
+		Entity.IsGrounded = Grounded;
 	}
 
 	/// <summary>
@@ -79,6 +80,7 @@ public class PawnController : EntityComponent<Pawn>
 		{
 			Entity.Velocity += Vector3.Up * JumpSpeed;
 			DidJump = true;
+			Entity.DidJump = true;
 			return true;
 		}
 		return false;

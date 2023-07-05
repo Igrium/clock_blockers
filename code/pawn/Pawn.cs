@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using ClockBlockers.Anim;
 using Sandbox;
 using System;
 using System.Collections.Generic;
@@ -45,6 +46,12 @@ public partial class Pawn : AnimatedEntity
 
 	[ClientInput]
 	public Angles ViewAngles { get; set; }
+
+	// Store IsGrounded manually so animations can set it.
+	[Predicted]
+	public bool IsGrounded { get; set; }
+
+	public bool DidJump { get; set; }
 
 	private ClothingContainer? _clothing;
 
@@ -151,11 +158,34 @@ public partial class Pawn : AnimatedEntity
 	{
 		if ( ControlMethod != PawnControlMethod.Player ) return;
 
-		SimulateRotation();
 		Controller?.Simulate( cl );
-		Animator?.Animate();
 		ActiveWeapon?.Simulate( cl );
+		TickAll( cl );
+
+	}
+
+	[GameEvent.Tick.Server]
+	public void TickServer()
+	{
+		// Already handled in Simulate
+		if ( ControlMethod == PawnControlMethod.Player ) return;
+		TickAll();
+	}
+
+	/// <summary>
+	/// Called every tick on the server no matter what. If possessed on a player, also called on the client.
+	/// </summary>
+	/// <param name="cl">The client, if possessed by a player</param>
+	public void TickAll( IClient? cl = null )
+	{
+		SimulateRotation();
+		AnimPlayer?.Tick();
 		EyeLocalPosition = Vector3.Up * (64f * Scale);
+		AnimCapture?.Tick();
+		Animator?.Animate();
+
+		// Reset for next frame
+		DidJump = false;
 	}
 
 	public override void BuildInput()

@@ -12,7 +12,7 @@ namespace ClockBlockers.Anim;
 /// <summary>
 /// Responsible for capturing the animation of a pawn.
 /// </summary>
-public class AnimCapture
+public class AnimCapture : EntityComponent<Pawn>, ISingletonComponent
 {
 	private TimeSince _startTime;
 
@@ -26,19 +26,6 @@ public class AnimCapture
 	/// </summary>
 	public Animation? Animation { get; private set; }
 
-	/// <summary>
-	/// The pawn to be recorded.
-	/// </summary>
-	public Pawn Pawn { get; private set; }
-
-	/// <summary>
-	/// Create an anim capture.
-	/// </summary>
-	/// <param name="pawn">The pawn to be recorded.</param>
-	public AnimCapture( Pawn pawn )
-	{
-		Pawn = pawn;
-	}
 
 	public void Start()
 	{
@@ -49,7 +36,7 @@ public class AnimCapture
 
 		Animation = new();
 		Animation.TickRate = Game.TickRate;
-		Animation.Clothing = Pawn.Clothing;
+		Animation.Clothing = Entity.Clothing;
 
 		IsRecording = true;
 		_startTime = 0;
@@ -70,7 +57,7 @@ public class AnimCapture
 
 		AnimSegment segment = Animation.Segments[segmentIndex];
 
-		segment.Frames.Add( AnimFrame.Capture( Pawn ) );
+		segment.Frames.Add( AnimFrame.Capture( Entity ) );
 		
 	}
 

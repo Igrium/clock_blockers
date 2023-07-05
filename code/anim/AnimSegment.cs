@@ -53,6 +53,8 @@ public struct AnimFrame
 	public Vector3 Velocity { get; set; }
 	public Rotation EyeRotation { get; set; }
 	public Rotation Rotation { get; set; }
+	public bool IsGrounded { get; set; }
+	public bool DidJump { get; set; }
 
 	/// <summary>
 	/// Capture a frame from a pawn's current state.
@@ -66,7 +68,9 @@ public struct AnimFrame
 			Position = pawn.Position,
 			Velocity = pawn.Velocity,
 			Rotation = pawn.Rotation,
-			EyeRotation = pawn.EyeRotation
+			EyeRotation = pawn.EyeRotation,
+			IsGrounded = pawn.IsGrounded,
+			DidJump = pawn.DidJump
 		};
 	}
 
@@ -80,6 +84,8 @@ public struct AnimFrame
 		pawn.Velocity = Velocity;
 		pawn.Rotation = Rotation;
 		pawn.EyeRotation = EyeRotation;
+		pawn.IsGrounded = IsGrounded;
+		pawn.DidJump = DidJump;
 	}
 
 	public override string ToString()

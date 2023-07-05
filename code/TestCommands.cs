@@ -14,61 +14,65 @@ public static class TestCommands
 {
 	public static Animation? CachedAnimation { get; set; }
 
-	public static AnimCapture? CurrentCapture { get; set; }
+	static Pawn? Caller
+	{
+		get
+		{
+			var client = ConsoleSystem.Caller;
 
-	public static AnimPlayer? CurrentPlayer { get; set; }
+			if ( client == null )
+			{
+				var clients = Game.Clients.Where( c => c.Pawn is Pawn );
+				if ( clients.Any() )
+				{
+					client = clients.First();
+				}
+			}
+
+			if ( client == null ) return null;
+
+			if ( client.Pawn is Pawn p )
+			{
+				return p;
+			}
+			else
+			{
+				return null;
+			}
+		}
+	}
 
 	[ConCmd.Server( "testcapture_start" )]
 	public static void StartCapture()
 	{
-		var client = ConsoleSystem.Caller;
-
-		if (client == null)
-		{
-			var clients = Game.Clients.Where( c => c.Pawn is Pawn );
-			if ( clients.Any() )
-			{
-				client = clients.First();
-			}
-		}
-
-		if ( client == null ) return;
-
-		Pawn pawn;
-		if ( client.Pawn is Pawn p )
-		{
-			pawn = p;
-		}
-		else
+		var pawn = Caller;
+		if ( pawn == null )
 		{
 			return;
 		}
 
-		if ( CurrentCapture != null )
-		{
-			StopCapture();
-		}
-
-		CurrentCapture = new AnimCapture( pawn );
 		Log.Info( "Starting capture" );
-		CurrentCapture.Start();
+		pawn.StartCapture();
 	}
 
 	[ConCmd.Server( "testcapture_stop")]
 	public static void StopCapture()
 	{
-		if ( CurrentCapture == null ) return;
-		CachedAnimation = CurrentCapture.Stop();
-		CurrentCapture = null;
+		var pawn = Caller;
+		if (pawn == null || !pawn.IsRecording )
+		{
+			Log.Error( "Pawn is not recording." );
+			return;
+		}
 
 		Log.Info( "Stopping capture" );
+		CachedAnimation = pawn.StopCapture();
 	}
 
 	[ConCmd.Server( "testcapture_play" )]
 	public static void Play()
 	{
 
-		CurrentPlayer?.Stop();
 		if (CachedAnimation == null)
 		{
 			Log.Warning( "There is no cached animation." );
@@ -76,15 +80,8 @@ public static class TestCommands
 		}
 
 		Log.Info( "Starting capture playback" );
-		CurrentPlayer = AnimPlayer.Create( CachedAnimation );
-		CurrentPlayer.Start();
+		AnimPlayer.Create( CachedAnimation );
 
 	}
 
-	[GameEvent.Tick.Server]
-	static void Tick()
-	{
-		CurrentCapture?.Tick();
-		CurrentPlayer?.Tick();
-	}
 }

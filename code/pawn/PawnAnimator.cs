@@ -17,11 +17,9 @@ public class PawnAnimator : EntityComponent<Pawn>, ISingletonComponent
 		helper.WithVelocity( Entity.Velocity );
 		helper.WithLookAt( Entity.EyePosition + Entity.EyeRotation.Forward * 100 );
 		helper.HoldType = CitizenAnimationHelper.HoldTypes.None;
-		helper.IsGrounded = Entity.GroundEntity.IsValid();
-		if ( Entity.Controller?.DidJump != false )
-		{
-			helper.TriggerJump();
-		}
+		helper.IsGrounded = Entity.IsGrounded;
+
+		if ( Entity.DidJump ) helper.TriggerJump();
 	}
 	
 }
