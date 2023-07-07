@@ -49,7 +49,7 @@ public class AnimPlayer : EntityComponent<Pawn>, ISingletonComponent
 	/// </summary>
 	public void Start()
 	{
-		if (Entity.ControlMethod != Pawn.PawnControlMethod.Animated)
+		if ( Entity.ControlMethod != Pawn.PawnControlMethod.Animated )
 		{
 			Log.Warning( $"Pawn {Entity} was not set to PawnControlMethod.Animated before animation playback." );
 			Entity.ControlMethod = Pawn.PawnControlMethod.Animated;
@@ -77,8 +77,14 @@ public class AnimPlayer : EntityComponent<Pawn>, ISingletonComponent
 			_lastCurrentSegment = currentSegment;
 		}
 
-		var frame = Animation.Segments[currentSegment].GetFrame( _localTick );
+		var segment = Animation.Segments[currentSegment];
+		var frame = segment.GetFrame( _localTick );
 		frame.ApplyTo( Entity );
+
+		foreach ( IAction action in segment.GetActions( _localTick ) )
+		{
+			action.Run( Entity );
+		}
 
 		_localTick++;
 	}

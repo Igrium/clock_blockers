@@ -26,6 +26,7 @@ public class AnimCapture : EntityComponent<Pawn>, ISingletonComponent
 	/// </summary>
 	public Animation? Animation { get; private set; }
 
+	private List<IAction> _cachedActions = new();
 
 	public void Start()
 	{
@@ -57,8 +58,11 @@ public class AnimCapture : EntityComponent<Pawn>, ISingletonComponent
 
 		AnimSegment segment = Animation.Segments[segmentIndex];
 
+		int tickIndex = segment.Frames.Count;
 		segment.Frames.Add( AnimFrame.Capture( Entity ) );
-		
+
+		if ( _cachedActions.Count > 0 ) segment.AddActions( tickIndex, _cachedActions );
+		_cachedActions.Clear();
 	}
 
 	public Animation Stop()
@@ -70,5 +74,14 @@ public class AnimCapture : EntityComponent<Pawn>, ISingletonComponent
 
 		IsRecording = false;
 		return Animation;
+	}
+
+	/// <summary>
+	/// Add an action to be played on the current frame (must be called BEFORE tick())
+	/// </summary>
+	/// <param name="action">Action to add</param>
+	public void AddAction( IAction action )
+	{
+		_cachedActions.Add( action );
 	}
 }

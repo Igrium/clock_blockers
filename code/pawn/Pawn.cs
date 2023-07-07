@@ -51,7 +51,17 @@ public partial class Pawn : AnimatedEntity
 	[Predicted]
 	public bool IsGrounded { get; set; }
 
-	public bool DidJump { get; set; }
+	/// <summary>
+	/// Make this pawn play the "jump" animation.
+	/// Does NOT make the pawn actionally jump (see controller)
+	/// </summary>
+	public void DoJumpAnimation()
+	{
+		DidJump = true;
+		AnimCapture?.AddAction( IAction.Jump() );
+	}
+
+	public bool DidJump { get; protected set; }
 
 	private ClothingContainer? _clothing;
 

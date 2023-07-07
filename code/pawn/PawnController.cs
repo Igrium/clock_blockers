@@ -80,7 +80,7 @@ public class PawnController : EntityComponent<Pawn>
 		{
 			Entity.Velocity += Vector3.Up * JumpSpeed;
 			DidJump = true;
-			Entity.DidJump = true;
+			Entity.DoJumpAnimation();
 			return true;
 		}
 		return false;
