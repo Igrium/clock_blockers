@@ -21,7 +21,7 @@ We don't need to actually check that the held weapon is the same as in the recor
 
 - Trace bullet & calculate damage amount
 
-- If recording: Save traces info (see below) into recording
+- If recording: Save traces (see below) into recording
 
 - Do Damage
 
@@ -43,7 +43,7 @@ We don't need to actually check that the held weapon is the same as in the recor
     
     - Inflict recorded damage
   
-  - Clip end position to original end position of ending entity is still consistent with original timeline.
+  - Clip end position to original end position if ending entity is still consistent with original timeline.
   
   - Apply damage to hit entities *not* in the recording.
 
