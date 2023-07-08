@@ -55,11 +55,11 @@ public static class TestCommands
 		pawn.StartCapture();
 	}
 
-	[ConCmd.Server( "testcapture_stop")]
+	[ConCmd.Server( "testcapture_stop" )]
 	public static void StopCapture()
 	{
 		var pawn = Caller;
-		if (pawn == null || !pawn.IsRecording )
+		if ( pawn == null || !pawn.IsRecording )
 		{
 			Log.Error( "Pawn is not recording." );
 			return;
@@ -73,7 +73,7 @@ public static class TestCommands
 	public static void Play()
 	{
 
-		if (CachedAnimation == null)
+		if ( CachedAnimation == null )
 		{
 			Log.Warning( "There is no cached animation." );
 			return;

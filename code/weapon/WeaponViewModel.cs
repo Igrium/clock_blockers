@@ -1,11 +1,18 @@
+﻿#nullable enable
+
 using Sandbox;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace ClockBlockers;
 
-public partial class WeaponViewModel : BaseViewModel
+public class WeaponViewModel : BaseViewModel
 {
 	protected Weapon Weapon { get; init; }
-
+	
 	public WeaponViewModel( Weapon weapon )
 	{
 		Weapon = weapon;

@@ -130,6 +130,11 @@ public partial class Pawn : AnimatedEntity
 	[BindComponent] public PawnController? Controller { get; }
 	[BindComponent] public PawnAnimator? Animator { get; }
 
+	/// <summary>
+	/// Whether this pawn is a "free agent" (not following a set timeline)
+	/// </summary>
+	public bool IsFreeAgent => ControlMethod != PawnControlMethod.Animated;
+
 	public override Ray AimRay => new Ray( EyePosition, EyeRotation.Forward );
 
 	public override void Spawn()
@@ -145,11 +150,11 @@ public partial class Pawn : AnimatedEntity
 		Components.Create<PawnAnimator>();
 	}
 
-	public void SetActiveWeapon( Weapon weapon )
+	public void SetActiveWeapon( Weapon? weapon )
 	{
 		ActiveWeapon?.OnHolster();
 		ActiveWeapon = weapon;
-		ActiveWeapon.OnEquip( this );
+		ActiveWeapon?.OnEquip( this );
 	}
 
 	public void PostSpawn()
