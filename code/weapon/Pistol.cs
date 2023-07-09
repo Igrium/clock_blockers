@@ -14,9 +14,7 @@ public partial class Pistol : Firearm
 
 	public override string ViewModelPath => "weapons/rust_pistol/v_rust_pistol.vmdl";
 
-
-
-	public override void DoShootEffects( IEnumerable<PersistentTrace> traces )
+	public override void DoShootEffects( IEnumerable<TraceInfo> traces )
 	{
 		Pawn.PlaySound( "rust_pistol.shoot" );
 	}
@@ -25,7 +23,7 @@ public partial class Pistol : Firearm
 	{
 		using ( LagCompensation() )
 		{
-			Shoot( CreateBulletTrace( 0, 2f ) );
+			Shoot( CreateBulletTrace(this, 0, 2f ) );
 		}
 	}
 

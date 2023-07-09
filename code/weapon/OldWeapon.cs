@@ -46,7 +46,7 @@ public partial class OldWeapon : AnimatedEntity
 	}
 
 	/// <summary>
-	/// Called when <see cref="Pawn.SetActiveWeapon(OldWeapon)"/> is called for this weapon.
+	/// Called when <see cref="Pawn.SetActiveWeapon(Weapon)"/> is called for this weapon.
 	/// </summary>
 	/// <param name="pawn"></param>
 	public void OnEquip( Pawn pawn )

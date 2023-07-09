@@ -26,23 +26,16 @@ public class ShootAction : IAction
 }
 
 /// <summary>
-/// A bullet trace that gets recorded into the animation.
-/// Contains the data to recreate the trace as well as a list of damaged entities.
+/// A simple container of info required to perform a trace.
 /// </summary>
-public class PersistentTrace
+public struct TraceInfo
 {
 	public Vector3 Start { get; set; }
 	public Vector3 End { get; set; }
-	public string[] Tags { get; set; } = new string[0];
-	public string Ignore { get; set; } = "";
+	public string[] Tags { get; set; }
 	public float Radius { get; set; }
 
-	/// <summary>
-	/// The entities damaged by this trace.
-	/// </summary>
-	public IList<EntityDamage> DamagedEntities { get; protected set; } = new List<EntityDamage>();
-
-	public PersistentTrace WithAnyTags( params string[] tags )
+	public TraceInfo WithAnyTags( params string[] tags )
 	{
 		Tags = Tags.Concat( tags ).ToArray();
 		return this;
@@ -54,24 +47,27 @@ public class PersistentTrace
 	/// <returns>The trace.</returns>
 	public Trace CreateTrace()
 	{
-		Entity? ignore = null;
-		if ( Ignore.Length > 0 )
-		{
-			ignore = PersistentEntities.GetEntity<Entity>( Ignore );
-		}
-
-		var trace = Trace.Ray( Start, End )
+		return Trace.Ray( Start, End )
 			.UseHitboxes()
 			.WithAnyTags( Tags )
 			.Size( Radius );
-
-		if ( ignore != null )
-		{
-			trace = trace.Ignore( ignore );
-		}
-
-		return trace;
 	}
+
+
+}
+
+/// <summary>
+/// A bullet trace that gets recorded into the animation.
+/// Contains the data to recreate the trace as well as a list of damaged entities.
+/// </summary>
+public class PersistentTrace
+{
+	public TraceInfo TraceInfo { get; set; }
+	/// <summary>
+	/// The entities damaged by this trace.
+	/// </summary>
+	public List<EntityDamage> DamagedEntities { get; protected set; } = new();
+
 }
 
 /// <summary>
@@ -114,6 +110,11 @@ public struct EntityDamage
 	/// The true (not lag corrected) position the target was at when hit. Used to check for deviation from original timeline during replay.
 	/// </summary>
 	public Vector3 TargetPosition { get; set; }
+
+	/// <summary>
+	/// Whether this bullet penetrated the target.
+	/// </summary>
+	public bool DidPenetrate { get; set; }
 
 	public HashSet<string> Tags { get; set; }
 

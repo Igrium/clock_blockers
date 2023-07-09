@@ -1,65 +1,93 @@
 ﻿#nullable enable
 
-using ClockBlockers.Anim;
 using ClockBlockers.Timeline;
 using Sandbox;
-using Sandbox.UI;
-using System;
+
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace ClockBlockers;
 
 /// <summary>
-/// A weapon that can be shot like a gun (contains dedicated trace code)
+/// A trace result with additional metadata attached.
 /// </summary>
-public abstract class Firearm : Weapon
+public struct ExtendedTraceResult
+{
+	public TraceResult Result { get; }
+
+	public bool DidPenetrate { get; set; }
+
+	public ExtendedTraceResult( TraceResult traceResult )
+	{
+		Result = traceResult;
+	}
+}
+
+/// <summary>
+/// A weapon that can shoot like a firearm.
+/// Contains custom persistence code for traces.
+/// </summary>
+public abstract partial class Firearm : Weapon
 {
 	/// <summary>
 	/// The distance a target entity is allowed to move between timelines before damage is recalculated.
 	/// </summary>
 	public virtual float PositionErrorMargin => 16f;
 
-	public virtual float DamageAmount => 10f;
+	/// <summary>
+	/// The amount of damage inflicted by the default <c>CreateDamage</c> implementation.
+	/// </summary>
+	public virtual float BaseDamageAmount => 10f;
 
-	public void Shoot( params PersistentTrace[] traces )
+	/// <summary>
+	/// Shoot this firearm. Only called for free agents.
+	/// </summary>
+	/// <param name="traces">The traces to use.</param>
+	public void Shoot( params TraceInfo[] traces )
 	{
 		if ( Pawn == null ) return;
 
+		LinkedList<PersistentTrace> persistentTraces = new();
+
 		foreach ( var trace in traces )
 		{
-			LinkedList<EntityDamage> damagedEnts = new();
-			foreach ( var tr in DoTrace( trace.CreateTrace() ) )
+			PersistentTrace persistTrace = new()
 			{
-				using (Prediction.Off())
-				{
-					DamageInfo damage = CreateDamageInfo( tr );
-					damagedEnts.AddLast( EntityDamage.FromDamageInfo( damage, tr.Entity ) );
-				}
+				TraceInfo = trace
+			};
 
+			LinkedList<EntityDamage> damagedEnts = new();
+			foreach ( var tr in DoTrace( CreateTrace( trace ) ) )
+			{
+				using ( Prediction.Off() )
+				{
+					DamageInfo damageInfo = CreateDamage( tr );
+					var entDamage = EntityDamage.FromDamageInfo( damageInfo, tr.Result.Entity );
+					entDamage.DidPenetrate = tr.DidPenetrate;
+
+					damagedEnts.AddLast( entDamage );
+					tr.Result.Entity.TakeDamage( damageInfo );
+				}
 			}
 
-			trace.DamagedEntities.AddRange( damagedEnts );
+			persistTrace.DamagedEntities.AddRange( damagedEnts );
+			persistentTraces.AddLast( persistTrace );
 		}
 
-		using (Prediction.Off())
+		using ( Prediction.Off() )
 		{
 			var capture = Pawn.AnimCapture;
 			if ( capture != null )
 			{
 				ShootAction action = new ShootAction();
-				action.Traces.AddRange( traces );
+				action.Traces.AddRange( persistentTraces );
 				capture.AddAction( action );
 			}
 		}
 
 		DoShootEffects( traces );
 	}
-
 
 	/// <summary>
 	/// Called when this weapon is shot by a remnant.
@@ -71,54 +99,45 @@ public abstract class Firearm : Weapon
 		{
 			ShootRemnantTrace( trace );
 		}
-
-		DoShootEffects( action.Traces );
+		DoShootEffects( action.Traces.Select(tr => tr.TraceInfo) );
 	}
 
-	// TODO: this might still have issues with penetration traces and penetration count.
-	// This method is some big brain programming. I might need to re-think some of the logic.
+	// Some big-brain programming here
 	private void ShootRemnantTrace( PersistentTrace trace )
 	{
 		if ( Pawn == null ) return;
 
-		var recordedEntDamage = trace.DamagedEntities.AsEnumerable().Where( IsEntityConsistent ).ToHashSet();
-		var recordedEntities = new HashSet<Entity>();
-		foreach ( var dmg in recordedEntDamage )
+		// All entity damage in the original trace that haven't been disrupted.
+		var recordedEntDamage = trace.DamagedEntities.AsEnumerable().Where( IsEntityConsistent ).ToList();
+
+		// All entity damage in the original trace that haven't been disrupted.
+		var recordedEntities = recordedEntDamage.Select( dmg => PersistentEntities.GetEntity<Entity>( dmg.Target ) ).Where( ent => ent != null ).ToHashSet();
+
+		// If the recorded damage did not penetrate its final hit, we stop the new trace at that point.
+		Vector3? cullDistance = null;
+		if ( recordedEntDamage.Any() && !recordedEntDamage.Last().DidPenetrate )
 		{
-			var ent = PersistentEntities.GetEntity<Entity>( dmg.Target );
-			if ( ent != null ) recordedEntities.Add( ent );
+			cullDistance = recordedEntDamage.Last().HitPosition;
 		}
+		
+		//bool cullTrace = false;
+		//if ( recordedEntDamage.Any() )
+		//{
+		//	cullTrace = recordedEntDamage.Last().DidPenetrate == false;
+		//}
 
-		// The recordwed entity with the greatest distance from the camera.
-		EntityDamage? lastRecordedEntity = null;
-		foreach ( var dmg in trace.DamagedEntities )
+		// Perform a new trace and remove entities that are in the old trace or are past the cull distance.
+		var newTrace = DoTrace( CreateTrace( trace.TraceInfo ) )
+			.Where( tr => !recordedEntities.Contains( tr.Result.Entity ) )
+			.Where( tr => !cullDistance.HasValue || tr.Result.HitPosition.DistanceSquared( trace.TraceInfo.Start ) > cullDistance.Value.Distance( trace.TraceInfo.Start ) + 64 )
+			.ToList();
+
+		// A new entity might have obstructed the bullet; we need to cull again.
+		if ( newTrace.Any() && !newTrace.Last().DidPenetrate )
 		{
-			if ( !lastRecordedEntity.HasValue || dmg.HitPosition.DistanceSquared( trace.Start ) > lastRecordedEntity.Value.HitPosition.Distance( trace.Start ) )
-			{
-				lastRecordedEntity = dmg;
-			}
+			var newCullDistance = newTrace.Last().Result.HitPosition;
+			recordedEntDamage = recordedEntDamage.Where( dmg => dmg.HitPosition.DistanceSquared( trace.TraceInfo.Start ) > newCullDistance.Distance( trace.TraceInfo.Start ) + 32 ).ToList();
 		}
-
-		if ( lastRecordedEntity.HasValue && !IsEntityConsistent( lastRecordedEntity.Value ) )
-			lastRecordedEntity = null;
-
-		var newTrace = DoTrace( trace.CreateTrace() )
-			.Where( tr => !recordedEntities.Contains( tr.Entity ) )
-			// Remove new trace results if the old final trace result is still valid and closer than the new one.
-			.Where( tr => !(lastRecordedEntity.HasValue && tr.HitPosition.DistanceSquared( trace.Start ) > lastRecordedEntity.Value.HitPosition.DistanceSquared( trace.Start )) );
-
-		// The farthest distance the bullet traveled.
-		Vector3 traceLimit = trace.End;
-
-		// Cull the trace limit to the last hit position of the new trace.
-		// This will inturrupt the trace if there's a new entity blocking it.
-		// If there's a recorded entity closer than this new position,
-		// it won't have any effect.
-		if ( newTrace.Count() > 0 )
-			traceLimit = newTrace.Last().HitPosition;
-
-		// Filter entities that are significantly farther from new end position( shot was probably obstructed )
-		recordedEntDamage.RemoveWhere( dmg => dmg.HitPosition.DistanceSquared( trace.Start ) >= traceLimit.DistanceSquared( trace.Start ) + (64 ^ 2) );
 
 		foreach ( var dmg in recordedEntDamage )
 		{
@@ -128,23 +147,14 @@ public abstract class Firearm : Weapon
 
 		foreach ( var tr in newTrace )
 		{
-			var damage = CreateDamageInfo( tr );
-			tr.Entity.TakeDamage( damage );
+			var damage = CreateDamage( tr );
+			tr.Result.Entity.TakeDamage( damage );
 		}
 	}
 
-	/// <summary>
-	/// Create the <c>DamageInfo</c> object for each bullet. Does not actually inflict damage.
-	/// Only called for free agents; saved into animation for remnants.
-	/// </summary>
-	/// <param name="tr">The trace result to use.</param>
-	/// <returns>The damage info.</returns>
-	public virtual DamageInfo CreateDamageInfo( TraceResult tr )
+	private Trace CreateTrace( TraceInfo traceInfo )
 	{
-		return DamageInfo.FromBullet( tr.EndPosition, 0, DamageAmount )
-					.UsingTraceResult( tr )
-					.WithAttacker( Owner )
-					.WithWeapon( this );
+		return traceInfo.CreateTrace().Ignore( this );
 	}
 
 	private bool IsEntityConsistent( EntityDamage entDamage )
@@ -152,90 +162,40 @@ public abstract class Firearm : Weapon
 		var entity = PersistentEntities.GetEntity<Entity>( entDamage.Target );
 		if ( entity == null ) return false;
 
-		return entity.Position.Distance( entDamage.TargetPosition ) <= PositionErrorMargin;
+		return entity.Position.DistanceSquared( entDamage.TargetPosition ) <= PositionErrorMargin * PositionErrorMargin;
 	}
 
 	/// <summary>
-	/// Create sounds, particle effects, etc relating to shooting the weapon.
+	/// Create an appropriate <c>DamageInfo</c> from a trace result.
 	/// </summary>
-	/// <param name="traces">The traces</param>
-	public abstract void DoShootEffects( IEnumerable<PersistentTrace> traces );
+	/// <param name="tr">The trace result.</param>
+	/// <returns>The damage.</returns>
+	protected DamageInfo CreateDamage( ExtendedTraceResult tr )
+	{
+		return DamageInfo.FromBullet( tr.Result.EndPosition, 0, BaseDamageAmount )
+					.UsingTraceResult( tr.Result )
+					.WithAttacker( Owner )
+					.WithWeapon( this );
+	}
 
 	/// <summary>
-	/// Perform a trace. Caled for remnants AND free agents.
-	/// Override this if your bullet has custom behavior upon hitting something
-	/// (can penetrate entities, etc.)
+	/// Create sounds and other visual effects related to shooting. Called for free agents AND remnants.
 	/// </summary>
-	/// <param name="trace">The trace configuration</param>
-	/// <returns>All of the entities hit, in hit order.</returns>
-	protected virtual IEnumerable<TraceResult> DoTrace( Trace trace )
+	/// <param name="traces">The traces that were shot.</param>
+	public abstract void DoShootEffects( IEnumerable<TraceInfo> traces );
+
+	/// <summary>
+	/// Perform a trace.
+	/// </summary>
+	/// <param name="trace">The trace request.</param>
+	/// <returns>Trace results. All results must be on the ray of the trace,
+	/// and must be in order from closest to farthest.</returns>
+	protected virtual IEnumerable<ExtendedTraceResult> DoTrace( Trace trace )
 	{
 		var tr = trace.Run();
+
 		if ( tr.Hit )
-			yield return tr;
+			yield return new ExtendedTraceResult( tr );
 	}
 
-	/// <summary>
-	/// Setup the parameters for a bullet trace. Only called for free agents.
-	/// </summary>
-	/// <param name="start">Trace start.</param>
-	/// <param name="end">Trace end.</param>
-	/// <param name="radius">Radius of the trace.</param>
-	/// <returns>The trace configuration object</returns>
-	protected virtual PersistentTrace CreateTrace( Vector3 start, Vector3 end, float radius = 2.0f )
-	{
-		bool underWater = Trace.TestPoint( start, "water" );
-
-		var persistentID = Owner.GetPersistentID( generate: true );
-		if ( persistentID == null )
-		{
-			throw new InvalidOperationException( "Failed to generate persistent ID" );
-		}
-
-		var trace = new PersistentTrace()
-		{
-			Start = start,
-			End = end,
-			Ignore = persistentID,
-			Radius = radius
-		};
-
-		trace.WithAnyTags( "solid", "player", "npc", "glass" );
-		if ( underWater )
-		{
-			trace.WithAnyTags( "water" );
-		}
-
-		//var trace = Trace.Ray( start, end )
-		//		.UseHitboxes()
-		//		.WithAnyTags( "solid", "player", "npc", "glass" )
-		//		.Ignore( this )
-		//		.Size( radius );
-
-		////
-		//// If we're not underwater then we can hit water
-		////
-		//if ( !underWater )
-		//	trace = trace.WithAnyTags( "water" );
-
-		return trace;
-	}
-
-	protected virtual PersistentTrace CreateBulletTrace( Vector3 pos, Vector3 dir, float spread, float bulletSize )
-	{
-		var forward = dir;
-		forward += (Vector3.Random + Vector3.Random + Vector3.Random + Vector3.Random) * spread * 0.25f;
-		forward = forward.Normal;
-
-		var end = forward * 5000;
-
-		return CreateTrace( pos, end, bulletSize );
-	}
-
-
-	protected virtual PersistentTrace CreateBulletTrace( float spread, float bulletSize )
-	{
-		var ray = Owner.AimRay;
-		return CreateBulletTrace(ray.Position, ray.Forward, spread, bulletSize );
-	}
 }
