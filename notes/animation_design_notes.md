@@ -34,6 +34,8 @@
   
   - We need to in order to allow free agents to kill them. The question is whether remnants damaging remnants should be tracked.
 
+- When animations are being played in a new timeline context (new round), create a new animation object and copy original data to it. Interactions with new entities are added here.
+
 ## Events
 
 - Putting an event table at the beginning of the file makes them easily accessible globally, but is less efficient on a per-frame basis, as each event would have to be checked on each frame.

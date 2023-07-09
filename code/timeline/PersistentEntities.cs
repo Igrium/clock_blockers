@@ -7,13 +7,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ClockBlockers.Timelinel;
+namespace ClockBlockers.Timeline;
 
 /// <summary>
 /// For keeping track of entities across rounds.
 /// </summary>
 public static class PersistentEntities
 {
+
 	// TODO: check for ID intersections (extremely unlikely for random)
 
 	/// <summary>
@@ -44,7 +45,7 @@ public static class PersistentEntities
 	/// <param name="entity">The entity.</param>
 	/// <param name="generate">If this entity doesn't have a persistent ID, generate one.</param>
 	/// <returns>The ID</returns>
-	public static string? GetPersistentID(Entity entity, bool generate = false)
+	public static string? GetPersistentID( this Entity entity, bool generate = false )
 	{
 		if ( entity.HammerID != null ) return entity.HammerID;
 
@@ -66,12 +67,13 @@ public static class PersistentEntities
 	/// <param name="entity">Entity to set.</param>
 	/// <param name="id">ID to set</param>
 	/// <returns><c>id</c></returns>
-	public static string SetPersistentID(Entity entity, string id)
+	public static string SetPersistentID( this Entity entity, string id )
 	{
-		if (GetPersistentID(entity) != null)
+		if ( GetPersistentID( entity ) != null )
 		{
 			Log.Warning( $"Entity {entity} already has a persistent ID." );
 		}
+
 		var component = entity.Components.GetOrCreate<PersistentEntity>();
 		component.ID = id;
 		return component.ID;

@@ -46,6 +46,8 @@ We don't need to actually check that the held weapon is the same as in the recor
   - Clip end position to original end position if ending entity is still consistent with original timeline.
   
   - Apply damage to hit entities *not* in the recording.
+    
+    - Add new entities to new version of recording.
 
 - Call On Weapon Fire
 
