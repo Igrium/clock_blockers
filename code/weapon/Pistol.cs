@@ -23,7 +23,7 @@ public partial class Pistol : Firearm
 	{
 		using ( LagCompensation() )
 		{
-			Shoot( CreateBulletTrace(this, 0, 2f ) );
+			Shoot( CreateBulletTrace( this.Owner ) );
 		}
 	}
 

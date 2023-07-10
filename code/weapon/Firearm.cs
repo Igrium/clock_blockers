@@ -99,7 +99,7 @@ public abstract partial class Firearm : Weapon
 		{
 			ShootRemnantTrace( trace );
 		}
-		DoShootEffects( action.Traces.Select(tr => tr.TraceInfo) );
+		DoShootEffects( action.Traces.Select( tr => tr.TraceInfo ) );
 	}
 
 	// Some big-brain programming here
@@ -119,7 +119,7 @@ public abstract partial class Firearm : Weapon
 		{
 			cullDistance = recordedEntDamage.Last().HitPosition;
 		}
-		
+
 		//bool cullTrace = false;
 		//if ( recordedEntDamage.Any() )
 		//{
