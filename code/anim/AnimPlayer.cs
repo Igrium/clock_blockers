@@ -108,6 +108,7 @@ public class AnimPlayer : EntityComponent<Pawn>, ISingletonComponent
 
 
 		Pawn pawn = new();
+		pawn.PostSpawn();
 		pawn.Clothing = animation.Clothing;
 		pawn.ControlMethod = Pawn.PawnControlMethod.Animated;
 

@@ -148,6 +148,8 @@ public partial class Pawn : AnimatedEntity
 
 		Components.Create<PawnController>();
 		Components.Create<PawnAnimator>();
+
+		Tags.Add( "player", "ignorereset" );
 	}
 
 	public void SetActiveWeapon( Weapon? weapon )

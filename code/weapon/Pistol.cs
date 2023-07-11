@@ -17,6 +17,10 @@ public partial class Pistol : Firearm
 	public override void DoShootEffects( IEnumerable<TraceInfo> traces )
 	{
 		Pawn.PlaySound( "rust_pistol.shoot" );
+
+		Particles.Create( "particles/pistol_muzzleflash.vpcf", EffectEntity, "muzzle" );
+		Pawn.SetAnimParameter( "b_attack", true );
+		ViewModel?.SetAnimParameter( "fire", true );
 	}
 
 	public void PrimaryAttack()

@@ -48,6 +48,7 @@ public static class TestCommands
 		var pawn = Caller;
 		if ( pawn == null )
 		{
+			Log.Error( "No pawn" );
 			return;
 		}
 
@@ -61,7 +62,7 @@ public static class TestCommands
 		var pawn = Caller;
 		if ( pawn == null || !pawn.IsRecording )
 		{
-			Log.Error( "Pawn is not recording." );
+			Log.Error( $"Pawn {pawn} is not recording." );
 			return;
 		}
 
@@ -84,4 +85,10 @@ public static class TestCommands
 
 	}
 
+	[ConCmd.Server( "game_reset" )]
+	public static void GameReset()
+	{
+		var ignoreEntities = Entity.All.Where( e => e.Owner != null ).ToArray();
+		Game.ResetMap( ignoreEntities );
+	}
 }
