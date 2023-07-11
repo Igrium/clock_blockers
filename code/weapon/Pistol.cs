@@ -11,8 +11,8 @@ namespace ClockBlockers;
 public partial class Pistol : Firearm
 {
 	public override string WorldModelPath => "weapons/rust_pistol/rust_pistol.vmdl";
-
 	public override string ViewModelPath => "weapons/rust_pistol/v_rust_pistol.vmdl";
+	public override CitizenAnimationHelper.HoldTypes HoldType => CitizenAnimationHelper.HoldTypes.Pistol;
 
 	public override void DoShootEffects( IEnumerable<TraceInfo> traces )
 	{
@@ -39,5 +39,10 @@ public partial class Pistol : Firearm
 		{
 			PrimaryAttack();
 		}
+	}
+
+	public override void Animate()
+	{
+		Pawn.SetAnimParameter( "holdtype", (int)CitizenAnimationHelper.HoldTypes.Pistol );
 	}
 }

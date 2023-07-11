@@ -39,6 +39,8 @@ public abstract partial class Weapon : AnimatedEntity
 	/// </summary>
 	public abstract string WorldModelPath { get; }
 
+	public abstract CitizenAnimationHelper.HoldTypes HoldType { get; }
+
 	public override void Spawn()
 	{
 		EnableHideInFirstPerson = true;
@@ -46,6 +48,14 @@ public abstract partial class Weapon : AnimatedEntity
 		EnableDrawing = false;
 
 		SetModel( WorldModelPath );
+	}
+
+	/// <summary>
+	/// Called every tick on the server and the owning client when this weapon is active.
+	/// </summary>
+	public virtual void Tick()
+	{
+		Animate();
 	}
 
 	/// <summary>
@@ -84,5 +94,13 @@ public abstract partial class Weapon : AnimatedEntity
 		{
 			ViewModel.Delete();
 		}
+	}
+
+	/// <summary>
+	/// Called every tick to animate this weapon.
+	/// </summary>
+	public virtual void Animate()
+	{
+
 	}
 }

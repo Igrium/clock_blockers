@@ -73,14 +73,14 @@ public partial class Pawn : AnimatedEntity
 			//{
 			//	_clothing.ClearEntities();
 			//}
-			if (value == null)
+			if ( value == null )
 			{
 				_clothing = null;
 				return;
 			}
 			_clothing = new ClothingContainer();
 			_clothing.Deserialize( value.Serialize() );
-			if (_clothing != null )
+			if ( _clothing != null )
 			{
 				_clothing.DressEntity( this );
 			}
@@ -157,6 +157,14 @@ public partial class Pawn : AnimatedEntity
 		ActiveWeapon?.OnHolster();
 		ActiveWeapon = weapon;
 		ActiveWeapon?.OnEquip( this );
+
+		if ( ActiveWeapon != null )
+		{
+			SetAnimParameter( "holdtype", (int)ActiveWeapon.HoldType );
+		} else
+		{
+			SetAnimParameter( "holdtype", (int)CitizenAnimationHelper.HoldTypes.None );
+		}
 	}
 
 	public void PostSpawn()
@@ -201,8 +209,11 @@ public partial class Pawn : AnimatedEntity
 		AnimCapture?.Tick();
 		Animator?.Animate();
 
+		ActiveWeapon?.Tick();
+
 		// Reset for next frame
 		DidJump = false;
+		
 	}
 
 	public override void BuildInput()
