@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using ClockBlockers.Anim;
+using ClockBlockers.Timeline;
 using Sandbox;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,9 @@ namespace ClockBlockers;
 
 public partial class Pawn
 {
-	public AnimPlayer? AnimPlayer { get; protected set; }
+	public AnimPlayer AnimPlayer { get; protected set; } = new AnimPlayer();
+
+	public TimelinePlayer TimelinePlayer { get; protected set; } = new TimelinePlayer();
 
 	public AnimCapture? AnimCapture { get; protected set; }
 
@@ -20,14 +23,7 @@ public partial class Pawn
 
 	public void PlayAnimation( Animation animation )
 	{
-		AnimPlayer?.Stop();
-
-		AnimPlayer player = new AnimPlayer();
-		player.Animation = animation;
-		Components.Add( player );
-		AnimPlayer = player;
-
-		player.Start();
+		AnimPlayer.Play( animation );
 	}
 
 	public void StartCapture()

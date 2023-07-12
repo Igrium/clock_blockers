@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using ClockBlockers.Anim;
+using ClockBlockers.Timeline;
 using Sandbox;
 using System;
 using System.Collections.Generic;
@@ -148,6 +149,9 @@ public partial class Pawn : AnimatedEntity
 
 		Components.Create<PawnController>();
 		Components.Create<PawnAnimator>();
+
+		AnimPlayer = Components.Create<AnimPlayer>();
+		TimelinePlayer = Components.Create<TimelinePlayer>();
 
 		Tags.Add( "player", "ignorereset" );
 	}

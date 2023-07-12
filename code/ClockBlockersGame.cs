@@ -3,9 +3,6 @@ using Sandbox;
 using System;
 using System.Linq;
 
-//
-// You don't need to put things in a namespace, but it doesn't hurt.
-//
 namespace ClockBlockers;
 
 /// <summary>
@@ -15,12 +12,12 @@ namespace ClockBlockers;
 /// You can use this to create things like HUDs and declare which player class
 /// to use for spawned players.
 /// </summary>
-public partial class MyGame : Sandbox.GameManager
+public partial class ClockBlockersGame : Sandbox.GameManager
 {
 	/// <summary>
 	/// Called when the game is created (on both the server and client)
 	/// </summary>
-	public MyGame()
+	public ClockBlockersGame()
 	{
 		if ( Game.IsClient )
 		{

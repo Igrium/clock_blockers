@@ -45,6 +45,17 @@ public class AnimPlayer : EntityComponent<Pawn>, ISingletonComponent
 	private int _lastCurrentSegment;
 
 	/// <summary>
+	/// Set an animation and play it.
+	/// </summary>
+	/// <param name="animation">The animation.</param>
+	public void Play( Animation animation )
+	{
+		Stop();
+		Animation = animation;
+		Start();
+	}
+
+	/// <summary>
 	/// Start (or restart) animation playback.
 	/// </summary>
 	public void Start()

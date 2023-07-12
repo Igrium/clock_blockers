@@ -127,3 +127,43 @@ It will be important to come up with a system to distinguish player intent. For 
 - Doors that only open if another agent is standing on or holding a button
 
 - Explosive barrels that can only be triggered once per round.
+
+# Events & Unlinks
+
+I've been debating for a while on how to structure the event system in the code, how it ties to unlink, and how they both live in the Timeline Tree. I've come up with the following.
+
+- **Events** have no impact on gameplay. They serve purely as the basis for unlinks. **Actions**, on the other hand, *do* affect gameplay as part of the animation, but have no effect on the timeline tree.
+
+- **Only recorded events from previous rounds may lead to unlinks.** Unlinks *may not* be caused by body-blocking remnants or interfering in other ways that aren't pre-established. This limits the amount of complexity in the event system. Boolean checks of whether an event was successful or not means each event can directly lead to only two timeline branches.
+  
+  - `trigger_unlink` and `logic_unlink` entities allow the mapper to declare when a map entity *may* impact gameplay (elevators, doors, etc), therefore allowing map state to cause unlinks.
+  
+  - Exception for getting killed: see below.
+
+- Each event type (kill, pickup, use, etc) has a dedicated C# class with the following:
+  
+  - Constructor receives all the data captured during initial recording.
+    
+    - References to persistent IDs rather than direct references to entities allow for persistence between rounds.
+  
+  - `IsValid` function detects whether the event can happen (or has happened) in the current context.
+  
+  - Serializer & deserializer for game save
+
+- **Events are tested *before* their relevant actions.** Because many interactions don't overtly save their state in a universal format afterward (ex: `+use`), it makes more sense to check if an event *can* occur (the right entities are in the right place) than if if it *has* occurred. Failing the event will cause an unlink, so the related action won't be played by default.
+  
+  - An exception can be made for kill events and other complex events where it's non-trivial to predict the full outcome before it's simulated. In these situations, a check must be placed in the action to ensure it makes sense, and the event will check the results (is the player dead, etc).
+
+- **Getting killed is not an event**. Although it's possible for getting killed to indirectly cause an unlink, unlike proper events, death events *cannot* directly cause branches in the timeline tree. 
+  
+  - If a remnant got killed in its original timeline but it doesn't now, it will appear to unlink. However, its original timeline from that point on is a stub, so its full timeline remains linear. Similarly, if a remnant gets killed too early, its animation will stop playback (indirectly causing unlinks), but there are no *new* actions to put in a branch.
+  
+  - It might be helpful to create a "dummy" death event so the unlink animation plays.
+
+## Implementation Details
+
+- Because we know every *potential* branch point as soon as the initial timeline is recorded, it might be helpful to split the animation at each event during recording. This way, its easier to assemble it into a recursive, branching tree structure.
+  
+  - Keeping animations separate and gatekeeping the next animation behind the event means actions won't be prematurely triggered in the event of a tickrate desync
+
+- Animation tree could be a recursive data structure.
