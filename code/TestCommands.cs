@@ -91,4 +91,37 @@ public static class TestCommands
 		var ignoreEntities = Entity.All.Where( e => e.Owner != null ).ToArray();
 		Game.ResetMap( ignoreEntities );
 	}
+
+	[ConCmd.Server( "ent_create_ai_agent" )]
+	public static void CreateAIAgent()
+	{
+		Vector3 vec;
+		var caller = Caller;
+
+		if ( caller != null )
+		{
+			var viewTarget = caller.ViewTarget;
+			if ( viewTarget.Hit )
+			{
+				vec = viewTarget.HitPosition;
+			}
+			else
+			{
+				Log.Error( "No spawn target" );
+				return;
+			}
+		}
+		else
+		{
+			Log.Error( "No caller pawn" );
+			return;
+		}
+
+		Pawn entity = new Pawn();
+		entity.Position = vec;
+		entity.PostSpawn();
+
+		entity.ControlMethod = Pawn.PawnControlMethod.AI;
+	}
+
 }

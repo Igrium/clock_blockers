@@ -11,6 +11,8 @@ namespace ClockBlockers;
 
 public class PawnController : EntityComponent<Pawn>
 {
+	public static readonly float MOVEMENT_SPEED = 320;
+
 	public int StepSize => 24;
 	public int GroundAngle => 45;
 	public int JumpSpeed => 300;
@@ -23,13 +25,14 @@ public class PawnController : EntityComponent<Pawn>
 	/// </summary>
 	public bool DidJump { get; protected set; }
 
-	public void Simulate( IClient client )
+	public bool Running { get; set; }
+
+	public void Simulate()
 	{
 		DidJump = false;
 
-		var movement = Entity.InputDirection.Normal;
-		var angles = Entity.ViewAngles.WithPitch( 0 );
-		var moveVector = Rotation.From( angles ) * movement * 320;
+		var movement = Entity.MovementDirection.Normal;
+		var moveVector = movement * MOVEMENT_SPEED;
 		var groundEntity = CheckForGround();
 
 		if ( groundEntity != null && groundEntity.IsValid )
@@ -39,7 +42,7 @@ public class PawnController : EntityComponent<Pawn>
 				Entity.Velocity = Entity.Velocity.WithZ( 0 );
 			}
 
-			Entity.Velocity = Accelerate( Entity.Velocity, moveVector.Normal, moveVector.Length, 200f * ( Input.Down( "run" ) ? 2.5f : 1f ), 7.5f );
+			Entity.Velocity = Accelerate( Entity.Velocity, moveVector.Normal, moveVector.Length, 200f * ( Running ? 2.5f : 1f ), 7.5f );
 			Entity.Velocity = ApplyFriction( Entity.Velocity, 4.0f );
 		} 
 		else
@@ -47,11 +50,7 @@ public class PawnController : EntityComponent<Pawn>
 			Entity.Velocity = Accelerate( Entity.Velocity, moveVector.Normal, moveVector.Length, 100, 20f );
 			Entity.Velocity += Vector3.Down * Gravity * Time.Delta;
 		}
-
-		if (Input.Pressed("jump"))
-		{
-			DoJump();
-		}
+		
 
 		var mh = new MoveHelper( Entity.Position, Entity.Velocity );
 		mh.Trace = mh.Trace.Size( Entity.Hull ).Ignore( Entity );

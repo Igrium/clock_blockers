@@ -14,6 +14,11 @@ namespace ClockBlockers.Anim;
 /// </summary>
 public class AnimCapture : EntityComponent<Pawn>, ISingletonComponent
 {
+	public AnimCapture()
+	{
+		ShouldTransmit = false;
+	}
+
 	private TimeSince _startTime;
 
 	/// <summary>

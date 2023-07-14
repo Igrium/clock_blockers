@@ -43,7 +43,7 @@ public partial class Pawn : AnimatedEntity
 
 	// TODO: Store / calculate input direction globally so it can manipulated easier.
 	[ClientInput]
-	public Vector3 InputDirection { get; set; }
+	public Vector3 MovementDirection { get; set; }
 
 	[ClientInput]
 	public Angles ViewAngles { get; set; }
@@ -51,6 +51,18 @@ public partial class Pawn : AnimatedEntity
 	// Store IsGrounded manually so animations can set it.
 	[Predicted]
 	public bool IsGrounded { get; set; }
+
+	/// <summary>
+	/// The current crosshair target of this player.
+	/// </summary>
+	public TraceResult ViewTarget
+	{
+		get
+		{
+			Trace traceInfo = Firearm.CreateBulletTrace( this ).CreateTrace();
+			return traceInfo.Run();
+		}
+	}
 
 	/// <summary>
 	/// Make this pawn play the "jump" animation.
@@ -165,7 +177,8 @@ public partial class Pawn : AnimatedEntity
 		if ( ActiveWeapon != null )
 		{
 			SetAnimParameter( "holdtype", (int)ActiveWeapon.HoldType );
-		} else
+		}
+		else
 		{
 			SetAnimParameter( "holdtype", (int)CitizenAnimationHelper.HoldTypes.None );
 		}
@@ -187,7 +200,13 @@ public partial class Pawn : AnimatedEntity
 	{
 		if ( ControlMethod != PawnControlMethod.Player ) return;
 
-		Controller?.Simulate( cl );
+		if (Controller != null)
+		{
+			if ( Input.Pressed( "jump" ) ) Controller.DoJump();
+			Controller.Running = Input.Down( "run" );
+			Controller.Simulate();
+
+		}
 		ActiveWeapon?.Simulate( cl );
 		TickAll( cl );
 
@@ -217,12 +236,12 @@ public partial class Pawn : AnimatedEntity
 
 		// Reset for next frame
 		DidJump = false;
-		
+
 	}
 
 	public override void BuildInput()
 	{
-		InputDirection = Input.AnalogMove;
+		var moveDirection = Input.AnalogMove;
 
 		if ( Input.StopProcessing ) return;
 
@@ -238,6 +257,11 @@ public partial class Pawn : AnimatedEntity
 		viewAngles.pitch = viewAngles.pitch.Clamp( -89f, 89f );
 		viewAngles.roll = 0;
 		ViewAngles = viewAngles.Normal;
+
+		// Calculate movement direction
+		moveDirection = moveDirection.Normal;
+		var angles = viewAngles.WithPitch( 0 );
+		MovementDirection = Rotation.From( angles ) * moveDirection;
 	}
 
 	bool IsThirdPerson { get; set; } = false;

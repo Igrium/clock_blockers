@@ -14,6 +14,10 @@ namespace ClockBlockers.Anim;
 /// </summary>
 public class AnimPlayer : EntityComponent<Pawn>, ISingletonComponent
 {
+	public AnimPlayer()
+	{
+		ShouldTransmit = false;
+	}
 
 	private Animation _animation = new Animation();
 
