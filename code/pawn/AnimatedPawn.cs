@@ -24,6 +24,12 @@ public partial class Pawn
 
 	public bool IsRecording => AnimCapture != null && AnimCapture.IsRecording;
 
+	/// <summary>
+	/// The current place in this entity's branch tree. Used for testing.
+	/// </summary>
+	[Net]
+	public IList<bool> Branches { get; protected set; } = new List<bool>();
+
 	public TimelineBranch? ActiveTimeline
 	{
 		get
@@ -124,11 +130,38 @@ public partial class Pawn
 
 		// When we unlink, we switch from PLAYING a timeline to CAPTURING a timeline.
 		TimelineCapture = Components.Create<TimelineCapture>();
-		TimelineCapture.ForkedBranch = timelinePlayer.Branch;
+		TimelineCapture.ForkedBranch = branch;
 
+		timelinePlayer.Stop();
 		TimelineCapture.StartCapture();
 
 		ControlMethod = PawnControlMethod.AI;
+
+		Log.Info( $"{this.GetPersistentID()} has unlinked!" );
+	}
+
+	[GameEvent.Tick.Client]
+	public static void DisplayPawns()
+	{
+		var message = "";
+
+		foreach (var pawn in Entity.All.OfType<Pawn>())
+		{
+			message += "\n" + $"{pawn.GetPersistentID()}: {pawn.ControlMethod}, {writeBranchText(pawn.Branches)}";
+		}
+
+		DebugOverlay.ScreenText( message );
+	}
+
+	private static string writeBranchText(IEnumerable<bool> branches)
+	{
+		string message = "";
+		foreach (var branch in branches)
+		{
+			message += "." + (branch ? "A" : "B");
+		}
+
+		return message;
 	}
 
 }

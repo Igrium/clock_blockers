@@ -18,6 +18,7 @@ public partial class AIController
 	public TimeSince LastPathUpdate { get; private set; }
 	public int CurrentPathSegment { get; private set; }
 
+
 	public void TickMovement()
 	{
 		if ( Target == null ) return;
@@ -46,17 +47,30 @@ public partial class AIController
 	protected void GeneratePath( Vector3 target )
 	{
 		LastPathUpdate = 0;
+		var entity = Entity;
 
-		Path = NavMesh.PathBuilder( Entity.Position )
-			.WithMaxClimbDistance( 16f )
-			.WithMaxDropDistance( 64f )
-			.WithStepHeight( 16f )
-			.WithMaxDistance( 999999 )
-			.WithPartialPaths()
-			.Build( target )
-			.Segments
-			.Select( x => x.Position )
-			.ToArray();
+		var builder = NavMesh.PathBuilder( entity.Position );
+		builder = builder.WithMaxClimbDistance( 16 );
+		builder = builder.WithMaxDropDistance( 64 );
+		builder = builder.WithStepHeight( 16 );
+		builder = builder.WithPartialPaths();
+
+		var path = builder.Build( target );
+		var segments = path.Segments;
+		var segments1 = segments.Select( x => x.Position );
+
+		Path = segments1.ToArray();
+
+		//Path = NavMesh.PathBuilder( entity.Position )
+		//	.WithMaxClimbDistance( 16f )
+		//	.WithMaxDropDistance( 64f )
+		//	.WithStepHeight( 16f )
+		//	.WithMaxDistance( 999999 )
+		//	.WithPartialPaths()
+		//	.Build( target )
+		//	.Segments
+		//	.Select( x => x.Position )
+		//	.ToArray();
 
 		CurrentPathSegment = 0;
 	}

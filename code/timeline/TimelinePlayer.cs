@@ -38,7 +38,7 @@ public partial class TimelinePlayer : EntityComponent<Pawn>, ISingletonComponent
 	/// <param name="root">If this is the root branch</param>
 	public void PlayTimeline( TimelineBranch branch, bool root = false )
 	{
-		if (Entity.ControlMethod != Pawn.PawnControlMethod.Animated)
+		if ( Entity.ControlMethod != Pawn.PawnControlMethod.Animated )
 		{
 			throw new InvalidOperationException( "Pawn must be in Animated mode to play timeline." );
 		}
@@ -55,11 +55,14 @@ public partial class TimelinePlayer : EntityComponent<Pawn>, ISingletonComponent
 	public void Tick()
 	{
 		if ( Branch == null ) return;
+		if ( Entity.ControlMethod != Pawn.PawnControlMethod.Animated ) return;
 
 		// Without an end event, we'll just stop here.
 		if ( Branch.EndEventTime <= timePlaying && Branch.EndEvent != null )
 		{
-			TryPlayBranch( Branch.EndEvent.IsValid( Entity ) ? Branch.BranchA : Branch.BranchB );
+			var valid = Branch.EndEvent.IsValid( Entity );
+			TryPlayBranch( valid ? Branch.BranchA : Branch.BranchB, Branch );
+			Entity.Branches.Add( valid );
 		}
 	}
 
@@ -79,7 +82,7 @@ public partial class TimelinePlayer : EntityComponent<Pawn>, ISingletonComponent
 		{
 			PlayTimeline( branch );
 		}
-		else if (prev != null)
+		else if ( prev != null )
 		{
 			Entity.OnUnlink( prev, this );
 		}

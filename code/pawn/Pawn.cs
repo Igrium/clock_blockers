@@ -167,7 +167,7 @@ public partial class Pawn : AnimatedEntity
 		AnimPlayer = Components.Create<AnimPlayer>();
 		TimelinePlayer = Components.Create<TimelinePlayer>();
 
-		Tags.Add( "player", "ignorereset" );
+		Tags.Add( "player" );
 
 		EnableTraceAndQueries = true;
 		EnableTouch = true;
@@ -235,6 +235,7 @@ public partial class Pawn : AnimatedEntity
 		AnimPlayer?.Tick();
 		EyeLocalPosition = Vector3.Up * (64f * Scale);
 		AnimCapture?.Tick();
+		TimelinePlayer?.Tick();
 		Animator?.Animate();
 
 		ActiveWeapon?.Tick();

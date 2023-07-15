@@ -12,25 +12,19 @@ namespace ClockBlockers;
 
 public partial class Pawn
 {
-	private AIController? _aiController;
-
-	public AIController AIController
-	{
-		get
-		{
-			if ( _aiController != null ) return _aiController;
-			else
-			{
-				_aiController = Components.Create<AIController>();
-				return _aiController;
-			}
-		}
-	}
+	public AIController? AIController { get; private set; }
 
 	[GameEvent.Tick.Server]
 	public void TickAI()
 	{
 		Game.AssertServer();
+
+		if ( AIController == null)
+		{
+			AIController = new AIController();
+			Components.Add( AIController );
+		}
+
 		if ( ControlMethod != PawnControlMethod.AI ) return;
 		AIController.Tick();
 		Controller?.Simulate();
