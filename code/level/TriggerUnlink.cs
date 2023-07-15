@@ -84,7 +84,7 @@ public struct MapTimelineEvent : ITimelineEvent
 	public string TriggerID { get; set; }
 	public int DesiredState { get; set; }
 
-	public string Name { get; set; };
+	public string Name { get; set; }
 
 	public bool IsValid( Pawn pawn )
 	{
