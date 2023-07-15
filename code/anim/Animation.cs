@@ -66,7 +66,7 @@ public class Animation
 			float segmentTime = numSegments - 1;
 
 			var lastSegment = Segments[numSegments - 1];
-			float preciseTime = lastSegment.Frames.Count() / TickRate;
+			float preciseTime = lastSegment.Frames.Count() / (float) TickRate;
 
 			return segmentTime + preciseTime;
 		}
