@@ -43,7 +43,7 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 		{
 			throw new InvalidOperationException( "Round has already started." );
 		}
-		Game.ResetMap( new Sandbox.Entity[] { } );
+		Game.ResetMap( new Entity[] { } );
 
 		TimeLeft = ROUND_TIME;
 		RoundStarted = true;
@@ -117,7 +117,8 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 		pawn.DressFromClient( cl );
 		pawn.PostSpawn();
 
-		pawn.SetPersistentID( $"{cl.SteamId}.round{RoundID}" );
+		var id = $"{cl.SteamId}.round{RoundID}";
+		pawn.SetPersistentID( id );
 		pawn.InitTimeTravel( Pawn.PawnControlMethod.Player );
 
 		pawns.AddLast( pawn );

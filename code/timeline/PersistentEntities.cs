@@ -94,6 +94,7 @@ public partial class PersistentEntity : EntityComponent, ISingletonComponent
 	/// <summary>
 	/// The base ID of this entity (excluding 'dyn.')
 	/// </summary>
+	[Net]
 	public string ID { get; set; } = PersistentEntities.RandomID();
 
 }
