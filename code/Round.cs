@@ -84,6 +84,7 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 				pawn.Client.Pawn = SpectatorPawn.SpawnEntity();
 
 
+			pawn.EndRound();
 			var t = pawn.ActiveTimeline;
 			if ( t != null ) finalBranches.AddLast( t );
 		}

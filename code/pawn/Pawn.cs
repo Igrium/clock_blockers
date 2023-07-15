@@ -332,4 +332,10 @@ public partial class Pawn : AnimatedEntity
 		EyeRotation = ViewAngles.ToRotation();
 		Rotation = ViewAngles.WithPitch( 0f ).ToRotation();
 	}
+
+	public void EndRound()
+	{
+		SetActiveWeapon( null );
+		FinalizeAnimations();
+	}
 }

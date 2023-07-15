@@ -128,8 +128,12 @@ public static class TestCommands
 	[ConCmd.Server( "round_start" )]
 	public static void StartRound()
 	{
-		var game = ClockBlockersGame.Instance;
-		Log.Info( $"Game: {game}" );
+		var game = Entity.All.OfType<ClockBlockersGame>().FirstOrDefault();
+		if ( game == null )
+		{
+			Log.Error( "No game." );
+			return;
+		}
 		if ( game.Round != null )
 		{
 			Log.Error( "Game is already in a round." );

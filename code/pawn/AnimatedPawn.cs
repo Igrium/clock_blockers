@@ -69,7 +69,7 @@ public partial class Pawn
 		}
 	}
 
-	public void EndRound()
+	public void FinalizeAnimations()
 	{
 		TimelineCapture?.Complete();
 		TimelinePlayer?.Stop();
@@ -78,8 +78,6 @@ public partial class Pawn
 		{
 			AnimCapture.Stop();
 		}
-
-		
 	}
 
 	public void PlayAnimation( Animation animation )
@@ -132,4 +130,5 @@ public partial class Pawn
 
 		ControlMethod = PawnControlMethod.AI;
 	}
+
 }

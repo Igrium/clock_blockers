@@ -19,7 +19,6 @@ namespace ClockBlockers;
 /// </summary>
 public partial class ClockBlockersGame : Sandbox.GameManager
 {
-	public static ClockBlockersGame Instance { get; private set; }
 	[BindComponent] public Round? Round { get; }
 
 	public Dictionary<string, TimelineBranch> Timelines { get; } = new();
@@ -31,7 +30,6 @@ public partial class ClockBlockersGame : Sandbox.GameManager
 	/// </summary>
 	public ClockBlockersGame()
 	{
-		Instance = this;
 		if ( Game.IsClient )
 		{
 			//Game.RootPanel = new Hud();
@@ -88,7 +86,8 @@ public partial class ClockBlockersGame : Sandbox.GameManager
 				Log.Warning( "Timeline did not have a persistent ID. Assigning a random one." );
 				id = PersistentEntities.RandomID();
 			}
-			Timelines.Add( id, timeline );
+
+			Timelines.TryAdd( id, timeline );
 		}
 
 		Log.Info( $"Round {RoundID} completed." );
