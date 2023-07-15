@@ -56,4 +56,19 @@ public class Animation
 	{
 		return (int)MathF.Floor( time );
 	}
+
+	public float Length
+	{
+		get
+		{
+			int numSegments = Segments.Count;
+			if ( numSegments <= 0 ) return 0;
+			float segmentTime = numSegments - 1;
+
+			var lastSegment = Segments[numSegments - 1];
+			float preciseTime = lastSegment.Frames.Count() / TickRate;
+
+			return segmentTime + preciseTime;
+		}
+	}
 }

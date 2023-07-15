@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ClockBlockers;
@@ -121,7 +122,20 @@ public static class TestCommands
 		entity.Position = vec;
 		entity.PostSpawn();
 
-		entity.ControlMethod = Pawn.PawnControlMethod.AI;
+		entity.InitTimeTravel( Pawn.PawnControlMethod.AI );
 	}
 
+	[ConCmd.Server( "round_start" )]
+	public static void StartRound()
+	{
+		var game = ClockBlockersGame.Instance;
+		Log.Info( $"Game: {game}" );
+		if ( game.Round != null )
+		{
+			Log.Error( "Game is already in a round." );
+			return;
+		}
+
+		game.DoRound();
+	}
 }

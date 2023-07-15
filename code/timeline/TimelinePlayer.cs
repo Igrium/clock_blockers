@@ -11,22 +11,45 @@ namespace ClockBlockers.Timeline;
 
 public partial class TimelinePlayer : EntityComponent<Pawn>, ISingletonComponent
 {
+	/// <summary>
+	/// The branch currently being played
+	/// </summary>
 	public TimelineBranch? Branch { get; private set; }
+
+	/// <summary>
+	/// The root branch in this timeline tree. Only used as metadata.
+	/// </summary>
+	public TimelineBranch? RootBranch { get; set; }
 
 	public bool IsPlaying => Branch != null;
 
 	// Store this seperately so we can access it after the animaiton stops.
 	private TimeSince timePlaying = 0;
 
+	public TimelinePlayer()
+	{
+		ShouldTransmit = false;
+	}
+
 	/// <summary>
 	/// Play a timeline.
 	/// </summary>
-	/// <param name="rootBranch">The root timeline branch.</param>
-	public void PlayTimeline( TimelineBranch rootBranch )
+	/// <param name="branch">The timeline branch.</param>
+	/// <param name="root">If this is the root branch</param>
+	public void PlayTimeline( TimelineBranch branch, bool root = false )
 	{
-		Entity.AnimPlayer.Play( rootBranch.Animation );
-		Branch = rootBranch;
+		if (Entity.ControlMethod != Pawn.PawnControlMethod.Animated)
+		{
+			throw new InvalidOperationException( "Pawn must be in Animated mode to play timeline." );
+		}
+		GameTask.RunInThreadAsync( null );
+
+		Entity.AnimPlayer.Stop();
+		Entity.AnimPlayer.Play( branch.Animation );
+		Branch = branch;
 		timePlaying = 0;
+
+		if ( root ) RootBranch = branch;
 	}
 
 	public void Tick()
@@ -36,7 +59,7 @@ public partial class TimelinePlayer : EntityComponent<Pawn>, ISingletonComponent
 		// Without an end event, we'll just stop here.
 		if ( Branch.EndEventTime <= timePlaying && Branch.EndEvent != null )
 		{
-			tryPlayBranch( Branch.EndEvent.IsValid( Entity ) ? Branch.BranchA : Branch.BranchB );
+			TryPlayBranch( Branch.EndEvent.IsValid( Entity ) ? Branch.BranchA : Branch.BranchB );
 		}
 	}
 
@@ -50,22 +73,16 @@ public partial class TimelinePlayer : EntityComponent<Pawn>, ISingletonComponent
 		Branch = null;
 	}
 
-	private void tryPlayBranch( TimelineBranch? branch )
+	private void TryPlayBranch( TimelineBranch? branch, TimelineBranch? prev = null )
 	{
 		if ( branch != null )
 		{
 			PlayTimeline( branch );
 		}
-		else
+		else if (prev != null)
 		{
-			Unlink();
+			Entity.OnUnlink( prev, this );
 		}
-	}
-
-	// TODO: implement unlinking
-	public void Unlink()
-	{
-
 	}
 
 }

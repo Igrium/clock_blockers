@@ -78,6 +78,12 @@ public static class PersistentEntities
 		component.ID = id;
 		return component.ID;
 	}
+
+	/// <summary>
+	/// Generate a random ID string.
+	/// </summary>
+	/// <returns></returns>
+	public static string RandomID() => new RandomGenerator().RandomString( 8, true );
 }
 
 /// <summary>
@@ -88,6 +94,6 @@ public partial class PersistentEntity : EntityComponent, ISingletonComponent
 	/// <summary>
 	/// The base ID of this entity (excluding 'dyn.')
 	/// </summary>
-	public string ID { get; set; } = new RandomGenerator().RandomString(8, true);
+	public string ID { get; set; } = PersistentEntities.RandomID();
 
 }

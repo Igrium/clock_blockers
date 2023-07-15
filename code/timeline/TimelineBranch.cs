@@ -21,7 +21,7 @@ public class TimelineBranch
 	/// <summary>
 	/// The event that concludes this branch
 	/// </summary>
-	public IEvent? EndEvent { get; private set; }
+	public IEvent? EndEvent { get; set; }
 
 	/// <summary>
 	/// The timestamp relative to the start of the animation at which the end event will be tested.
@@ -42,6 +42,11 @@ public class TimelineBranch
 	/// The animation for this timeline to play.
 	/// </summary>
 	public Animation Animation { get; private set; }
+
+	/// <summary>
+	/// The persistent ID of the entity this timeline belongs to.
+	/// </summary>
+	public string? PersistentID { get; set; }
 
 	public TimelineBranch( Animation animation )
 	{

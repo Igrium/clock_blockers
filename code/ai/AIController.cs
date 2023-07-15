@@ -17,8 +17,6 @@ public partial class AIController : EntityComponent<Pawn>
 {
 	public static readonly float TARGET_INTERVAL = 1;
 
-	
-
 	public AIController()
 	{
 		ShouldTransmit = false;

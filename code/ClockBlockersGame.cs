@@ -1,7 +1,12 @@
-﻿
+﻿#nullable enable
+
+using ClockBlockers.Spectator;
+using ClockBlockers.Timeline;
 using Sandbox;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 
 namespace ClockBlockers;
 
@@ -14,15 +19,29 @@ namespace ClockBlockers;
 /// </summary>
 public partial class ClockBlockersGame : Sandbox.GameManager
 {
+	public static ClockBlockersGame Instance { get; private set; }
+	[BindComponent] public Round? Round { get; }
+
+	public Dictionary<string, TimelineBranch> Timelines { get; } = new();
+
+	public int RoundID { get; protected set; }
+
 	/// <summary>
 	/// Called when the game is created (on both the server and client)
 	/// </summary>
 	public ClockBlockersGame()
 	{
+		Instance = this;
 		if ( Game.IsClient )
 		{
 			//Game.RootPanel = new Hud();
 		}
+	}
+
+	[GameEvent.Tick.Server]
+	public void Tick()
+	{
+		Round?.Tick();
 	}
 
 	/// <summary>
@@ -33,24 +52,48 @@ public partial class ClockBlockersGame : Sandbox.GameManager
 		base.ClientJoined( client );
 
 		// Create a pawn for this client to play with
-		var pawn = new Pawn();
-		client.Pawn = pawn;
-		pawn.PostSpawn();
-		pawn.DressFromClient( client );
+		var specPawn = new SpectatorPawn();
+		client.Pawn = specPawn;
 
-		// Get all of the spawnpoints
-		var spawnpoints = Entity.All.OfType<SpawnPoint>();
-
-		// chose a random one
-		var randomSpawnPoint = spawnpoints.OrderBy( x => Guid.NewGuid() ).FirstOrDefault();
-
-		// if it exists, place the pawn there
-		if ( randomSpawnPoint != null )
-		{
-			var tx = randomSpawnPoint.Transform;
-			tx.Position = tx.Position + Vector3.Up * 50.0f; // raise it up
-			pawn.Transform = tx;
-		}
+		client.Pawn = SpectatorPawn.SpawnEntity();
 	}
+
+	public async void DoRound()
+	{
+		if (Round != null)
+			throw new InvalidOperationException( "There is already a round running." );
+
+		Components.Create<Round>();
+		if (Round == null)
+			throw new InvalidOperationException( "Failed to create round." );
+
+		RoundID++;
+		Log.Info( $"Round {RoundID} starting. Duration: {Round.ROUND_TIME} seconds" );
+
+		Round.Start( RoundID, Timelines.Values );
+
+		if (Round.RoundTask == null)
+		{
+			Components.Remove( Round );
+			throw new InvalidOperationException( "Failed to start round." );
+		}
+
+		var newTimelines = await Round.RoundTask;
+
+		foreach (var timeline in newTimelines)
+		{
+			var id = timeline.PersistentID;
+			if (id == null)
+			{
+				Log.Warning( "Timeline did not have a persistent ID. Assigning a random one." );
+				id = PersistentEntities.RandomID();
+			}
+			Timelines.Add( id, timeline );
+		}
+
+		Log.Info( $"Round {RoundID} completed." );
+		Components.Remove( Round );
+	}
+
 }
 

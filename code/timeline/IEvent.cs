@@ -31,3 +31,11 @@ public class DeathEvent : IEvent
 		return pawn.LifeState != LifeState.Alive;
 	}
 }
+
+public class GameEndEvent : IEvent
+{
+	public bool IsValid( Pawn pawn )
+	{
+		return true;
+	}
+}
