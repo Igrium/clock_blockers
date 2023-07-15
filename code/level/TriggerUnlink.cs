@@ -63,7 +63,8 @@ public partial class TriggerUnlink : BaseTrigger, IHasTimelineState
 		capture.Event( new MapTimelineEvent
 		{
 			TriggerID = this.GetPersistentID( true ),
-			DesiredState = this.State
+			DesiredState = this.State,
+			Name = this.Name
 		} );
 	}
 
@@ -82,6 +83,8 @@ public struct MapTimelineEvent : ITimelineEvent
 {
 	public string TriggerID { get; set; }
 	public int DesiredState { get; set; }
+
+	public string Name { get; set; };
 
 	public bool IsValid( Pawn pawn )
 	{

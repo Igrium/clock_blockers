@@ -19,6 +19,11 @@ public interface ITimelineEvent
 	/// <param name="pawn">The pawn executing this event.</param>
 	/// <returns>If the event is valid. If this returns false, the pawn will unlink.</returns>
 	public bool IsValid( Pawn pawn );
+
+	/// <summary>
+	/// The name to show in the UI regarding this event.
+	/// </summary>
+	public string Name { get; }
 }
 
 /// <summary>
@@ -26,6 +31,8 @@ public interface ITimelineEvent
 /// </summary>
 public struct DeathEvent : ITimelineEvent
 {
+	public string Name => "Death";
+
 	public bool IsValid( Pawn pawn )
 	{
 		return pawn.LifeState != LifeState.Alive;
@@ -34,6 +41,8 @@ public struct DeathEvent : ITimelineEvent
 
 public struct GameEndEvent : ITimelineEvent
 {
+	public string Name => "Game End";
+
 	public bool IsValid( Pawn pawn )
 	{
 		return true;
