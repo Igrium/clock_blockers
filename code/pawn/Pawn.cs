@@ -155,6 +155,8 @@ public partial class Pawn : AnimatedEntity
 		base.Spawn();
 
 		SetModel( "models/citizen/citizen.vmdl" );
+		SetupPhysicsFromModel( PhysicsMotionType.Keyframed );
+
 		EnableDrawing = true;
 		EnableHideInFirstPerson = true;
 		EnableShadowInFirstPerson = true;
@@ -166,6 +168,9 @@ public partial class Pawn : AnimatedEntity
 		TimelinePlayer = Components.Create<TimelinePlayer>();
 
 		Tags.Add( "player", "ignorereset" );
+
+		EnableTraceAndQueries = true;
+		EnableTouch = true;
 	}
 
 	public void SetActiveWeapon( Weapon? weapon )

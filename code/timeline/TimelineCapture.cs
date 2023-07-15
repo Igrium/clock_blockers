@@ -31,7 +31,7 @@ public partial class TimelineCapture : EntityComponent<Pawn>, ISingletonComponen
 		Entity.StartCapture();
 	}
 
-	public void Event( IEvent timelineEvent, bool final = false )
+	public void Event( ITimelineEvent timelineEvent, bool final = false )
 	{
 		var id = Entity.GetPersistentID();
 		if ( id == null )

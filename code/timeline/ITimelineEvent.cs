@@ -11,7 +11,7 @@ namespace ClockBlockers.Timeline;
 /// An event is what's considered "canon" on an agent's timeline. Only disruptions in an event may cause branches.
 /// Events must be persistent between rounds; therefore it must reference persistent IDs instead of entities directly.
 /// </summary>
-public interface IEvent
+public interface ITimelineEvent
 {
 	/// <summary>
 	/// Check whether this event is "valid" in the given context. That is, the conditions are right for it to occur or it has occured.
@@ -24,7 +24,7 @@ public interface IEvent
 /// <summary>
 /// A dummy event to use when the player dies.
 /// </summary>
-public class DeathEvent : IEvent
+public struct DeathEvent : ITimelineEvent
 {
 	public bool IsValid( Pawn pawn )
 	{
@@ -32,7 +32,7 @@ public class DeathEvent : IEvent
 	}
 }
 
-public class GameEndEvent : IEvent
+public struct GameEndEvent : ITimelineEvent
 {
 	public bool IsValid( Pawn pawn )
 	{

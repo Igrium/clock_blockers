@@ -21,9 +21,13 @@ public class SpectatorPawn : ModelEntity
 		//
 		SetModel( "models/sbox_props/watermelon/watermelon.vmdl" );
 
+		EnableTouch = true;
+
 		EnableDrawing = true;
 		EnableHideInFirstPerson = true;
 		EnableShadowInFirstPerson = true;
+
+		Tags.Add( "player" );
 	}
 
 	// An example BuildInput method within a player's Pawn class.
@@ -62,7 +66,7 @@ public class SpectatorPawn : ModelEntity
 		// apply it to our position using MoveHelper, which handles collision
 		// detection and sliding across surfaces for us
 		MoveHelper helper = new MoveHelper( Position, Velocity );
-		helper.Trace = helper.Trace.Size( 16 );
+		helper.Trace = helper.Trace.Size( 16 ).Ignore( this );
 		if ( helper.TryMove( Time.Delta ) > 0 )
 		{
 			Position = helper.Position;

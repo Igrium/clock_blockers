@@ -21,7 +21,7 @@ public class TimelineBranch
 	/// <summary>
 	/// The event that concludes this branch
 	/// </summary>
-	public IEvent? EndEvent { get; set; }
+	public ITimelineEvent? EndEvent { get; set; }
 
 	/// <summary>
 	/// The timestamp relative to the start of the animation at which the end event will be tested.

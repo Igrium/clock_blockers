@@ -34,6 +34,18 @@
       "NoWarn": "1701;1702;1591;",
       "References": [],
       "DistinctReferences": []
-    }
+    },
+    "LaunchConfigs": [
+      {
+        "Name": "Test Map",
+        "GameIdent": "igrium.clock_blockers#local",
+        "MapName": "testmap.vmap",
+        "MaxPlayers": 1,
+        "GameSettings": {},
+        "Addons": "",
+        "PreLaunchCommand": "",
+        "PostLaunchCommand": ""
+      }
+    ]
   }
 }

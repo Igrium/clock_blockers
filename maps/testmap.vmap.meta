@@ -1,0 +1,32 @@
+{
+  "publish": {
+    "Allowed": true,
+    "Enabled": false,
+    "ProjectConfig": {
+      "Title": "testmap",
+      "Type": "map",
+      "Org": "local",
+      "Ident": "testmap",
+      "Tags": null,
+      "Schema": 0,
+      "HasAssets": false,
+      "AssetsPath": null,
+      "Resources": null,
+      "MenuResources": null,
+      "HasCode": false,
+      "CodePath": null,
+      "PackageReferences": [],
+      "EditorReferences": [
+        "facepunch.old_bench#19224",
+        "facepunch.bench_plastic#19176",
+        "facepunch.star_bin#19205",
+        "polyhaven.sky_kloofendal_38d_partly_cloudy#25710",
+        "igrium.clock_blockers",
+        "polyhaven.wooden_barrel_01b#24461"
+      ],
+      "Metadata": {
+        "SingleAssetSource": "maps/testmap.vmap"
+      }
+    }
+  }
+}
