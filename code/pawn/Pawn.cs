@@ -1,17 +1,20 @@
 ﻿#nullable enable
 
 using ClockBlockers.Anim;
+using ClockBlockers.Spectator;
 using ClockBlockers.Timeline;
 using Sandbox;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ClockBlockers;
 
+// TODO: This class is a mess. Refactor it.
 public partial class Pawn : AnimatedEntity
 {
 	/// <summary>
@@ -39,7 +42,7 @@ public partial class Pawn : AnimatedEntity
 	public PawnControlMethod ControlMethod { get; set; } = PawnControlMethod.Player;
 
 	[Net, Predicted]
-	public Weapon? ActiveWeapon { get; set; }
+	public Weapon? ActiveWeapon { get; private set; }
 
 	// TODO: Store / calculate input direction globally so it can manipulated easier.
 	[ClientInput]
@@ -171,6 +174,8 @@ public partial class Pawn : AnimatedEntity
 
 		EnableTraceAndQueries = true;
 		EnableTouch = true;
+
+		Health = 100;
 	}
 
 	public void SetActiveWeapon( Weapon? weapon )
@@ -205,13 +210,15 @@ public partial class Pawn : AnimatedEntity
 	{
 		if ( ControlMethod != PawnControlMethod.Player ) return;
 
-		if (Controller != null)
+		if ( Controller != null )
 		{
 			if ( Input.Pressed( "jump" ) ) Controller.DoJump();
 			Controller.Running = Input.Down( "run" );
 			Controller.Simulate();
 
 		}
+		if ( Input.Pressed( "use" ) ) TryUse();
+
 		ActiveWeapon?.Simulate( cl );
 		TickAll( cl );
 
@@ -311,6 +318,155 @@ public partial class Pawn : AnimatedEntity
 		}
 	}
 
+	public override void OnKilled()
+	{
+		if ( LifeState != LifeState.Alive ) return;
+		LifeState = LifeState.Dead;
+
+		var weapon = LastAttackerWeapon;
+
+		if ( weapon is Weapon w )
+		{
+			Log.Info( $"{this.GetPersistentID()} was killed by {LastAttacker?.GetPersistentID()} with {w}" );
+			w.OnKill( this );
+		}
+		else
+		{
+			Log.Info( $"{this.GetPersistentID()} has died!" );
+		}
+
+		if ( Client != null )
+		{
+			Client.Pawn = SpectatorPawn.SpawnEntity();
+		}
+
+		PhysicsEnabled = true;
+		SetupPhysicsFromModel( PhysicsMotionType.Dynamic );
+
+		TimelineCapture?.Event( new DeathEvent(), final: true );
+		AnimPlayer?.Stop();
+	}
+
+	/* USING */
+	// TODO: continuous using
+
+	public static readonly float MAX_USE_DISTANCE = 85f;
+
+
+	protected virtual void TickPlayerUse()
+	{
+		if ( !Game.IsServer ) return;
+
+		using ( Prediction.Off() )
+		{
+			if ( Input.Pressed( "use" ) )
+			{
+
+			}
+		}
+	}
+
+	/// <summary>
+	/// Called when <c>+use</c> is pressed.
+	/// </summary>
+	public void TryUse()
+	{
+		if ( !Game.IsServer ) return;
+
+		using ( Prediction.Off() )
+		{
+			var target = FindUsable();
+			if ( target == null )
+			{
+				OnUseFail();
+				return;
+			}
+			Use( target );
+		}
+
+	}
+
+	public virtual void Use( Entity entity )
+	{
+		if ( !Game.IsServer ) return;
+
+		if ( entity is not IUse use )
+			throw new ArgumentException( "The target entity must implement IUse.", "entity" );
+
+		// Add event
+		if ( TimelineCapture != null )
+		{
+			bool requireStateMatch = false;
+			if ( entity is IHasTimelineState stateHolder )
+				requireStateMatch = stateHolder.RequireUseStateMatch( this );
+
+			var e = new UseEvent( entity, this, requireStateMatch );
+			TimelineCapture.Event( e );
+		}
+
+		if ( AnimCapture != null && AnimCapture.IsRecording )
+		{
+			var action = new UseAction()
+			{
+				TargetID = entity.GetPersistentIDOrThrow( generate: true )
+			};
+			AnimCapture.AddAction( action );
+		}
+
+		use.OnUse( entity );
+	}
+
+	protected virtual void OnUseFail()
+	{
+		PlaySound( "player_use_fail" );
+	}
+
+	protected bool IsValidUseEntity( Entity? e )
+	{
+		if ( e is not IUse use ) return false;
+		if ( !e.IsValid ) return false;
+
+		if ( !use.IsUsable( this ) ) return false;
+		return true;
+	}
+
+	/// <summary>
+	/// Find a usable entity for this player to use.
+	/// </summary>
+	protected virtual Entity? FindUsable()
+	{
+		// First try a direct 0 width line
+		var tr = Trace.Ray( EyePosition, EyePosition + EyeRotation.Forward * 85 )
+			.Ignore( this )
+			.Run();
+
+		// Get the first usable parent
+		var ent = tr.Entity;
+		while ( !IsValidUseEntity( ent ) )
+		{
+			ent = ent.Parent;
+		}
+
+		// Try a wider search if nothing found.
+		if ( !IsValidUseEntity( ent ) )
+		{
+			tr = Trace.Ray( EyePosition, EyePosition + EyeRotation.Forward * 85 )
+				.Radius( 2f )
+				.Ignore( this )
+				.Run();
+
+			ent = tr.Entity;
+			while ( !IsValidUseEntity( ent ) )
+			{
+				ent = ent.Parent;
+			}
+		}
+
+		if ( !IsValidUseEntity( ent ) ) return null;
+
+		return ent;
+	}
+
 	public TraceResult TraceBBox( Vector3 start, Vector3 end, float liftFeet = 0f )
 	{
 		return TraceBBox( start, end, Hull.Mins, Hull.Maxs, liftFeet );
@@ -343,5 +499,12 @@ public partial class Pawn : AnimatedEntity
 	{
 		SetActiveWeapon( null );
 		FinalizeAnimations();
+	}
+
+	[GameEvent.Tick.Client]
+	private void TickClient()
+	{
+		if ( IsLocalPawn )
+			DebugOverlay.ScreenText( Health.ToString() );
 	}
 }

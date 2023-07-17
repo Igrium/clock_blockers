@@ -62,6 +62,23 @@ public static class PersistentEntities
 	}
 
 	/// <summary>
+	/// Get the persistent ID of an entity or throw an exception if it doesn't have one.
+	/// </summary>
+	/// <param name="entity">The entity.</param>
+	/// <param name="generate">If this entity doesn't have a persistent ID, generate one.</param>
+	/// <returns>The ID</returns>
+	/// <exception cref="InvalidOperationException">If the entity doesn't have an ID and generate = false.</exception>
+	public static string GetPersistentIDOrThrow(this Entity entity, bool generate = false)
+	{
+		var id = GetPersistentID( entity, generate );
+		if (id == null)
+		{
+			throw new InvalidOperationException( $"Entity {entity} did not have a persistent ID." );
+		}
+		return id;
+	}
+
+	/// <summary>
 	/// Manually set a dynamic persistent ID of an entity. Don't use unless you know what you're doing.
 	/// </summary>
 	/// <param name="entity">Entity to set.</param>

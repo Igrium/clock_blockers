@@ -12,11 +12,6 @@ using System.Threading.Tasks;
 
 namespace ClockBlockers.Level;
 
-public interface IHasTimelineState
-{
-	public int GetState( Pawn pawn );
-}
-
 
 /// <summary>
 /// Causes an unlink if a remnant crosses this entity while its state is
@@ -41,7 +36,7 @@ public partial class TriggerUnlink : BaseTrigger, IHasTimelineState
 		base.Spawn();
 	}
 
-	public int GetState( Pawn pawn )
+	public int GetState( Pawn? pawn )
 	{
 		return State;
 	}

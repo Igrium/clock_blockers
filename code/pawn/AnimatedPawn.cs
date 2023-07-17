@@ -141,16 +141,12 @@ public partial class Pawn
 	}
 
 	[GameEvent.Tick.Client]
-	public static void DisplayPawns()
+	public void DisplayPawns()
 	{
-		var message = "";
+		if ( IsLocalPawn && IsFirstPersonMode ) return;
 
-		foreach (var pawn in Entity.All.OfType<Pawn>())
-		{
-			message += "\n" + $"{pawn.GetPersistentID()}: {pawn.ControlMethod}, {writeBranchText(pawn.Branches)}";
-		}
-
-		DebugOverlay.ScreenText( message );
+		var message = $"{this.GetPersistentID()}: {ControlMethod} {writeBranchText( Branches )}";
+		DebugOverlay.Text( message, Position.WithZ( Position.z + 68 ) );
 	}
 
 	private static string writeBranchText(IEnumerable<bool> branches)

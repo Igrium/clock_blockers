@@ -31,6 +31,8 @@ public class PawnController : EntityComponent<Pawn>
 	{
 		DidJump = false;
 
+		if ( Entity.LifeState != LifeState.Alive ) return;
+
 		var movement = Entity.MovementDirection.Normal;
 		var moveVector = movement * MOVEMENT_SPEED;
 		var groundEntity = CheckForGround();

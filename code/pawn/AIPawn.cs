@@ -19,6 +19,8 @@ public partial class Pawn
 	{
 		Game.AssertServer();
 
+		if ( LifeState != LifeState.Alive ) return;
+
 		if ( AIController == null)
 		{
 			AIController = new AIController();

@@ -103,4 +103,13 @@ public abstract partial class Weapon : AnimatedEntity
 	{
 
 	}
+
+	/// <summary>
+	/// Called when this weapon is used to kill another pawn.
+	/// </summary>
+	/// <param name="pawn">The pawn.</param>
+	public virtual void OnKill(Pawn pawn)
+	{
+
+	}
 }

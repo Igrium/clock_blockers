@@ -1,4 +1,7 @@
-﻿using System;
+﻿using ClockBlockers.Timeline;
+using Sandbox;
+using Sandbox.Internal;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,13 +27,9 @@ public interface IAction
 		return _jumpInstance;
 	}
 
-	public static IAction Shoot( Vector3 target )
-	{
-		return new ShootAction( target );
-	}
 }
 
-class JumpAction : IAction
+struct JumpAction : IAction
 {
 	public void Run( Pawn pawn )
 	{
@@ -39,16 +38,15 @@ class JumpAction : IAction
 
 }
 
-class ShootAction : IAction
+
+public struct UseAction : IAction
 {
-	private Vector3 _target;
+	public string TargetID { get; set; }
 
-	public ShootAction( Vector3 target )
+	public void Run(Pawn pawn)
 	{
-		this._target = target;
-	}
-	public void Run( Pawn pawn )
-	{
-
+		var target = PersistentEntities.GetEntity<Entity>( TargetID );
+		if ( target is not IUse ) return;
+		pawn.Use( target );
 	}
 }
