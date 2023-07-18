@@ -48,3 +48,40 @@ public struct GameEndEvent : ITimelineEvent
 		return true;
 	}
 }
+
+public struct UseEvent : ITimelineEvent
+{
+
+	public string Name => $"Use {TargetID}";
+
+	public string TargetID { get; init; }
+
+	/// <summary>
+	/// The desired timeline state for stateholders.
+	/// </summary>
+	public int? DesiredState { get; set; }
+
+	public UseEvent( Entity target )
+	{
+		TargetID = target.GetPersistentID( generate: true );
+	}
+
+	public UseEvent( string targetID )
+	{
+		TargetID = targetID;
+	}
+
+	public bool IsValid( AgentPawn pawn )
+	{
+		var ent = PersistentEntities.GetEntity( TargetID );
+		if ( ent is not IUse usable || !usable.IsUsable( pawn ) )
+			return false;
+
+		if ( ent is IHasTimelineState stateholder && stateholder.RequireUseStateMatch( pawn ) && DesiredState.HasValue )
+		{
+			if ( stateholder.GetState( pawn ) != DesiredState.Value ) return false;
+		}
+
+		return true;
+	}
+}

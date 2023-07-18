@@ -23,6 +23,7 @@ public partial class ClockBlockersGame : Sandbox.GameManager
 
 	public Dictionary<string, TimelineBranch> Timelines { get; } = new();
 
+	[Net]
 	public int RoundID { get; protected set; }
 
 	/// <summary>
@@ -76,6 +77,7 @@ public partial class ClockBlockersGame : Sandbox.GameManager
 			throw new InvalidOperationException( "Failed to start round." );
 		}
 
+			
 		var newTimelines = await Round.RoundTask;
 
 		foreach (var timeline in newTimelines)

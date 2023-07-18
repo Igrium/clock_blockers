@@ -12,12 +12,6 @@ using System.Threading.Tasks;
 
 namespace ClockBlockers.Level;
 
-public interface IHasTimelineState
-{
-	public int GetState( AgentPawn pawn );
-}
-
-
 /// <summary>
 /// Causes an unlink if a remnant crosses this entity while its state is
 /// different than its canon.

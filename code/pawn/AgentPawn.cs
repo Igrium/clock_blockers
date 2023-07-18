@@ -61,6 +61,8 @@ public partial class AgentPawn : AnimatedEntity
 	[Predicted]
 	public bool IsGrounded { get; set; }
 
+	public float UseDistance { get; set; } = 64;
+
 	/// <summary>
 	/// The client possessing this agent.
 	/// Unlike <c>Client</c>, this checks the client still uses this pawn.
@@ -238,6 +240,9 @@ public partial class AgentPawn : AnimatedEntity
 
 		}
 		ActiveWeapon?.Simulate( cl );
+
+		if ( Input.Pressed( "use" ) ) TryUse();
+
 		TickAll( cl );
 
 	}
@@ -337,6 +342,101 @@ public partial class AgentPawn : AnimatedEntity
 			Camera.FirstPersonViewer = this;
 			Camera.Position = EyePosition;
 		}
+	}
+
+	protected virtual void OnUseFail()
+	{
+		PlaySound( "player_use_fail" );
+	}
+
+	/// <summary>
+	/// Find a usable entity for this player to use.
+	/// </summary>
+	protected virtual Entity? FindUsable()
+	{
+		// First try a direct 0 width line
+		var tr = Trace.Ray( EyePosition, EyePosition + EyeRotation.Forward * 85 )
+			.Ignore( this )
+			.Run();
+
+		// Get the first usable parent
+		var ent = tr.Entity;
+		while ( !IsValidUseEntity( ent ) )
+		{
+			ent = ent.Parent;
+		}
+
+		// Try a wider search if nothing found.
+		if ( !IsValidUseEntity( ent ) )
+		{
+			tr = Trace.Ray( EyePosition, EyePosition + EyeRotation.Forward * 64 )
+				.Radius( 2f )
+				.Ignore( this )
+				.Run();
+
+			ent = tr.Entity;
+			while ( !IsValidUseEntity( ent ) )
+			{
+				ent = ent.Parent;
+			}
+		}
+
+		if ( !IsValidUseEntity( ent ) ) return null;
+
+		return ent;
+	}
+
+	protected bool IsValidUseEntity( Entity? e )
+	{
+		if ( e is not IUse use ) return false;
+		if ( !e.IsValid ) return false;
+
+		if ( !use.IsUsable( this ) ) return false;
+		return true;
+	}
+
+	public void TryUse()
+	{
+		if ( !Game.IsServer ) return;
+		using (Prediction.Off())
+		{
+			using (LagCompensation())
+			{
+				var target = FindUsable();
+				if (target == null)
+				{
+					OnUseFail();
+					return;
+				}
+				Use( target );
+			}
+		}
+	}
+
+	public virtual void Use(Entity target)
+	{
+		if ( !Game.IsServer ) return;
+
+		if ( target is not IUse use )
+			throw new ArgumentException( "The target must implement IUse", "target" );
+
+		if (TimelineCapture != null)
+		{
+			var e = new UseEvent( target );
+
+			if ( target is IHasTimelineState stateHolder && stateHolder.RequireUseStateMatch(this) )
+			{
+				e.DesiredState = stateHolder.GetState( this );
+			}
+
+		}
+
+		if (AnimCapture != null)
+		{
+			AnimCapture.AddAction( new UseAction( target ) );
+		}
+
+		use.OnUse( this );
 	}
 
 	public override void OnKilled()

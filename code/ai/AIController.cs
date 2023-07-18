@@ -43,7 +43,7 @@ public partial class AIController : EntityComponent<AgentPawn>, ISingletonCompon
 		Entity.MovementDirection = new Vector3();
 
 		if ( _lastTargetUpdate > TARGET_INTERVAL ) UpdateTarget();
-		if ( Target == null ) return;
+		if ( Target == null || Target.LifeState != LifeState.Alive ) return;
 
 		TickMovement();
 

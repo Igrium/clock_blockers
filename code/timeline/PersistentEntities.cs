@@ -40,6 +40,17 @@ public static class PersistentEntities
 	}
 
 	/// <summary>
+	/// Get an entity from its persistent ID.
+	/// </summary>
+	/// <typeparam name="TEntity">Type of the entity to look for.</typeparam>
+	/// <param name="id">Persistent id.</param>
+	/// <returns>The entity, or <c>null</c> if no entity with this type and ID was found.</returns>
+	public static Entity? GetEntity( string id )
+	{
+		return GetEntity<Entity>( id );
+	}
+
+	/// <summary>
 	/// Get the persistent ID of an entity.
 	/// </summary>
 	/// <param name="entity">The entity.</param>
@@ -56,9 +67,27 @@ public static class PersistentEntities
 		else if ( generate )
 		{
 			component = entity.Components.Create<PersistentEntity>();
+			Log.Warning( $"{entity} did not have a persistent ID. One will be generated, but it will likely be inconsistent between rounds." );
 			return component.ID;
 		}
 		return null;
+	}
+
+	/// <summary>
+	/// Get the persistent ID of an entity.
+	/// </summary>
+	/// <param name="entity">The entity.</param>
+	/// <param name="generate">If this entity doesn't have a persistent ID, generate one.</param>
+	/// <returns>The ID</returns>
+	/// <exception cref="InvalidOperationException">If this entity doesn't have a persistent ID and <c>generate</c> is false.</exception>
+	public static string GetPersistentIDOrThrow(this Entity entity, bool generate = false )
+	{
+		string? id = GetPersistentID( entity, generate );
+		if (id == null)
+		{
+			throw new InvalidOperationException( $"{entity} does not have a persistent ID." );
+		}
+		return id;
 	}
 
 	/// <summary>
