@@ -12,6 +12,6 @@ public partial class AgentPawn
 	[GameEvent.Tick.Client]
 	public void ShowDebugText()
 	{
-		DebugOverlay.ScreenText( $"Health: {Health}" );
+		if (IsLocalPawn) DebugOverlay.ScreenText( $"Health: {Health}" );
 	}
 }

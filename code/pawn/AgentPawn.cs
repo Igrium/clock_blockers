@@ -343,6 +343,7 @@ public partial class AgentPawn : AnimatedEntity
 	{
 		if ( LifeState != LifeState.Alive ) return;
 		LifeState = LifeState.Dead;
+		ActiveWeapon?.OnHolster();
 
 		var client = Possessor;
 		if (client != null)
