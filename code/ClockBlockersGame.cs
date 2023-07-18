@@ -53,7 +53,7 @@ public partial class ClockBlockersGame : Sandbox.GameManager
 		var specPawn = new SpectatorPawn();
 		client.Pawn = specPawn;
 
-		client.Pawn = SpectatorPawn.SpawnEntity();
+		client.Pawn = SpectatorPawn.Create();
 	}
 
 	public async void DoRound()

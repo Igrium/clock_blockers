@@ -68,7 +68,6 @@ public partial class TimelinePlayer : EntityComponent<AgentPawn>, ISingletonComp
 
 	/// <summary>
 	/// Stops the timeline player.
-	/// The current animation will finish playing, but it will stop at the next event.
 	/// </summary>
 	public void Stop()
 	{

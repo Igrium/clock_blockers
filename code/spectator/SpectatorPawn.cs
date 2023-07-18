@@ -104,7 +104,7 @@ public class SpectatorPawn : ModelEntity
 		Camera.FirstPersonViewer = this;
 	}
 
-	public static SpectatorPawn SpawnEntity()
+	public static SpectatorPawn Create()
 	{
 		var specPawn = new SpectatorPawn();
 

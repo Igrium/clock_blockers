@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using ClockBlockers.Anim;
+using ClockBlockers.Spectator;
 using ClockBlockers.Timeline;
 using Sandbox;
 using System;
@@ -61,6 +62,19 @@ public partial class AgentPawn : AnimatedEntity
 	public bool IsGrounded { get; set; }
 
 	/// <summary>
+	/// The client possessing this agent.
+	/// Unlike <c>Client</c>, this checks the client still uses this pawn.
+	/// </summary>
+	public IClient? Possessor
+	{
+		get
+		{
+			if ( Client != null && Client.Pawn == this ) return Client;
+			return null;
+		}
+	}
+
+	/// <summary>
 	/// The current crosshair target of this player.
 	/// </summary>
 	public TraceResult ViewTarget
@@ -70,6 +84,36 @@ public partial class AgentPawn : AnimatedEntity
 			Trace traceInfo = Firearm.CreateBulletTrace( this ).CreateTrace();
 			return traceInfo.Run();
 		}
+	}
+
+	public override void Spawn()
+	{
+		base.Spawn();
+
+		SetModel( "models/citizen/citizen.vmdl" );
+		SetupPhysicsFromModel( PhysicsMotionType.Keyframed );
+
+		EnableDrawing = true;
+		EnableHideInFirstPerson = true;
+		EnableShadowInFirstPerson = true;
+
+		Components.Create<PawnControllerComponent>();
+		Components.Create<PawnAnimatorComponent>();
+
+		AnimPlayer = Components.Create<AnimPlayer>();
+		TimelinePlayer = Components.Create<TimelinePlayer>();
+
+		Tags.Add( "player" );
+
+		EnableTraceAndQueries = true;
+		EnableTouch = true;
+
+		Health = 100f;
+	}
+
+	public void PostSpawn()
+	{
+		SetActiveWeapon( new Pistol() );
 	}
 
 	/// <summary>
@@ -158,29 +202,6 @@ public partial class AgentPawn : AnimatedEntity
 
 	public override Ray AimRay => new Ray( EyePosition, EyeRotation.Forward );
 
-	public override void Spawn()
-	{
-		base.Spawn();
-
-		SetModel( "models/citizen/citizen.vmdl" );
-		SetupPhysicsFromModel( PhysicsMotionType.Keyframed );
-
-		EnableDrawing = true;
-		EnableHideInFirstPerson = true;
-		EnableShadowInFirstPerson = true;
-
-		Components.Create<PawnControllerComponent>();
-		Components.Create<PawnAnimatorComponent>();
-
-		AnimPlayer = Components.Create<AnimPlayer>();
-		TimelinePlayer = Components.Create<TimelinePlayer>();
-
-		Tags.Add( "player" );
-
-		EnableTraceAndQueries = true;
-		EnableTouch = true;
-	}
-
 	public void SetActiveWeapon( Weapon? weapon )
 	{
 		ActiveWeapon?.OnHolster();
@@ -197,11 +218,6 @@ public partial class AgentPawn : AnimatedEntity
 		}
 	}
 
-	public void PostSpawn()
-	{
-		SetActiveWeapon( new Pistol() );
-	}
-
 	public void DressFromClient( IClient cl )
 	{
 		var c = new ClothingContainer();
@@ -212,8 +228,9 @@ public partial class AgentPawn : AnimatedEntity
 	public override void Simulate( IClient cl )
 	{
 		if ( ControlMethod != PawnControlMethod.Player ) return;
+		if ( LifeState != LifeState.Alive ) return;
 
-		if (Controller != null)
+		if ( Controller != null )
 		{
 			if ( Input.Pressed( "jump" ) ) Controller.DoJump();
 			Controller.Running = Input.Down( "run" );
@@ -235,6 +252,7 @@ public partial class AgentPawn : AnimatedEntity
 
 	/// <summary>
 	/// Called every tick on the server no matter what. If possessed on a player, also called on the client.
+	/// Calls during <c>Simulate</c> if possessed by a client and <c>GameEvent.Tick.Player</c> if not.
 	/// </summary>
 	/// <param name="cl">The client, if possessed by a player</param>
 	public void TickAll( IClient? cl = null )
@@ -255,6 +273,8 @@ public partial class AgentPawn : AnimatedEntity
 
 	public override void BuildInput()
 	{
+		if ( LifeState != LifeState.Alive ) return;
+
 		var moveDirection = Input.AnalogMove;
 
 		if ( Input.StopProcessing ) return;
@@ -317,6 +337,29 @@ public partial class AgentPawn : AnimatedEntity
 			Camera.FirstPersonViewer = this;
 			Camera.Position = EyePosition;
 		}
+	}
+
+	public override void OnKilled()
+	{
+		if ( LifeState != LifeState.Alive ) return;
+		LifeState = LifeState.Dead;
+
+		var client = Possessor;
+		if (client != null)
+		{
+			var spectator = SpectatorPawn.Create();
+			client.Pawn = spectator;
+		}
+
+		// Ragdoll
+		var vel = this.Velocity;
+		PhysicsEnabled = true;
+		SetupPhysicsFromModel( PhysicsMotionType.Dynamic );
+		Velocity = vel;
+
+		// So that unlinks happen if not killed in the future
+		TimelineCapture?.Event( new DeathEvent(), final: true );
+		TimelinePlayer?.Stop();
 	}
 
 	public TraceResult TraceBBox( Vector3 start, Vector3 end, float liftFeet = 0f )

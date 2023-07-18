@@ -81,7 +81,7 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 		foreach ( AgentPawn pawn in pawns )
 		{
 			if ( pawn.Client != null )
-				pawn.Client.Pawn = SpectatorPawn.SpawnEntity();
+				pawn.Client.Pawn = SpectatorPawn.Create();
 
 
 			pawn.EndRound();
