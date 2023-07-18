@@ -18,7 +18,7 @@ public class ShootAction : IAction
 {
 	public List<PersistentTrace> Traces { get; private set; } = new();
 
-	public void Run( Pawn pawn )
+	public void Run( AgentPawn pawn )
 	{
 		if ( pawn.ActiveWeapon is Firearm weapon )
 			weapon.ShootRemnant( this );
@@ -153,7 +153,7 @@ public struct EntityDamage
 	/// <param name="instigator">The instigator entity</param>
 	/// <param name="target">The entity the damage should be inflicted on.</param>
 	/// <returns>The generated <c>DamageInfo</c>, or <c>null</c> if target wasn't found.</returns>
-	public DamageInfo? ToDamageInfo( Pawn instigator, out Entity? target )
+	public DamageInfo? ToDamageInfo( AgentPawn instigator, out Entity? target )
 	{
 		target = PersistentEntities.GetEntity<Entity>( Target );
 		if ( target == null )

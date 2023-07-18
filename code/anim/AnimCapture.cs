@@ -12,7 +12,7 @@ namespace ClockBlockers.Anim;
 /// <summary>
 /// Responsible for capturing the animation of a pawn.
 /// </summary>
-public class AnimCapture : EntityComponent<Pawn>, ISingletonComponent
+public class AnimCapture : EntityComponent<AgentPawn>, ISingletonComponent
 {
 	public AnimCapture()
 	{

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ClockBlockers.Timeline;
 
-public partial class TimelinePlayer : EntityComponent<Pawn>, ISingletonComponent
+public partial class TimelinePlayer : EntityComponent<AgentPawn>, ISingletonComponent
 {
 	/// <summary>
 	/// The branch currently being played
@@ -38,7 +38,7 @@ public partial class TimelinePlayer : EntityComponent<Pawn>, ISingletonComponent
 	/// <param name="root">If this is the root branch</param>
 	public void PlayTimeline( TimelineBranch branch, bool root = false )
 	{
-		if ( Entity.ControlMethod != Pawn.PawnControlMethod.Animated )
+		if ( Entity.ControlMethod != PawnControlMethod.Animated )
 		{
 			throw new InvalidOperationException( "Pawn must be in Animated mode to play timeline." );
 		}
@@ -55,7 +55,7 @@ public partial class TimelinePlayer : EntityComponent<Pawn>, ISingletonComponent
 	public void Tick()
 	{
 		if ( Branch == null ) return;
-		if ( Entity.ControlMethod != Pawn.PawnControlMethod.Animated ) return;
+		if ( Entity.ControlMethod != PawnControlMethod.Animated ) return;
 
 		// Without an end event, we'll just stop here.
 		if ( Branch.EndEventTime <= timePlaying && Branch.EndEvent != null )

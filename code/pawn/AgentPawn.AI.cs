@@ -10,7 +10,7 @@ using ClockBlockers.AI;
 
 namespace ClockBlockers;
 
-public partial class Pawn
+public partial class AgentPawn
 {
 	public AIController? AIController { get; private set; }
 

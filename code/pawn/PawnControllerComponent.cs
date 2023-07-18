@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ClockBlockers;
 
-public class PawnController : EntityComponent<Pawn>
+public class PawnControllerComponent : EntityComponent<AgentPawn>
 {
 	public static readonly float MOVEMENT_SPEED = 320;
 

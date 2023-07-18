@@ -11,7 +11,11 @@ using System.Threading.Tasks;
 
 namespace ClockBlockers;
 
-public partial class Pawn
+/*
+ * All the timey-wimey stuff regarding agents
+ */
+
+public partial class AgentPawn
 {
 	public AnimPlayer AnimPlayer { get; protected set; } = new AnimPlayer();
 
@@ -138,30 +142,6 @@ public partial class Pawn
 		ControlMethod = PawnControlMethod.AI;
 
 		Log.Info( $"{this.GetPersistentID()} has unlinked!" );
-	}
-
-	[GameEvent.Tick.Client]
-	public static void DisplayPawns()
-	{
-		var message = "";
-
-		foreach (var pawn in Entity.All.OfType<Pawn>())
-		{
-			message += "\n" + $"{pawn.GetPersistentID()}: {pawn.ControlMethod}, {writeBranchText(pawn.Branches)}";
-		}
-
-		DebugOverlay.ScreenText( message );
-	}
-
-	private static string writeBranchText(IEnumerable<bool> branches)
-	{
-		string message = "";
-		foreach (var branch in branches)
-		{
-			message += "." + (branch ? "A" : "B");
-		}
-
-		return message;
 	}
 
 }

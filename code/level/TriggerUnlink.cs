@@ -14,7 +14,7 @@ namespace ClockBlockers.Level;
 
 public interface IHasTimelineState
 {
-	public int GetState( Pawn pawn );
+	public int GetState( AgentPawn pawn );
 }
 
 
@@ -41,7 +41,7 @@ public partial class TriggerUnlink : BaseTrigger, IHasTimelineState
 		base.Spawn();
 	}
 
-	public int GetState( Pawn pawn )
+	public int GetState( AgentPawn pawn )
 	{
 		return State;
 	}
@@ -50,10 +50,10 @@ public partial class TriggerUnlink : BaseTrigger, IHasTimelineState
 	{
 		Log.Info( "Touching" );
 		base.OnTouchStart( toucher );
-		if ( toucher is Pawn pawn ) RecordPawnEvent( pawn );
+		if ( toucher is AgentPawn pawn ) RecordPawnEvent( pawn );
 	}
 
-	public virtual void RecordPawnEvent( Pawn pawn )
+	public virtual void RecordPawnEvent( AgentPawn pawn )
 	{
 		if ( !Game.IsServer ) return;
 		var capture = pawn.TimelineCapture;
@@ -86,7 +86,7 @@ public struct MapTimelineEvent : ITimelineEvent
 
 	public string Name { get; set; }
 
-	public bool IsValid( Pawn pawn )
+	public bool IsValid( AgentPawn pawn )
 	{
 		var ent = PersistentEntities.GetEntity<Entity>( TriggerID );
 		if ( ent is IHasTimelineState trigger )

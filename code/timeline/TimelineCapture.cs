@@ -14,7 +14,7 @@ namespace ClockBlockers.Timeline;
 /// Records a series of events within a single timeline.
 /// There is no branching here because this is only for free agents.
 /// </summary>
-public partial class TimelineCapture : EntityComponent<Pawn>, ISingletonComponent
+public partial class TimelineCapture : EntityComponent<AgentPawn>, ISingletonComponent
 {
 	public TimelineCapture()
 	{

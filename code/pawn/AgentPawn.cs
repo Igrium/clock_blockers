@@ -12,28 +12,36 @@ using System.Threading.Tasks;
 
 namespace ClockBlockers;
 
-public partial class Pawn : AnimatedEntity
+/*
+ * The base code for agents.
+ */
+
+/// <summary>
+/// How is this pawn being controlled?
+/// </summary>
+public enum PawnControlMethod
 {
 	/// <summary>
-	/// How is this pawn being controlled?
+	/// Controlled by a player. If no player possesses this entity, does nothing.
 	/// </summary>
-	public enum PawnControlMethod
-	{
-		/// <summary>
-		/// Controlled by a player. If no player possesses this entity, does nothing.
-		/// </summary>
-		Player,
+	Player,
 
-		/// <summary>
-		/// Animated remnant from a previous round.
-		/// </summary>
-		Animated,
+	/// <summary>
+	/// Animated remnant from a previous round.
+	/// </summary>
+	Animated,
 
-		/// <summary>
-		/// Controlled by AI.
-		/// </summary>
-		AI
-	}
+	/// <summary>
+	/// Controlled by AI.
+	/// </summary>
+	AI
+}
+
+/// <summary>
+/// An agent on the field, be it a remnant, an AI pawn, or a player.
+/// </summary>
+public partial class AgentPawn : AnimatedEntity
+{
 
 	[Net]
 	public PawnControlMethod ControlMethod { get; set; } = PawnControlMethod.Player;
@@ -140,8 +148,8 @@ public partial class Pawn : AnimatedEntity
 		);
 	}
 
-	[BindComponent] public PawnController? Controller { get; }
-	[BindComponent] public PawnAnimator? Animator { get; }
+	[BindComponent] public PawnControllerComponent? Controller { get; }
+	[BindComponent] public PawnAnimatorComponent? Animator { get; }
 
 	/// <summary>
 	/// Whether this pawn is a "free agent" (not following a set timeline)
@@ -161,8 +169,8 @@ public partial class Pawn : AnimatedEntity
 		EnableHideInFirstPerson = true;
 		EnableShadowInFirstPerson = true;
 
-		Components.Create<PawnController>();
-		Components.Create<PawnAnimator>();
+		Components.Create<PawnControllerComponent>();
+		Components.Create<PawnAnimatorComponent>();
 
 		AnimPlayer = Components.Create<AnimPlayer>();
 		TimelinePlayer = Components.Create<TimelinePlayer>();

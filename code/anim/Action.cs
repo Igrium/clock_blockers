@@ -15,7 +15,7 @@ public interface IAction
 	/// Run this action.
 	/// </summary>
 	/// <param name="pawn">Pawn to use.</param>
-	public void Run( Pawn pawn );
+	public void Run( AgentPawn pawn );
 
 	private static JumpAction _jumpInstance = new JumpAction();
 	
@@ -27,7 +27,7 @@ public interface IAction
 
 class JumpAction : IAction
 {
-	public void Run( Pawn pawn )
+	public void Run( AgentPawn pawn )
 	{
 		pawn.DoJumpAnimation();
 	}

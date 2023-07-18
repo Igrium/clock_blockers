@@ -17,7 +17,7 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 {
 	public static readonly float ROUND_TIME = 15f;
 
-	private LinkedList<Pawn> pawns = new();
+	private LinkedList<AgentPawn> pawns = new();
 
 	private TaskCompletionSource<IEnumerable<TimelineBranch>> task = new();
 
@@ -78,7 +78,7 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 	{
 		LinkedList<TimelineBranch> finalBranches = new();
 
-		foreach ( Pawn pawn in pawns )
+		foreach ( AgentPawn pawn in pawns )
 		{
 			if ( pawn.Client != null )
 				pawn.Client.Pawn = SpectatorPawn.SpawnEntity();
@@ -89,7 +89,7 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 			if ( t != null ) finalBranches.AddLast( t );
 		}
 
-		foreach ( Pawn pawn in pawns ) pawn.Delete();
+		foreach ( AgentPawn pawn in pawns ) pawn.Delete();
 
 		task.SetResult( finalBranches );
 		return finalBranches;
@@ -99,7 +99,7 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 	{
 		var oldPawn = cl.Pawn;
 
-		var pawn = new Pawn();
+		var pawn = new AgentPawn();
 		cl.Pawn = pawn;
 
 		// chose a random one
@@ -119,7 +119,7 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 
 		var id = $"{cl.SteamId}.round{RoundID}";
 		pawn.SetPersistentID( id );
-		pawn.InitTimeTravel( Pawn.PawnControlMethod.Player );
+		pawn.InitTimeTravel( PawnControlMethod.Player );
 
 		pawns.AddLast( pawn );
 
@@ -128,7 +128,7 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 
 	protected void SpawnRemnant( TimelineBranch timeline )
 	{
-		var pawn = new Pawn();
+		var pawn = new AgentPawn();
 		pawn.PostSpawn();
 
 		if ( timeline.PersistentID != null )
@@ -137,7 +137,7 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 		}
 
 		pawn.Clothing = timeline.Animation.Clothing;
-		pawn.InitTimeTravel( Pawn.PawnControlMethod.Animated, timeline );
+		pawn.InitTimeTravel( PawnControlMethod.Animated, timeline );
 
 		pawns.AddLast( pawn );
 	}

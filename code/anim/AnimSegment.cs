@@ -135,7 +135,7 @@ public struct AnimFrame
 	/// </summary>
 	/// <param name="pawn">Pawn to capture.</param>
 	/// <returns>The frame.</returns>
-	public static AnimFrame Capture( Pawn pawn )
+	public static AnimFrame Capture( AgentPawn pawn )
 	{
 		return new()
 		{
@@ -151,7 +151,7 @@ public struct AnimFrame
 	/// Apply this frame to a pawn.
 	/// </summary>
 	/// <param name="pawn">Pawn to apply to.</param>
-	public void ApplyTo( Pawn pawn )
+	public void ApplyTo( AgentPawn pawn )
 	{
 		pawn.Position = Position;
 		pawn.Velocity = Velocity;

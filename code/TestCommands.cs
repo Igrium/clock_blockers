@@ -15,7 +15,7 @@ public static class TestCommands
 {
 	public static Animation? CachedAnimation { get; set; }
 
-	static Pawn? Caller
+	static AgentPawn? Caller
 	{
 		get
 		{
@@ -23,7 +23,7 @@ public static class TestCommands
 
 			if ( client == null )
 			{
-				var clients = Game.Clients.Where( c => c.Pawn is Pawn );
+				var clients = Game.Clients.Where( c => c.Pawn is AgentPawn );
 				if ( clients.Any() )
 				{
 					client = clients.First();
@@ -32,7 +32,7 @@ public static class TestCommands
 
 			if ( client == null ) return null;
 
-			if ( client.Pawn is Pawn p )
+			if ( client.Pawn is AgentPawn p )
 			{
 				return p;
 			}
@@ -118,11 +118,11 @@ public static class TestCommands
 			return;
 		}
 
-		Pawn entity = new Pawn();
+		AgentPawn entity = new AgentPawn();
 		entity.Position = vec;
 		entity.PostSpawn();
 
-		entity.InitTimeTravel( Pawn.PawnControlMethod.AI );
+		entity.InitTimeTravel( PawnControlMethod.AI );
 	}
 
 	[ConCmd.Server( "round_start" )]

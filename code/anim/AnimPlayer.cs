@@ -12,7 +12,7 @@ namespace ClockBlockers.Anim;
 /// <summary>
 /// Responsible for playing an animation back on a pawn.
 /// </summary>
-public class AnimPlayer : EntityComponent<Pawn>, ISingletonComponent
+public class AnimPlayer : EntityComponent<AgentPawn>, ISingletonComponent
 {
 	public AnimPlayer()
 	{
@@ -64,10 +64,10 @@ public class AnimPlayer : EntityComponent<Pawn>, ISingletonComponent
 	/// </summary>
 	public void Start()
 	{
-		if ( Entity.ControlMethod != Pawn.PawnControlMethod.Animated )
+		if ( Entity.ControlMethod != PawnControlMethod.Animated )
 		{
 			Log.Warning( $"Pawn {Entity} was not set to PawnControlMethod.Animated before animation playback." );
-			Entity.ControlMethod = Pawn.PawnControlMethod.Animated;
+			Entity.ControlMethod = PawnControlMethod.Animated;
 		}
 
 		IsPlaying = true;
@@ -114,7 +114,7 @@ public class AnimPlayer : EntityComponent<Pawn>, ISingletonComponent
 	/// </summary>
 	/// <param name="animation">The animation to use</param>
 	/// <returns>The animation player (the pawn can be extracted from this)</returns>
-	public static Pawn Create( Animation animation )
+	public static AgentPawn Create( Animation animation )
 	{
 		if ( animation.IsEmpty )
 		{
@@ -122,10 +122,10 @@ public class AnimPlayer : EntityComponent<Pawn>, ISingletonComponent
 		}
 
 
-		Pawn pawn = new();
+		AgentPawn pawn = new();
 		pawn.PostSpawn();
 		pawn.Clothing = animation.Clothing;
-		pawn.ControlMethod = Pawn.PawnControlMethod.Animated;
+		pawn.ControlMethod = PawnControlMethod.Animated;
 
 		animation.Segments[0].Frames[0].ApplyTo( pawn );
 

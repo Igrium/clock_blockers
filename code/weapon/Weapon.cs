@@ -22,7 +22,7 @@ public abstract partial class Weapon : AnimatedEntity
 	/// <summary>
 	/// The owning pawn.
 	/// </summary>
-	public Pawn? Pawn => Owner as Pawn;
+	public AgentPawn? Pawn => Owner as AgentPawn;
 
 	/// <summary>
 	/// This'll decide which entity to fire effects from. If we're in first person, the View Model, otherwise, this.
@@ -59,10 +59,10 @@ public abstract partial class Weapon : AnimatedEntity
 	}
 
 	/// <summary>
-	/// Called when <see cref="Pawn.SetActiveWeapon(Weapon)"/> is called for this weapon.
+	/// Called when <see cref="AgentPawn.SetActiveWeapon(Weapon)"/> is called for this weapon.
 	/// </summary>
 	/// <param name="pawn">The pawn</param>
-	public virtual void OnEquip( Pawn pawn )
+	public virtual void OnEquip( AgentPawn pawn )
 	{
 		Owner = pawn;
 		SetParent( pawn, true );

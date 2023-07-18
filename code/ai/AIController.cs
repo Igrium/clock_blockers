@@ -13,7 +13,7 @@ namespace ClockBlockers.AI;
 /// When agents are unlinked, they get controlled by AI.
 /// This class is the AI they get controlled by.
 /// </summary>
-public partial class AIController : EntityComponent<Pawn>, ISingletonComponent
+public partial class AIController : EntityComponent<AgentPawn>, ISingletonComponent
 {
 	public static readonly float TARGET_INTERVAL = 1;
 
@@ -47,7 +47,7 @@ public partial class AIController : EntityComponent<Pawn>, ISingletonComponent
 
 		TickMovement();
 
-		if ( Target is Pawn pawn && pawn.ActiveWeapon is Pistol pistol && Entity.ActiveWeapon is Pistol weapon )
+		if ( Target is AgentPawn pawn && pawn.ActiveWeapon is Pistol pistol && Entity.ActiveWeapon is Pistol weapon )
 		{
 			if (pistol.DidShoot) weapon.PrimaryAttack();
 		}
@@ -77,9 +77,9 @@ public partial class AIController : EntityComponent<Pawn>, ISingletonComponent
 
 	protected virtual bool CanTarget( Entity target )
 	{
-		if ( target is Pawn pawn )
+		if ( target is AgentPawn pawn )
 		{
-			return pawn.IsFreeAgent && pawn.ControlMethod == Pawn.PawnControlMethod.Player;
+			return pawn.IsFreeAgent && pawn.ControlMethod == PawnControlMethod.Player;
 		}
 		else return false;
 	}

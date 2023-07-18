@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ClockBlockers;
 
-public class PawnAnimator : EntityComponent<Pawn>, ISingletonComponent
+public class PawnAnimatorComponent : EntityComponent<AgentPawn>, ISingletonComponent
 {
 	public void Animate()
 	{
