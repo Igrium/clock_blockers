@@ -23,11 +23,6 @@ public interface IAction
 	{
 		return _jumpInstance;
 	}
-
-	public static IAction Shoot( Vector3 target )
-	{
-		return new ShootAction( target );
-	}
 }
 
 class JumpAction : IAction
@@ -37,18 +32,4 @@ class JumpAction : IAction
 		pawn.DoJumpAnimation();
 	}
 
-}
-
-class ShootAction : IAction
-{
-	private Vector3 _target;
-
-	public ShootAction( Vector3 target )
-	{
-		this._target = target;
-	}
-	public void Run( Pawn pawn )
-	{
-
-	}
 }

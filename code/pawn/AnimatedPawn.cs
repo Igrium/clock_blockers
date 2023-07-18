@@ -127,12 +127,12 @@ public partial class Pawn
 		{
 			throw new InvalidOperationException( "Unlink was called on a free agent." );
 		}
+		timelinePlayer.Stop();
 
 		// When we unlink, we switch from PLAYING a timeline to CAPTURING a timeline.
 		TimelineCapture = Components.Create<TimelineCapture>();
 		TimelineCapture.ForkedBranch = branch;
 
-		timelinePlayer.Stop();
 		TimelineCapture.StartCapture();
 
 		ControlMethod = PawnControlMethod.AI;

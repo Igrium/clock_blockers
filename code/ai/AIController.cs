@@ -46,6 +46,11 @@ public partial class AIController : EntityComponent<Pawn>, ISingletonComponent
 		if ( Target == null ) return;
 
 		TickMovement();
+
+		if ( Target is Pawn pawn && pawn.ActiveWeapon is Pistol pistol && Entity.ActiveWeapon is Pistol weapon )
+		{
+			if (pistol.DidShoot) weapon.PrimaryAttack();
+		}
 	}
 
 	public void UpdateTarget()

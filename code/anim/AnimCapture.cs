@@ -46,6 +46,7 @@ public class AnimCapture : EntityComponent<Pawn>, ISingletonComponent
 
 		IsRecording = true;
 		_startTime = 0;
+		Log.Info( $"{this} started capturing animation." );
 	}
 
 
