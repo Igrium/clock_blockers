@@ -14,7 +14,6 @@ namespace ClockBlockers;
 /*
  * All the timey-wimey stuff regarding agents
  */
-
 public partial class AgentPawn
 {
 	public AnimPlayer AnimPlayer { get; protected set; } = new AnimPlayer();
