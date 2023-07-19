@@ -22,7 +22,6 @@ public partial class Pistol : Firearm
 
 		Particles.Create( "particles/pistol_muzzleflash.vpcf", EffectEntity, "muzzle" );
 		Pawn.SetAnimParameter( "b_attack", true );
-		ViewModel?.SetAnimParameter( "fire", true );
 	}
 
 	public void PrimaryAttack()

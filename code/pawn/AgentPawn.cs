@@ -115,7 +115,7 @@ public partial class AgentPawn : AnimatedEntity
 
 	public void PostSpawn()
 	{
-		SetActiveWeapon( new Pistol() );
+		SetActiveWeapon( new Shotgun() );
 	}
 
 	/// <summary>

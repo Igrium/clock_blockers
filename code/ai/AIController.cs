@@ -55,7 +55,6 @@ public partial class AIController : EntityComponent<AgentPawn>, ISingletonCompon
 
 	public void UpdateTarget()
 	{
-		Log.Trace( "Updating AI target" );
 		Entity? closest = null;
 
 		foreach ( var ent in Sandbox.Entity.All.Where( CanTarget ) )

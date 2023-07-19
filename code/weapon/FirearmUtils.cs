@@ -33,9 +33,23 @@ public partial class Firearm
 		return trace;
 	}
 
+	public static TraceInfo CreateBulletTrace( Ray ray, float radius = 2f )
+	{
+		return CreateBulletTrace( ray.Position, ray.Project( 5000 ), radius );
+	}
+
 	public static TraceInfo CreateBulletTrace( Entity owner, float radius = 2f )
 	{
+		return CreateBulletTrace( owner.AimRay , radius );
+	}
+
+	public static TraceInfo CreateBulletTrace( Entity owner, float spread, float radius = 2f )
+	{
 		var ray = owner.AimRay;
-		return CreateBulletTrace( ray.Position, ray.Project( 5000 ), radius );
+		ray.Forward += (Vector3.Random + Vector3.Random + Vector3.Random + Vector3.Random) * spread * .25f;
+		ray.Forward = ray.Forward.Normal;
+
+		return CreateBulletTrace( ray, radius );
+
 	}
 }

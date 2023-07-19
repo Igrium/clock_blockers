@@ -90,7 +90,7 @@ public abstract partial class Weapon : AnimatedEntity
 	[ClientRpc]
 	public void DestroyViewModel()
 	{
-		if (ViewModel != null && ViewModel.IsValid)
+		if ( ViewModel != null && ViewModel.IsValid )
 		{
 			ViewModel.Delete();
 		}
@@ -101,6 +101,6 @@ public abstract partial class Weapon : AnimatedEntity
 	/// </summary>
 	public virtual void Animate()
 	{
-
+		Pawn?.SetAnimParameter( "holdtype", (int)HoldType );
 	}
 }
