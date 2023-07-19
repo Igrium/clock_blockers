@@ -39,6 +39,8 @@ public partial class AIController : EntityComponent<AgentPawn>, ISingletonCompon
 
 	public void Tick()
 	{
+		if ( Entity.LifeState != LifeState.Alive ) return;
+
 		// Reset any movement from the previous tick.
 		Entity.MovementDirection = new Vector3();
 

@@ -76,9 +76,9 @@ public partial class TimelinePlayer : EntityComponent<AgentPawn>, ISingletonComp
 	/// </summary>
 	public void Stop()
 	{
+		Entity.AnimPlayer.Stop();
 		if ( !IsPlaying ) return;
 		Branch = null;
-		Entity.AnimPlayer.Stop();
 	}
 
 	private void TryPlayBranch( TimelineBranch? branch, TimelineBranch? prev = null )

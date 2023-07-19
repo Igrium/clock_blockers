@@ -18,6 +18,7 @@ public partial class AgentPawn
 	public void TickAI()
 	{
 		Game.AssertServer();
+		if ( LifeState != LifeState.Alive ) return;
 
 		if ( AIController == null)
 		{

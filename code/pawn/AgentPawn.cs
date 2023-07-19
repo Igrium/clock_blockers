@@ -317,6 +317,8 @@ public partial class AgentPawn : AnimatedEntity
 	/// <param name="cl">The client, if possessed by a player</param>
 	public void TickAll( IClient? cl = null )
 	{
+		if ( LifeState != LifeState.Alive ) return;
+
 		SimulateRotation();
 		AnimPlayer?.Tick();
 		EyeLocalPosition = Vector3.Up * (64f * Scale);
@@ -510,6 +512,8 @@ public partial class AgentPawn : AnimatedEntity
 			var spectator = SpectatorPawn.Create();
 			client.Pawn = spectator;
 		}
+		TimelinePlayer?.Stop();
+
 
 		// Ragdoll
 		var vel = this.Velocity;
@@ -519,7 +523,6 @@ public partial class AgentPawn : AnimatedEntity
 
 		// So that unlinks happen if not killed in the future
 		TimelineCapture?.Event( new DeathEvent(), final: true );
-		TimelinePlayer?.Stop();
 	}
 
 	public TraceResult TraceBBox( Vector3 start, Vector3 end, float liftFeet = 0f )
