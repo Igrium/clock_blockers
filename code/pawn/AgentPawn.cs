@@ -412,12 +412,14 @@ public partial class AgentPawn : AnimatedEntity
 		// First try a direct 0 width line
 		var tr = Trace.Ray( EyePosition, EyePosition + EyeRotation.Forward * 85 )
 			.Ignore( this )
+			.WithoutTags("player")
 			.Run();
 
 		// Get the first usable parent
 		var ent = tr.Entity;
 		while ( !IsValidUseEntity( ent ) )
 		{
+			if ( ent == null ) return null;
 			ent = ent.Parent;
 		}
 
@@ -425,8 +427,9 @@ public partial class AgentPawn : AnimatedEntity
 		if ( !IsValidUseEntity( ent ) )
 		{
 			tr = Trace.Ray( EyePosition, EyePosition + EyeRotation.Forward * 64 )
-				.Radius( 2f )
+				.Radius( 4f )
 				.Ignore( this )
+				.WithoutTags("player")
 				.Run();
 
 			ent = tr.Entity;
