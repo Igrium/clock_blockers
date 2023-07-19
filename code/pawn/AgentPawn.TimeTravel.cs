@@ -138,7 +138,7 @@ public partial class AgentPawn
 
 		ControlMethod = PawnControlMethod.AI;
 
-		Log.Info( $"{this.GetPersistentID()} has unlinked!" );
+		Log.Info( $"{this.GetPersistentID()} has unlinked: {branch.EndEvent?.Name}" );
 	}
 
 	/// <summary>

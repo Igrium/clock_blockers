@@ -269,6 +269,12 @@ public partial class AgentPawn : AnimatedEntity
 			DropWeapon( DROP_VELOCITY, recordAction: false );
 		}
 
+		TimelineCapture?.Event( new PickupWeaponEvent()
+		{
+			WeaponID = weapon.GetPersistentIDOrThrow( true ),
+			Position = weapon.Position
+		} );
+
 		SetActiveWeapon( weapon );
 		AnimCapture?.AddAction( new PickUpWeaponAction( weapon ) );
 	}

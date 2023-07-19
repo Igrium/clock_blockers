@@ -42,7 +42,6 @@ public partial class TriggerUnlink : BaseTrigger, IHasTimelineState
 
 	public override void OnTouchStart( Entity toucher )
 	{
-		Log.Info( "Touching" );
 		base.OnTouchStart( toucher );
 		if ( toucher is AgentPawn pawn ) RecordPawnEvent( pawn );
 	}
@@ -56,7 +55,7 @@ public partial class TriggerUnlink : BaseTrigger, IHasTimelineState
 
 		capture.Event( new MapTimelineEvent
 		{
-			TriggerID = this.GetPersistentID( true ),
+			TriggerID = this.GetPersistentIDOrThrow( true ),
 			DesiredState = this.State,
 			Name = this.Name
 		} );
