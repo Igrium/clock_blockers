@@ -91,9 +91,11 @@ public partial class AgentPawn : AnimatedEntity
 	public override void Spawn()
 	{
 		base.Spawn();
+		Tags.Add( "player" );
 
 		SetModel( "models/citizen/citizen.vmdl" );
 		SetupPhysicsFromModel( PhysicsMotionType.Keyframed );
+		PhysicsBody.UseController = true;
 
 		EnableDrawing = true;
 		EnableHideInFirstPerson = true;
@@ -105,7 +107,6 @@ public partial class AgentPawn : AnimatedEntity
 		AnimPlayer = Components.Create<AnimPlayer>();
 		TimelinePlayer = Components.Create<TimelinePlayer>();
 
-		Tags.Add( "player" );
 
 		EnableTraceAndQueries = true;
 		EnableTouch = true;
@@ -219,6 +220,21 @@ public partial class AgentPawn : AnimatedEntity
 		}
 	}
 
+	/// <summary>
+	/// Drop the currently-held weapon if possible.
+	/// </summary>
+	/// <param name="applyVelocity">Velocity to apply to the weapon after drop.</param>
+	public void DropWeapon( Vector3 applyVelocity = new Vector3() )
+	{
+		if ( ActiveWeapon == null || !ActiveWeapon.CanDrop ) return;
+
+		ActiveWeapon.OnDrop();
+		SetAnimParameter( "holdtype", (int)CitizenAnimationHelper.HoldTypes.None );
+
+		ActiveWeapon.Velocity += applyVelocity.RotateAround( new Vector3( 0, 0, 0 ), Transform.Rotation );
+		ActiveWeapon = null;
+	}
+
 	public void DressFromClient( IClient cl )
 	{
 		var c = new ClothingContainer();
@@ -241,6 +257,8 @@ public partial class AgentPawn : AnimatedEntity
 		ActiveWeapon?.Simulate( cl );
 
 		if ( Input.Pressed( "use" ) ) TryUse();
+
+		if ( Input.Pressed( "Drop" ) ) DropWeapon( new Vector3( 64, 64, 128 ) );
 
 		TickAll( cl );
 
@@ -397,12 +415,12 @@ public partial class AgentPawn : AnimatedEntity
 	public void TryUse()
 	{
 		if ( !Game.IsServer ) return;
-		using (Prediction.Off())
+		using ( Prediction.Off() )
 		{
-			using (LagCompensation())
+			using ( LagCompensation() )
 			{
 				var target = FindUsable();
-				if (target == null)
+				if ( target == null )
 				{
 					OnUseFail();
 					return;
@@ -412,25 +430,25 @@ public partial class AgentPawn : AnimatedEntity
 		}
 	}
 
-	public virtual void Use(Entity target)
+	public virtual void Use( Entity target )
 	{
 		if ( !Game.IsServer ) return;
 
 		if ( target is not IUse use )
 			throw new ArgumentException( "The target must implement IUse", "target" );
 
-		if (TimelineCapture != null)
+		if ( TimelineCapture != null )
 		{
 			var e = new UseEvent( target );
 
-			if ( target is IHasTimelineState stateHolder && stateHolder.RequireUseStateMatch(this) )
+			if ( target is IHasTimelineState stateHolder && stateHolder.RequireUseStateMatch( this ) )
 			{
 				e.DesiredState = stateHolder.GetState( this );
 			}
 
 		}
 
-		if (AnimCapture != null)
+		if ( AnimCapture != null )
 		{
 			AnimCapture.AddAction( new UseAction( target ) );
 		}
@@ -445,7 +463,7 @@ public partial class AgentPawn : AnimatedEntity
 		ActiveWeapon?.OnHolster();
 
 		var client = Possessor;
-		if (client != null)
+		if ( client != null )
 		{
 			var spectator = SpectatorPawn.Create();
 			client.Pawn = spectator;

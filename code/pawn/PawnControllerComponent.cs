@@ -53,7 +53,7 @@ public class PawnControllerComponent : EntityComponent<AgentPawn>
 		
 
 		var mh = new MoveHelper( Entity.Position, Entity.Velocity );
-		mh.Trace = mh.Trace.Size( Entity.Hull ).Ignore( Entity );
+		mh.Trace = mh.Trace.Size( Entity.Hull ).Ignore( Entity ).WithoutTags( "player" );
 
 		if ( mh.TryMoveWithStep(Time.Delta, StepSize ) > 0 )
 		{

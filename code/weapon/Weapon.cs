@@ -50,11 +50,13 @@ public abstract partial class Weapon : AnimatedEntity
 
 	public override void Spawn()
 	{
+		Tags.Add( "weapon" );
 		EnableHideInFirstPerson = true;
 		EnableShadowInFirstPerson = true;
-		EnableDrawing = false;
 
 		SetModel( WorldModelPath );
+		EnablePhysics();
+
 	}
 
 	/// <summary>
@@ -71,6 +73,8 @@ public abstract partial class Weapon : AnimatedEntity
 	/// <param name="pawn">The pawn</param>
 	public virtual void OnEquip( AgentPawn pawn )
 	{
+		DisablePhysics();
+
 		Owner = pawn;
 		SetParent( pawn, true );
 		EnableDrawing = true;
@@ -109,5 +113,41 @@ public abstract partial class Weapon : AnimatedEntity
 	public virtual void Animate()
 	{
 		Pawn?.SetAnimParameter( "holdtype", (int)HoldType );
+	}
+
+	public virtual void OnDrop()
+	{
+		if ( !CanDrop )
+		{
+			throw new InvalidOperationException( "This weapon can't be dropped." );
+		}
+
+		var vel = Velocity;
+		var pos = Position;
+
+		OnHolster();
+		SetParent( null );
+		Owner = null;
+
+
+		EnableDrawing = true;
+		EnablePhysics();
+
+		Position = pos;
+		Velocity = vel;
+	}
+
+	protected void EnablePhysics()
+	{
+		PhysicsEnabled = true;
+		SetupPhysicsFromModel( PhysicsMotionType.Dynamic );
+		EnableSolidCollisions = true;
+	}
+
+	protected void DisablePhysics()
+	{
+		PhysicsEnabled = false;
+		EnableSolidCollisions = false;
+		PhysicsClear();
 	}
 }
