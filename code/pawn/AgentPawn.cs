@@ -206,6 +206,11 @@ public partial class AgentPawn : AnimatedEntity
 
 	public void SetActiveWeapon( Weapon? weapon )
 	{
+		if ( weapon?.Owner != null && weapon?.Owner != this )
+		{
+			throw new InvalidOperationException( "The selected weapon already has an owner." );
+		}
+
 		ActiveWeapon?.OnHolster();
 		ActiveWeapon = weapon;
 		ActiveWeapon?.OnEquip( this );
@@ -221,10 +226,17 @@ public partial class AgentPawn : AnimatedEntity
 	}
 
 	/// <summary>
+	/// The velocity to apply to dropped weapons.
+	/// </summary>
+	protected static readonly Vector3 DROP_VELOCITY = new Vector3( 128, 0, 192 );
+
+	/// <summary>
 	/// Drop the currently-held weapon if possible.
 	/// </summary>
 	/// <param name="applyVelocity">Velocity to apply to the weapon after drop.</param>
-	public void DropWeapon( Vector3 applyVelocity = new Vector3() )
+	/// <param name="recordAction">Record this as an action.
+	/// Should only be false if this is part of a weapon pickup, which has its own action.</param>
+	public void DropWeapon( Vector3 applyVelocity = new Vector3(), bool recordAction = true )
 	{
 		if ( ActiveWeapon == null || !ActiveWeapon.CanDrop ) return;
 
@@ -233,6 +245,32 @@ public partial class AgentPawn : AnimatedEntity
 
 		ActiveWeapon.Velocity += applyVelocity.RotateAround( new Vector3( 0, 0, 0 ), Transform.Rotation );
 		ActiveWeapon = null;
+
+
+		if ( recordAction )
+			AnimCapture?.AddAction( new DropWeaponAction { Velocity = applyVelocity } );
+	}
+
+
+	public void PickUpWeapon( Weapon weapon )
+	{
+		if (weapon.IsHeld)
+		{
+			throw new InvalidOperationException( "You may only pick up a weapon from the ground." );
+		}
+
+		if ( ActiveWeapon != null )
+		{
+			if ( !ActiveWeapon.CanDrop )
+			{
+				Log.Warning( "The current weapon cannot be dropped." );
+				return;
+			}
+			DropWeapon( DROP_VELOCITY, recordAction: false );
+		}
+
+		SetActiveWeapon( weapon );
+		AnimCapture?.AddAction( new PickUpWeaponAction( weapon ) );
 	}
 
 	public void DressFromClient( IClient cl )
@@ -258,7 +296,7 @@ public partial class AgentPawn : AnimatedEntity
 
 		if ( Input.Pressed( "use" ) ) TryUse();
 
-		if ( Input.Pressed( "Drop" ) ) DropWeapon( new Vector3( 64, 64, 128 ) );
+		if ( Input.Pressed( "Drop" ) ) DropWeapon( DROP_VELOCITY );
 
 		TickAll( cl );
 
@@ -437,18 +475,19 @@ public partial class AgentPawn : AnimatedEntity
 		if ( target is not IUse use )
 			throw new ArgumentException( "The target must implement IUse", "target" );
 
-		if ( TimelineCapture != null )
-		{
-			var e = new UseEvent( target );
+		// TODO: Fix this
+		//if ( TimelineCapture != null )
+		//{
+		//	var e = new UseEvent( target );
 
-			if ( target is IHasTimelineState stateHolder && stateHolder.RequireUseStateMatch( this ) )
-			{
-				e.DesiredState = stateHolder.GetState( this );
-			}
+		//	if ( target is IHasTimelineState stateHolder && stateHolder.RequireUseStateMatch( this ) )
+		//	{
+		//		e.DesiredState = stateHolder.GetState( this );
+		//	}
 
-		}
+		//}
 
-		if ( AnimCapture != null )
+		if ( AnimCapture != null && target is not IUseNotCanon )
 		{
 			AnimCapture.AddAction( new UseAction( target ) );
 		}

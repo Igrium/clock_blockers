@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using ClockBlockers.Timeline;
 using Sandbox;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace ClockBlockers;
 /// <summary>
 /// A weapon with a world model and a view model that can be held by the player.
 /// </summary>
-public abstract partial class Weapon : AnimatedEntity
+public abstract partial class Weapon : AnimatedEntity, IUse, IUseNotCanon
 {
 
 	/// <summary>
@@ -45,6 +46,11 @@ public abstract partial class Weapon : AnimatedEntity
 	/// Make sure the world model has physics if this is true.
 	/// </summary>
 	public virtual bool CanDrop => true;
+
+	/// <summary>
+	/// If this weapon is being held by an agent.
+	/// </summary>
+	public bool IsHeld => Owner != null;
 
 	public abstract CitizenAnimationHelper.HoldTypes HoldType { get; }
 
@@ -149,5 +155,23 @@ public abstract partial class Weapon : AnimatedEntity
 		PhysicsEnabled = false;
 		EnableSolidCollisions = false;
 		PhysicsClear();
+	}
+
+	public virtual bool OnUse( Entity user )
+	{
+		if ( user is not AgentPawn pawn ) return false;
+
+		pawn.PickUpWeapon( this );
+		return true;
+	}
+
+	public virtual bool IsUsable( Entity user )
+	{
+		if ( IsHeld ) return false;
+		if (user is AgentPawn pawn && pawn.ActiveWeapon != null && !pawn.ActiveWeapon.CanDrop )
+		{
+			return false;
+		}
+		return true;
 	}
 }

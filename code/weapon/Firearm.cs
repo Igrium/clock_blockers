@@ -62,12 +62,15 @@ public abstract partial class Firearm : Weapon
 			{
 				using ( Prediction.Off() )
 				{
-					DamageInfo damageInfo = CreateDamage( tr );
-					var entDamage = EntityDamage.FromDamageInfo( damageInfo, tr.Result.Entity );
-					entDamage.DidPenetrate = tr.DidPenetrate;
+					if (Game.IsServer)
+					{
+						DamageInfo damageInfo = CreateDamage( tr );
+						var entDamage = EntityDamage.FromDamageInfo( damageInfo, tr.Result.Entity );
+						entDamage.DidPenetrate = tr.DidPenetrate;
 
-					damagedEnts.AddLast( entDamage );
-					tr.Result.Entity.TakeDamage( damageInfo );
+						damagedEnts.AddLast( entDamage );
+						tr.Result.Entity.TakeDamage( damageInfo );
+					}
 				}
 			}
 
