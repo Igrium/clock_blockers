@@ -1,4 +1,6 @@
-﻿using Sandbox;
+﻿#nullable enable
+
+using Sandbox;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -46,6 +48,6 @@ public partial class Pistol : Firearm
 
 	public override void Animate()
 	{
-		Pawn.SetAnimParameter( "holdtype", (int)CitizenAnimationHelper.HoldTypes.Pistol );
+		Pawn?.SetAnimParameter( "holdtype", (int)CitizenAnimationHelper.HoldTypes.Pistol );
 	}
 }

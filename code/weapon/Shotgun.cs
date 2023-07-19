@@ -1,4 +1,6 @@
-﻿using Sandbox;
+﻿#nullable enable
+
+using Sandbox;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,10 +42,11 @@ public partial class Shotgun : Firearm
 
 	public override void DoShootEffects( IEnumerable<TraceInfo> traces )
 	{
-		Pawn.PlaySound( "rust_pumpshotgun.shoot" );
+		if ( Pawn == null ) return;
+		Pawn?.PlaySound( "rust_pumpshotgun.shoot" );
 
 		Particles.Create( "particles/pistol_muzzleflash.vpcf", EffectEntity, "muzzle" );
-		Pawn.SetAnimParameter( "b_attack", true );
+		Pawn?.SetAnimParameter( "b_attack", true );
 		ViewModel?.SetAnimParameter( "fire_double", true );
 	}
 

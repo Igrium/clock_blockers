@@ -53,7 +53,7 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 		foreach ( var client in Game.Clients )
 		{
 			var oldPawn = client.Pawn;
-			SpawnPlayerPawn( client );
+			SpawnPlayerPawn( client, weapon: WeaponTypes.SHOTGUN );
 			oldPawn?.Delete();
 			clients++;
 		}
@@ -95,7 +95,7 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 		return finalBranches;
 	}
 
-	protected void SpawnPlayerPawn( IClient cl )
+	protected void SpawnPlayerPawn( IClient cl, WeaponFactory? weapon = null )
 	{
 		var oldPawn = cl.Pawn;
 
@@ -119,7 +119,21 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 
 		var id = $"{cl.SteamId}.round{RoundID}";
 		pawn.SetPersistentID( id );
+
+		// This will start the timeline capture.
 		pawn.InitTimeTravel( PawnControlMethod.Player );
+		
+		if (weapon != null)
+		{
+			var spawner = new WeaponSpawner()
+			{
+				Factory = weapon,
+				PersistentID = pawn.GetWeaponID()
+			};
+
+			pawn.TimelineCapture?.SetWeaponSpawn( spawner );
+			pawn.SetActiveWeapon( spawner.Spawn() );
+		}
 
 		pawns.AddLast( pawn );
 

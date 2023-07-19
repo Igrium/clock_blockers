@@ -42,9 +42,14 @@ public partial class TimelinePlayer : EntityComponent<AgentPawn>, ISingletonComp
 		{
 			throw new InvalidOperationException( "Pawn must be in Animated mode to play timeline." );
 		}
-		GameTask.RunInThreadAsync( null );
 
 		Entity.AnimPlayer.Stop();
+
+		if (branch.Weapon.HasValue && Entity.ActiveWeapon == null)
+		{
+			Entity.SetActiveWeapon( branch.Weapon.Value.Spawn() );
+		}
+
 		Entity.AnimPlayer.Play( branch.Animation );
 		Branch = branch;
 		timePlaying = 0;

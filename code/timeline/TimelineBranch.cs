@@ -48,6 +48,12 @@ public class TimelineBranch
 	/// </summary>
 	public string? PersistentID { get; set; }
 
+	/// <summary>
+	/// If set, the remnant will recieve this weapon when this timeline is played,
+	/// assuming it doesn't already have a weapon.
+	/// </summary>
+	public WeaponSpawner? Weapon { get; set; }
+
 	public TimelineBranch( Animation animation )
 	{
 		this.Animation = animation;

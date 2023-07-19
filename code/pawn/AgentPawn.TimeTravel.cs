@@ -142,4 +142,13 @@ public partial class AgentPawn
 		Log.Info( $"{this.GetPersistentID()} has unlinked!" );
 	}
 
+	/// <summary>
+	/// Get the persistent ID of the weapon this agent should spawn with.
+	/// Only used for weapons spawned at the beginning of the round.
+	/// </summary>
+	/// <returns>The weapon ID.</returns>
+	public string GetWeaponID()
+	{
+		return $"{this.GetPersistentIDOrThrow()}.weapon";
+	}
 }

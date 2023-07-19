@@ -48,7 +48,7 @@ public partial class AgentPawn : AnimatedEntity
 	public PawnControlMethod ControlMethod { get; set; } = PawnControlMethod.Player;
 
 	[Net, Predicted]
-	public Weapon? ActiveWeapon { get; set; }
+	public Weapon? ActiveWeapon { get; private set; }
 
 	// TODO: Store / calculate input direction globally so it can manipulated easier.
 	[ClientInput]
@@ -115,7 +115,6 @@ public partial class AgentPawn : AnimatedEntity
 
 	public void PostSpawn()
 	{
-		SetActiveWeapon( new Shotgun() );
 	}
 
 	/// <summary>

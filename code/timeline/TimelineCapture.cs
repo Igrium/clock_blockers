@@ -44,8 +44,10 @@ public partial class TimelineCapture : EntityComponent<AgentPawn>, ISingletonCom
 		{
 			EndEvent = timelineEvent,
 			EndEventTime = anim.Length,
-			PersistentID = id
+			PersistentID = id,
+			Weapon = _weaponSpawner
 		};
+		_weaponSpawner = null;
 
 		if ( RootBranch == null )
 		{
@@ -91,5 +93,21 @@ public partial class TimelineCapture : EntityComponent<AgentPawn>, ISingletonCom
 			throw new InvalidOperationException( "The timeline completed with no branches. This should not happen." );
 
 		return RootBranch;
+	}
+
+	// WEAPON SPAWNING
+
+	private WeaponSpawner? _weaponSpawner;
+
+	/// <summary>
+	/// Add a weapon spawner to the current branch.
+	/// Should only be used at the beginning of a round.
+	/// </summary>
+	/// <param name="spawner">
+	/// The weapon spawner.
+	/// </param>
+	public void SetWeaponSpawn(WeaponSpawner spawner)
+	{
+		_weaponSpawner = spawner;
 	}
 }

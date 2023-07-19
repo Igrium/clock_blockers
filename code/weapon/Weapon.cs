@@ -14,6 +14,7 @@ namespace ClockBlockers;
 /// </summary>
 public abstract partial class Weapon : AnimatedEntity
 {
+
 	/// <summary>
 	/// The weapon's viewmodel entity. Only available client-side.
 	/// </summary>
@@ -38,6 +39,12 @@ public abstract partial class Weapon : AnimatedEntity
 	/// Path to the wepon's world model
 	/// </summary>
 	public abstract string WorldModelPath { get; }
+
+	/// <summary>
+	/// Whether this weapon can be dropped on the ground.
+	/// Make sure the world model has physics if this is true.
+	/// </summary>
+	public virtual bool CanDrop => true;
 
 	public abstract CitizenAnimationHelper.HoldTypes HoldType { get; }
 
