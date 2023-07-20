@@ -19,25 +19,23 @@ namespace ClockBlockers.Level;
 [AutoApplyMaterial( "materials/tools/toolstrigger.vmat" )]
 [Solid, VisGroup( VisGroup.Trigger ), HideProperty( "enable_shadows" )]
 [Title( "Trigger Unlink" ), Icon( "select_all" )]
-[Library("trigger_unlink"), HammerEntity]
-public partial class TriggerUnlink : BaseTrigger, IHasTimelineState
+[Library( "trigger_unlink" ), HammerEntity]
+public partial class TriggerUnlink : BaseTrigger
 {
-
 	/// <summary>
-	/// The starting state of this trigger. An unlink will be triggered if a
-	/// remnant crosses this trigger and the state is different than its canon.
+	/// The entity to retrieve the timeline state from.
+	/// Must be a valid state provider.
 	/// </summary>
-	[Property (Title = "State")]
-	public int State { get; set; }
+	[Property( Title = "Timeline State Provider" )]
+	public EntityTarget StateProviderName { get; set; }
+
+	public LogicTimelineState? StateProvider { get; set; }
 
 	public override void Spawn()
 	{
 		base.Spawn();
-	}
-
-	public int GetState( AgentPawn pawn )
-	{
-		return State;
+		StateProvider = StateProviderName.GetTarget<LogicTimelineState>();
+		Log.Info( $"State provider: {StateProviderName.GetTarget()}" );
 	}
 
 	public override void OnTouchStart( Entity toucher )
@@ -49,6 +47,12 @@ public partial class TriggerUnlink : BaseTrigger, IHasTimelineState
 	public virtual void RecordPawnEvent( AgentPawn pawn )
 	{
 		if ( !Game.IsServer ) return;
+		if (StateProvider == null)
+		{
+			Log.Warning( "No state provider was set for " + this );
+			return;
+		}
+
 		var capture = pawn.TimelineCapture;
 
 		if ( capture == null ) return;
@@ -56,39 +60,8 @@ public partial class TriggerUnlink : BaseTrigger, IHasTimelineState
 		capture.Event( new MapTimelineEvent
 		{
 			TriggerID = this.GetPersistentIDOrThrow( true ),
-			DesiredState = this.State,
+			DesiredState = StateProvider.GetState( pawn ),
 			Name = this.Name
 		} );
-	}
-
-	/// <summary>
-	/// Set the state of this trigger.
-	/// </summary>
-	/// <param name="state">The new state.</param>
-	[Input]
-	public void SetState(int state)
-	{
-		State = state;
-	}
-}
-
-public struct MapTimelineEvent : ITimelineEvent
-{
-	public string TriggerID { get; set; }
-	public int DesiredState { get; set; }
-
-	public string Name { get; set; }
-
-	public bool IsValid( AgentPawn pawn )
-	{
-		var ent = PersistentEntities.GetEntity<Entity>( TriggerID );
-		if ( ent is IHasTimelineState trigger )
-		{
-			return trigger.GetState( pawn ) == DesiredState;
-		}
-		else
-		{
-			return false;
-		}
 	}
 }
