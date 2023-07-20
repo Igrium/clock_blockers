@@ -3,6 +3,7 @@
 using ClockBlockers.Anim;
 using ClockBlockers.Spectator;
 using ClockBlockers.Timeline;
+using ClockBlockers.Util;
 using Sandbox;
 using System;
 using System.Collections.Generic;
@@ -49,6 +50,13 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 		RoundStarted = true;
 		RoundID = roundID;
 
+		int remnants = 0;
+		if ( existingTimelines != null ) foreach ( var t in existingTimelines )
+			{
+				SpawnRemnant( t );
+				remnants++;
+			}
+
 		int clients = 0;
 		foreach ( var client in Game.Clients )
 		{
@@ -57,13 +65,6 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 			oldPawn?.Delete();
 			clients++;
 		}
-
-		int remnants = 0;
-		if ( existingTimelines != null ) foreach ( var t in existingTimelines )
-			{
-				SpawnRemnant( t );
-				remnants++;
-			}
 
 		task = new();
 		Log.Info( $"Started round with {clients} players and {remnants} remnants." );
@@ -103,8 +104,7 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 		cl.Pawn = pawn;
 
 		// chose a random one
-		var spawnpoints = Sandbox.Entity.All.OfType<SpawnPoint>();
-		var randomSpawnPoint = spawnpoints.OrderBy( x => Guid.NewGuid() ).FirstOrDefault();
+		var randomSpawnPoint = RandomSpawnPoint( Sandbox.Entity.All.OfType<SpawnPoint>() );
 
 		// if it exists, place the pawn there
 		if ( randomSpawnPoint != null )
@@ -122,8 +122,8 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 
 		// This will start the timeline capture.
 		pawn.InitTimeTravel( PawnControlMethod.Player );
-		
-		if (weapon != null)
+
+		if ( weapon != null )
 		{
 			var spawner = new WeaponSpawner()
 			{
@@ -154,5 +154,25 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 		pawn.InitTimeTravel( PawnControlMethod.Animated, timeline );
 
 		pawns.AddLast( pawn );
+	}
+
+	/// <summary>
+	/// Choose a random spawn point, attempting to find one that's not occupied.
+	/// </summary>
+	/// <param name="spawnpoints">An enumerable of all the spawnpoints in the map.</param>
+	/// <returns>The spawn point, or <c>null</c> if the map has no spawn points.</returns>
+	public static SpawnPoint? RandomSpawnPoint( IEnumerable<SpawnPoint> spawnpoints )
+	{
+		if ( !spawnpoints.Any() ) return null;
+
+		var filtered = spawnpoints.Where( sp => !sp.IsOccupied() );
+		if ( filtered.Any() )
+		{
+			return filtered.RandomElement();
+		}
+		else
+		{
+			return spawnpoints.RandomElement();
+		}
 	}
 }
