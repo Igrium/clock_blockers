@@ -13,7 +13,7 @@ namespace ClockBlockers;
 /// <summary>
 /// A weapon with a world model and a view model that can be held by the player.
 /// </summary>
-public abstract partial class Weapon : AnimatedEntity, IUse, IUseNotCanon
+public abstract partial class LegacyWeapon : AnimatedEntity, IUse, IUseNotCanon
 {
 
 	/// <summary>
@@ -74,7 +74,7 @@ public abstract partial class Weapon : AnimatedEntity, IUse, IUseNotCanon
 	}
 
 	/// <summary>
-	/// Called when <see cref="AgentPawn.SetActiveWeapon(Weapon)"/> is called for this weapon.
+	/// Called when <see cref="AgentPawn.SetActiveWeapon(LegacyWeapon)"/> is called for this weapon.
 	/// </summary>
 	/// <param name="pawn">The pawn</param>
 	public virtual void OnEquip( AgentPawn pawn )

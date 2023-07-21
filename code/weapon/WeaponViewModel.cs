@@ -11,9 +11,9 @@ namespace ClockBlockers;
 
 public class WeaponViewModel : BaseViewModel
 {
-	protected Weapon Weapon { get; init; }
+	protected LegacyWeapon Weapon { get; init; }
 	
-	public WeaponViewModel( Weapon weapon )
+	public WeaponViewModel( LegacyWeapon weapon )
 	{
 		Weapon = weapon;
 		EnableShadowCasting = false;

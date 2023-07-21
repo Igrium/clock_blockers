@@ -85,14 +85,14 @@ public struct PickUpWeaponAction : IAction
 		WeaponID = id;
 	}
 
-	public PickUpWeaponAction(Weapon weapon)
+	public PickUpWeaponAction(LegacyWeapon weapon)
 	{
 		WeaponID = weapon.GetPersistentIDOrThrow( true );
 	}
 
 	public void Run( AgentPawn pawn )
 	{
-		var weapon = PersistentEntities.GetEntity<Weapon>( WeaponID );
+		var weapon = PersistentEntities.GetEntity<LegacyWeapon>( WeaponID );
 		if ( weapon == null || weapon.IsHeld ) return;
 
 		pawn.PickUpWeapon( weapon );

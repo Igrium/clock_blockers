@@ -28,7 +28,7 @@ public struct ExtendedTraceResult
 /// A weapon that can shoot like a firearm.
 /// Contains custom persistence code for traces.
 /// </summary>
-public abstract partial class Firearm : Weapon
+public abstract partial class Firearm : LegacyWeapon
 {
 	/// <summary>
 	/// The distance a target entity is allowed to move between timelines before damage is recalculated.

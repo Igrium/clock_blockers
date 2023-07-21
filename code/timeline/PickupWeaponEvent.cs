@@ -34,7 +34,7 @@ public struct PickupWeaponEvent : ITimelineEvent
 	{
 		if ( pawn.ActiveWeapon != null && !pawn.ActiveWeapon.CanDrop ) return false;
 
-		var weapon = PersistentEntities.GetEntity<Weapon>( WeaponID );
+		var weapon = PersistentEntities.GetEntity<LegacyWeapon>( WeaponID );
 		if (weapon == null || weapon.IsHeld)
 		{
 			return false;

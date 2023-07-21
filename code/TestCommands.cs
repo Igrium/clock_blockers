@@ -142,4 +142,12 @@ public static class TestCommands
 
 		game.DoRound();
 	}
+
+	[ConCmd.Server("test_player")]
+	public static void TestPlayer()
+	{
+		var player = new Player();
+		var client = ConsoleSystem.Caller;
+		if ( client != null ) client.Pawn = player;
+	}
 }

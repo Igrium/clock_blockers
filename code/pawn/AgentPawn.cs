@@ -48,7 +48,7 @@ public partial class AgentPawn : AnimatedEntity
 	public PawnControlMethod ControlMethod { get; set; } = PawnControlMethod.Player;
 
 	[Net, Predicted]
-	public Weapon? ActiveWeapon { get; private set; }
+	public LegacyWeapon? ActiveWeapon { get; private set; }
 
 	// TODO: Store / calculate input direction globally so it can manipulated easier.
 	[ClientInput]
@@ -204,7 +204,7 @@ public partial class AgentPawn : AnimatedEntity
 
 	public override Ray AimRay => new Ray( EyePosition, EyeRotation.Forward );
 
-	public void SetActiveWeapon( Weapon? weapon )
+	public void SetActiveWeapon( LegacyWeapon? weapon )
 	{
 		if ( weapon?.Owner != null && weapon?.Owner != this )
 		{
@@ -252,7 +252,7 @@ public partial class AgentPawn : AnimatedEntity
 	}
 
 
-	public void PickUpWeapon( Weapon weapon )
+	public void PickUpWeapon( LegacyWeapon weapon )
 	{
 		if (weapon.IsHeld)
 		{

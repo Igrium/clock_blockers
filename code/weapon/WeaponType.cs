@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ClockBlockers;
 
-public delegate Weapon WeaponFactory();
+public delegate LegacyWeapon WeaponFactory();
 
 public static class WeaponTypes
 {
@@ -20,7 +20,7 @@ public struct WeaponSpawner
 	public string PersistentID { get; set; }
 	public WeaponFactory Factory { get; set; }
 
-	public Weapon Spawn()
+	public LegacyWeapon Spawn()
 	{
 		var weapon = Factory.Invoke();
 		weapon.SetPersistentID( PersistentID );
