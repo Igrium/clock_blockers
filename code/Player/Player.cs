@@ -280,6 +280,7 @@ partial class Player : AnimatedEntity
 			// toggleable third person
 			if ( Input.Pressed( "View" ) && Game.IsServer )
 			{
+				Log.Info( "thirdperson" );
 				if ( CameraController is FirstPersonCamera )
 				{
 					Components.Add( new ThirdPersonCamera() );
@@ -303,14 +304,14 @@ partial class Player : AnimatedEntity
 		}
 		// these are to be done in order and before the simulated components
 		// Inputs
+
 		if ( IsFreeAgent )
-		{
 			UnstuckController?.Simulate( cl );
-			MovementController?.Simulate( cl );
-		}
+
+		MovementController?.Simulate( cl );
+		TickTimeShit( cl );
 
 		// Time shit in between inputs and outputs.
-		TickTimeShit( cl );
 
 		// Outputs
 		CameraController?.Simulate( cl );

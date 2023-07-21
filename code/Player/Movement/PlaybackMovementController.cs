@@ -20,6 +20,9 @@ public class PlaybackMovementController : MovementComponent
 
 		Events.Clear();
 		Tags.Clear();
+
+		Entity.EyeRotation = Entity.ViewAngles.ToRotation();
+
 	}
 
 	public void SetSitting()

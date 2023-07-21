@@ -126,7 +126,8 @@ public struct AnimFrame
 {
 	public Vector3 Position { get; set; }
 	public Vector3 Velocity { get; set; }
-	public Rotation EyeRotation { get; set; }
+	//public Rotation EyeRotation { get; set; }
+	public Angles ViewAngles { get; set; }
 	public Rotation Rotation { get; set; }
 	public bool IsGrounded { get; set; }
 	public bool IsDucked { get; set; }
@@ -143,7 +144,7 @@ public struct AnimFrame
 			Position = pawn.Position,
 			Velocity = pawn.Velocity,
 			Rotation = pawn.Rotation,
-			EyeRotation = pawn.EyeRotation,
+			ViewAngles = pawn.ViewAngles,
 			IsGrounded = pawn.IsGrounded,
 			IsDucked = pawn.MovementController.HasTag( "ducked" )
 		};
@@ -158,9 +159,10 @@ public struct AnimFrame
 		pawn.Position = Position;
 		pawn.Velocity = Velocity;
 		pawn.Rotation = Rotation;
-		pawn.EyeRotation = EyeRotation;
+		pawn.ViewAngles = ViewAngles;
 		pawn.IsGrounded = IsGrounded;
-		pawn.MovementController.SetTag( "ducked" );
+		if (IsDucked)
+			pawn.MovementController.SetTag( "ducked" );
 	}
 
 	public override string ToString()

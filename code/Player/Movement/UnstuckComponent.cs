@@ -9,7 +9,7 @@ public class UnstuckComponent : EntityComponent<Player>
 
 	internal int StuckTries = 0;
 	internal Vector3 lastPos;
-	public void Simulate( IClient cl )
+	public void Simulate( IClient? cl )
 	{
 		if ( Game.IsServer ) TestAndFix();
 	}

@@ -35,7 +35,7 @@ public class AnimCapture : EntityComponent<Player>, ISingletonComponent
 
 	public void Start()
 	{
-		if ( Animation != null )
+		if ( IsRecording )
 		{
 			throw new InvalidOperationException( "Animation already is recording or has finished." );
 		}
