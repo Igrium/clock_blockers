@@ -12,9 +12,9 @@ namespace ClockBlockers.Anim;
 /// <summary>
 /// Responsible for playing an animation back on a pawn.
 /// </summary>
-public class AnimPlayer : EntityComponent<Player>, ISingletonComponent
+public class LegacyAnimPlayer : EntityComponent<AgentPawn>, ISingletonComponent
 {
-	public AnimPlayer()
+	public LegacyAnimPlayer()
 	{
 		ShouldTransmit = false;
 	}
@@ -54,9 +54,9 @@ public class AnimPlayer : EntityComponent<Player>, ISingletonComponent
 	/// <param name="animation">The animation.</param>
 	public void Play( Animation animation )
 	{
-		Stop();
-		Animation = animation;
-		Start();
+		//Stop();
+		//Animation = animation;
+		//Start();
 	}
 
 	/// <summary>
@@ -64,45 +64,44 @@ public class AnimPlayer : EntityComponent<Player>, ISingletonComponent
 	/// </summary>
 	public void Start()
 	{
-		if ( Entity.ControlMethod != AgentControlMethod.PLAYBACK )
-		{
-			Log.Warning( $"Pawn {Entity} was not set to AgentControlMethod.PLAYBACK before animation playback." );
-			Entity.SetControlMethod( AgentControlMethod.PLAYBACK );
-		}
+		//if ( Entity.ControlMethod != PawnControlMethod.Animated )
+		//{
+		//	Log.Warning( $"Pawn {Entity} was not set to PawnControlMethod.Animated before animation playback." );
+		//	Entity.ControlMethod = PawnControlMethod.Animated;
+		//}
 
-		IsPlaying = true;
-		Timestamp = 0;
+		//IsPlaying = true;
+		//Timestamp = 0;
 	}
 
 	public void Tick()
 	{
+		//if ( !IsPlaying ) return;
 
-		if ( !IsPlaying ) return;
+		//int currentSegment = Animation.TimestampToSegment( Timestamp );
+		//if ( currentSegment >= Animation.Segments.Count )
+		//{
+		//	// The animation is over
+		//	Stop();
+		//	return;
+		//}
 
-		int currentSegment = Animation.TimestampToSegment( Timestamp );
-		if ( currentSegment >= Animation.Segments.Count )
-		{
-			// The animation is over
-			Stop();
-			return;
-		}
+		//if ( currentSegment != _lastCurrentSegment )
+		//{
+		//	_localTick = 0;
+		//	_lastCurrentSegment = currentSegment;
+		//}
 
-		if ( currentSegment != _lastCurrentSegment )
-		{
-			_localTick = 0;
-			_lastCurrentSegment = currentSegment;
-		}
+		//var segment = Animation.Segments[currentSegment];
+		//var frame = segment.GetFrame( _localTick );
+		//frame.ApplyTo( Entity );
 
-		var segment = Animation.Segments[currentSegment];
-		var frame = segment.GetFrame( _localTick );
-		frame.ApplyTo( Entity );
+		//foreach ( IAction action in segment.GetActions( _localTick ) )
+		//{
+		//	action.Run( Entity );
+		//}
 
-		foreach ( IAction action in segment.GetActions( _localTick ) )
-		{
-			action.Run( Entity );
-		}
-
-		_localTick++;
+		//_localTick++;
 	}
 
 	public void Stop()
@@ -115,23 +114,23 @@ public class AnimPlayer : EntityComponent<Player>, ISingletonComponent
 	/// </summary>
 	/// <param name="animation">The animation to use</param>
 	/// <returns>The animation player (the pawn can be extracted from this)</returns>
-	//public static AgentPawn Create( Animation animation )
-	//{
-	//	if ( animation.IsEmpty )
-	//	{
-	//		throw new ArgumentException( "Supplied animation is empty." );
-	//	}
+	public static AgentPawn Create( Animation animation )
+	{
+		if ( animation.IsEmpty )
+		{
+			throw new ArgumentException( "Supplied animation is empty." );
+		}
 
 
-	//	AgentPawn pawn = new();
-	//	pawn.PostSpawn();
-	//	pawn.Clothing = animation.Clothing;
-	//	pawn.ControlMethod = PawnControlMethod.Animated;
+		AgentPawn pawn = new();
+		pawn.PostSpawn();
+		pawn.Clothing = animation.Clothing;
+		pawn.ControlMethod = PawnControlMethod.Animated;
 
-	//	animation.Segments[0].Frames[0].ApplyTo( pawn );
+		//animation.Segments[0].Frames[0].ApplyTo( pawn );
 
-	//	pawn.PlayAnimation( animation );
+		pawn.PlayAnimation( animation );
 
-	//	return pawn;
-	//}
+		return pawn;
+	}
 }

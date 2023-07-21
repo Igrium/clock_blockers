@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ClockBlockers;
 
-public partial class Shotgun : Firearm
+public partial class LegacyShotgun : LegacyFirearm
 {
 	public override string ViewModelPath => "weapons/rust_pumpshotgun/v_rust_pumpshotgun";
 

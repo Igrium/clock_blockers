@@ -26,7 +26,7 @@ public class CitizenAnimationComponent : AnimationComponent
 		animHelper.FootShuffle = shuffle;
 		animHelper.DuckLevel = MathX.Lerp( animHelper.DuckLevel, ply.MovementController.HasTag( "ducked" ) ? 1 : 0, Time.Delta * 10.0f );
 		animHelper.VoiceLevel = (Game.IsClient && ply.Client.IsValid()) ? ply.Client.Voice.LastHeard < 0.5f ? ply.Client.Voice.CurrentLevel : 0.0f : 0.0f;
-		animHelper.IsGrounded = ply.GroundEntity != null;
+		animHelper.IsGrounded = ply.IsGrounded;
 		animHelper.IsSitting = ply.MovementController.HasTag( "sitting" );
 		animHelper.IsNoclipping = ply.MovementController.HasTag( "noclip" );
 		animHelper.IsClimbing = ply.MovementController.HasTag( "climbing" );

@@ -1,4 +1,5 @@
-﻿
+﻿#nullable enable
+
 using Sandbox;
 using System;
 using System.Collections.Generic;
@@ -112,7 +113,7 @@ public partial class WalkController : MovementComponent
 		var pl = Entity as Player;
 		pl.InputDirection = Input.AnalogMove;
 	}
-	public override void Simulate( IClient cl )
+	public override void Simulate( IClient? cl )
 	{
 		var pl = Entity as Player;
 
@@ -824,7 +825,7 @@ public partial class WalkController : MovementComponent
 		Move();
 	}
 
-	Entity PreviousGroundEntity;
+	Entity? PreviousGroundEntity;
 	int TryLatchNextTickCounter = 0;
 	Vector3 LastNonZeroWishVelocity;
 	[ConVar.Replicated( "sv_ladderlatchdebug" )]
@@ -1093,7 +1094,7 @@ public partial class WalkController : MovementComponent
 		PreviousViewAngles = ply.ViewAngles;
 	}
 	bool PushDebug = false;
-	[SkipHotload] Dictionary<int, Transform> OldTransforms;
+	[SkipHotload] Dictionary<int, Transform>? OldTransforms;
 	Transform OldTransform;
 	void DoPushingStuff()
 	{

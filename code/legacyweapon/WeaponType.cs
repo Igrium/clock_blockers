@@ -11,8 +11,8 @@ public delegate LegacyWeapon WeaponFactory();
 
 public static class WeaponTypes
 {
-	public static readonly WeaponFactory PISTOL = () => new Pistol();
-	public static readonly WeaponFactory SHOTGUN = () => new Shotgun();
+	public static readonly WeaponFactory PISTOL = () => new LegacyPistol();
+	public static readonly WeaponFactory SHOTGUN = () => new LegacyShotgun();
 }
 
 public struct WeaponSpawner

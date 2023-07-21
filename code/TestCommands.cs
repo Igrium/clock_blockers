@@ -15,33 +15,16 @@ public static class TestCommands
 {
 	public static Animation? CachedAnimation { get; set; }
 
-	static AgentPawn? Caller
+	static Player? Caller
 	{
 		get
 		{
-			var client = ConsoleSystem.Caller;
-
-			if ( client == null )
-			{
-				var clients = Game.Clients.Where( c => c.Pawn is AgentPawn );
-				if ( clients.Any() )
-				{
-					client = clients.First();
-				}
-			}
-
-			if ( client == null ) return null;
-
-			if ( client.Pawn is AgentPawn p )
-			{
-				return p;
-			}
-			else
-			{
-				return null;
-			}
+			var pawn = ConsoleSystem.Caller?.Pawn;
+			if ( pawn is Player player ) return player;
+			else return null;
 		}
 	}
+	
 
 	[ConCmd.Server( "testcapture_start" )]
 	public static void StartCapture()
@@ -82,7 +65,7 @@ public static class TestCommands
 		}
 
 		Log.Info( "Starting capture playback" );
-		AnimPlayer.Create( CachedAnimation );
+		PlayAnimation( CachedAnimation );
 
 	}
 
@@ -143,11 +126,24 @@ public static class TestCommands
 		game.DoRound();
 	}
 
-	[ConCmd.Server("test_player")]
+	[ConCmd.Server("spawn_player")]
 	public static void TestPlayer()
 	{
 		var player = new Player();
 		var client = ConsoleSystem.Caller;
 		if ( client != null ) client.Pawn = player;
+	}
+
+	public static Player PlayAnimation(Animation animation)
+	{
+		if (animation.IsEmpty)
+		{
+			throw new ArgumentException( "Animation must not be empty.", "animation" );
+		}
+		var player = new Player();
+		player.SetControlMethod( AgentControlMethod.PLAYBACK );
+		player.CreateAnimPlayer().Play( animation );
+
+		return player;
 	}
 }

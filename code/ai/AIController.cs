@@ -49,7 +49,7 @@ public partial class AIController : EntityComponent<AgentPawn>, ISingletonCompon
 
 		TickMovement();
 
-		if ( Target is AgentPawn pawn && pawn.ActiveWeapon is Pistol pistol && Entity.ActiveWeapon is Pistol weapon )
+		if ( Target is AgentPawn pawn && pawn.ActiveWeapon is LegacyPistol pistol && Entity.ActiveWeapon is LegacyPistol weapon )
 		{
 			if (pistol.DidShoot) weapon.PrimaryAttack();
 		}

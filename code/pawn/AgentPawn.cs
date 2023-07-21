@@ -83,7 +83,7 @@ public partial class AgentPawn : AnimatedEntity
 	{
 		get
 		{
-			Trace traceInfo = Firearm.CreateBulletTrace( this ).CreateTrace();
+			Trace traceInfo = LegacyFirearm.CreateBulletTrace( this ).CreateTrace();
 			return traceInfo.Run();
 		}
 	}
@@ -104,7 +104,7 @@ public partial class AgentPawn : AnimatedEntity
 		Components.Create<PawnControllerComponent>();
 		Components.Create<PawnAnimatorComponent>();
 
-		AnimPlayer = Components.Create<AnimPlayer>();
+		AnimPlayer = Components.Create<LegacyAnimPlayer>();
 		TimelinePlayer = Components.Create<TimelinePlayer>();
 
 
@@ -276,7 +276,7 @@ public partial class AgentPawn : AnimatedEntity
 		} );
 
 		SetActiveWeapon( weapon );
-		AnimCapture?.AddAction( new PickUpWeaponAction( weapon ) );
+		//AnimCapture?.AddAction( new PickUpWeaponAction( weapon ) );
 	}
 
 	public void DressFromClient( IClient cl )
@@ -500,7 +500,7 @@ public partial class AgentPawn : AnimatedEntity
 
 		if ( AnimCapture != null && target is not IUseNotCanon )
 		{
-			AnimCapture.AddAction( new UseAction( target ) );
+			//AnimCapture.AddAction( new UseAction( target ) );
 		}
 
 		use.OnUse( this );

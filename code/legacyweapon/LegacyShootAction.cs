@@ -14,14 +14,14 @@ namespace ClockBlockers;
 /// <summary>
 /// Records a pawn firing a weapon.
 /// </summary>
-public class ShootAction : IAction
+public class LegacyShootAction : IAction
 {
 	public List<PersistentTrace> Traces { get; private set; } = new();
 
-	public void Run( AgentPawn pawn )
+	public void Run( Player pawn )
 	{
-		if ( pawn.ActiveWeapon is Firearm weapon )
-			weapon.ShootRemnant( this );
+		//if ( pawn.ActiveWeapon is LegacyFirearm weapon )
+		//	weapon.ShootRemnant( this );
 	}
 }
 

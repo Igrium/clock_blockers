@@ -28,7 +28,7 @@ public struct ExtendedTraceResult
 /// A weapon that can shoot like a firearm.
 /// Contains custom persistence code for traces.
 /// </summary>
-public abstract partial class Firearm : LegacyWeapon
+public abstract partial class LegacyFirearm : LegacyWeapon
 {
 	/// <summary>
 	/// The distance a target entity is allowed to move between timelines before damage is recalculated.
@@ -62,7 +62,7 @@ public abstract partial class Firearm : LegacyWeapon
 			{
 				using ( Prediction.Off() )
 				{
-					if (Game.IsServer)
+					if ( Game.IsServer )
 					{
 						DamageInfo damageInfo = CreateDamage( tr );
 						var entDamage = EntityDamage.FromDamageInfo( damageInfo, tr.Result.Entity );
@@ -83,7 +83,7 @@ public abstract partial class Firearm : LegacyWeapon
 			var capture = Pawn.AnimCapture;
 			if ( capture != null )
 			{
-				ShootAction action = new ShootAction();
+				LegacyShootAction action = new LegacyShootAction();
 				action.Traces.AddRange( persistentTraces );
 				capture.AddAction( action );
 			}
@@ -96,7 +96,7 @@ public abstract partial class Firearm : LegacyWeapon
 	/// Called when this weapon is shot by a remnant.
 	/// </summary>
 	/// <param name="action">The instigating shoot action.</param>
-	public void ShootRemnant( ShootAction action )
+	public void ShootRemnant( LegacyShootAction action )
 	{
 		foreach ( var trace in action.Traces )
 		{

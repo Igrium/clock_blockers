@@ -1,21 +1,23 @@
-﻿using Sandbox;
+﻿#nullable enable
+
+using Sandbox;
 using System.Linq;
 
 namespace ClockBlockers;
 /// <summary>
 ///  Something that can go into the player's inventory and have a worldmodel and viewmodel etc, 
 /// </summary>
-public class Carriable : AnimatedEntity
+public abstract class Carriable : AnimatedEntity
 {
 
 	/// <summary>
 	/// Utility - return the entity we should be spawning particles from etc
 	/// </summary>
 	public virtual ModelEntity EffectEntity => (ViewModelEntity.IsValid() && IsFirstPersonMode) ? ViewModelEntity : this;
-	public Entity Carrier { get; set; }
-	public virtual string WorldModelPath => null;
-	public virtual string ViewModelPath => null;
-	public BaseViewModel ViewModelEntity { get; protected set; }
+	public AnimatedEntity? Carrier { get; set; }
+	public abstract string? WorldModelPath { get; }
+	public abstract string? ViewModelPath { get; }
+	public BaseViewModel? ViewModelEntity { get; protected set; }
 	public override void Spawn()
 	{
 		base.Spawn();

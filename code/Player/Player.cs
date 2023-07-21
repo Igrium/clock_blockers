@@ -1,9 +1,21 @@
-﻿using Sandbox;
+﻿#nullable enable
+
+using Sandbox;
 using System;
 using System.ComponentModel;
 using System.Linq;
 
 namespace ClockBlockers;
+
+/// <summary>
+/// How is an agent being controlled?
+/// </summary>
+public enum AgentControlMethod
+{
+	PLAYER,
+	AI,
+	PLAYBACK
+}
 
 partial class Player : AnimatedEntity
 {
@@ -83,6 +95,7 @@ partial class Player : AnimatedEntity
 	public AmmoStorageComponent Ammo => Components.Get<AmmoStorageComponent>();
 	public UseComponent UseKey => Components.Get<UseComponent>();
 	public UnstuckComponent UnstuckController => Components.Get<UnstuckComponent>();
+
 
 
 	/// <summary>
@@ -191,6 +204,38 @@ partial class Player : AnimatedEntity
 
 	//---------------------------------------------// 
 
+	public bool HasClient => Client != null && Client.Pawn == this;
+
+	/// <summary>
+	/// The current control method of this agent.
+	/// </summary>
+	[Net]
+	public AgentControlMethod ControlMethod { get; private set; } = AgentControlMethod.PLAYER;
+
+	public void SetControlMethod( AgentControlMethod controlMethod )
+	{
+		if ( !IsAuthority ) return;
+
+		var prevControlMethod = ControlMethod;
+		if ( controlMethod == prevControlMethod ) return;
+
+		ControlMethod = controlMethod;
+
+		if ( IsFreeAgent )
+		{
+			Components.Add( new WalkController() );
+		}
+		else
+		{
+			Components.Add( new PlaybackMovementController() );
+		}
+	}
+
+	/// <summary>
+	/// Whether this agent is considered a "free agent"
+	/// </summary>
+	public bool IsFreeAgent => ControlMethod != AgentControlMethod.PLAYBACK;
+
 	/// <summary>
 	/// Pawns get a chance to mess with the input. This is called on the client.
 	/// </summary>
@@ -208,38 +253,66 @@ partial class Player : AnimatedEntity
 		}
 	}
 
-	/// <summary>
-	/// Called every tick, clientside and serverside.
-	/// </summary>
 	public override void Simulate( IClient cl )
 	{
 		base.Simulate( cl );
-		// toggleable third person
-		if ( Input.Pressed( "View" ) && Game.IsServer )
+		if ( HasClient )
+			Tick( cl );
+		
+	}
+
+	[GameEvent.Tick.Server]
+	protected void TickServer()
+	{
+		if ( !HasClient )
+			Tick( null );
+	}
+
+	/// <summary>
+	/// Called every tick.
+	/// If this agent is controlled by a client, this is called during <c>Simulate</c>.
+	/// If not, it's called during <c>GameEvent.Tick.Server</c>.
+	/// </summary>
+	public virtual void Tick( IClient? cl )
+	{
+		if ( IsLocalPawn )
 		{
-			if ( CameraController is FirstPersonCamera )
+			// toggleable third person
+			if ( Input.Pressed( "View" ) && Game.IsServer )
 			{
-				Components.Add( new ThirdPersonCamera() );
+				if ( CameraController is FirstPersonCamera )
+				{
+					Components.Add( new ThirdPersonCamera() );
+				}
+				else if ( CameraController is ThirdPersonCamera )
+				{
+					Components.Add( new FirstPersonCamera() );
+				}
 			}
-			else if ( CameraController is ThirdPersonCamera )
+			if ( ControlMethod == AgentControlMethod.PLAYER )
 			{
-				Components.Add( new FirstPersonCamera() );
-			}
-		}
-		if ( Game.IsClient )
-		{
-			if ( Input.MouseWheel > 0.1 )
-			{
-				Inventory?.SwitchActiveSlot( 1, true );
-			}
-			if ( Input.MouseWheel < -0.1 )
-			{
-				Inventory?.SwitchActiveSlot( -1, true );
+				if ( Input.MouseWheel > 0.1 )
+				{
+					Inventory?.SwitchActiveSlot( 1, true );
+				}
+				if ( Input.MouseWheel < -0.1 )
+				{
+					Inventory?.SwitchActiveSlot( -1, true );
+				}
 			}
 		}
 		// these are to be done in order and before the simulated components
-		UnstuckController?.Simulate( cl );
-		MovementController?.Simulate( cl );
+		// Inputs
+		if ( IsFreeAgent )
+		{
+			UnstuckController?.Simulate( cl );
+			MovementController?.Simulate( cl );
+		}
+
+		// Time shit in between inputs and outputs.
+		TickTimeShit( cl );
+
+		// Outputs
 		CameraController?.Simulate( cl );
 		AnimationController?.Simulate( cl );
 		foreach ( var i in Components.GetAll<SimulatedComponent>() )
@@ -289,5 +362,16 @@ partial class Player : AnimatedEntity
 			if ( wlk.IsDucking ) return 0.3f;
 		}
 		return 1;
+	}
+
+	public TraceResult ViewTarget { get; protected set; }
+
+	[GameEvent.Tick]
+	protected virtual void UpdateViewTarget()
+	{
+		Trace trace = Trace.Ray( AimRay, 128 )
+			.WithAnyTags( "solid", "glass" )
+			.Ignore( this );
+		ViewTarget = trace.Run();
 	}
 }

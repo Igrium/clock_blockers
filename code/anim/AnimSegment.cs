@@ -129,13 +129,14 @@ public struct AnimFrame
 	public Rotation EyeRotation { get; set; }
 	public Rotation Rotation { get; set; }
 	public bool IsGrounded { get; set; }
+	public bool IsDucked { get; set; }
 
 	/// <summary>
 	/// Capture a frame from a pawn's current state.
 	/// </summary>
 	/// <param name="pawn">Pawn to capture.</param>
 	/// <returns>The frame.</returns>
-	public static AnimFrame Capture( AgentPawn pawn )
+	public static AnimFrame Capture( Player pawn )
 	{
 		return new()
 		{
@@ -144,6 +145,7 @@ public struct AnimFrame
 			Rotation = pawn.Rotation,
 			EyeRotation = pawn.EyeRotation,
 			IsGrounded = pawn.IsGrounded,
+			IsDucked = pawn.MovementController.HasTag( "ducked" )
 		};
 	}
 
@@ -151,13 +153,14 @@ public struct AnimFrame
 	/// Apply this frame to a pawn.
 	/// </summary>
 	/// <param name="pawn">Pawn to apply to.</param>
-	public void ApplyTo( AgentPawn pawn )
+	public void ApplyTo( Player pawn )
 	{
 		pawn.Position = Position;
 		pawn.Velocity = Velocity;
 		pawn.Rotation = Rotation;
 		pawn.EyeRotation = EyeRotation;
 		pawn.IsGrounded = IsGrounded;
+		pawn.MovementController.SetTag( "ducked" );
 	}
 
 	public override string ToString()

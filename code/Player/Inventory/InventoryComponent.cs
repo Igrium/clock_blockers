@@ -111,7 +111,7 @@ public partial class InventoryComponent : SimulatedComponent, ISingletonComponen
 
 		// drop weapons
 
-		if ( Input.Pressed( "Drop" ) && ActiveChild != null )
+		if ( Entity.HasClient && Entity.ControlMethod == AgentControlMethod.PLAYER && Input.Pressed( "Drop" ) && ActiveChild != null )
 		{
 			var item = ActiveChild;
 			DropItem( item );

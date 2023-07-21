@@ -15,7 +15,7 @@ public partial class UseComponent : SimulatedComponent
 	public override void Simulate( IClient cl )
 	{
 		// This is serverside only
-		if ( !Game.IsServer ) return;
+		if ( !Game.IsServer || !Entity.HasClient ) return;
 
 		// Turn prediction off
 		using ( Prediction.Off() )

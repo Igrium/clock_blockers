@@ -1,4 +1,6 @@
-﻿using Sandbox;
+﻿#nullable enable
+
+using Sandbox;
 using System;
 using System.Collections.Generic;
 
@@ -6,11 +8,14 @@ namespace ClockBlockers;
 
 /// <summary>
 /// Component designed for movement, only 1 per pawn.
+/// 
+/// In general, movement components should not store data intended to be used
+/// across multiple ticks, as they are swapped out often.
 /// </summary>
 public class MovementComponent : EntityComponent<Player>, ISingletonComponent
 {
 
-	public virtual void Simulate( IClient cl )
+	public virtual void Simulate( IClient? cl )
 	{
 
 	}
@@ -26,7 +31,7 @@ public class MovementComponent : EntityComponent<Player>, ISingletonComponent
 
 	internal HashSet<string> Events = new( StringComparer.OrdinalIgnoreCase );
 
-	internal HashSet<string> Tags;
+	internal HashSet<string> Tags = new();
 	/// <summary>
 	/// Call OnEvent for each event
 	/// </summary>

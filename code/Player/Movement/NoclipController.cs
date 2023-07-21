@@ -1,4 +1,5 @@
-﻿
+﻿#nullable enable
+
 using Sandbox;
 
 namespace ClockBlockers;
@@ -12,7 +13,7 @@ public partial class NoclipController : MovementComponent
 		var pl = Entity as Player;
 		pl.InputDirection = Input.AnalogMove;
 	}
-	public override void Simulate( IClient cl )
+	public override void Simulate( IClient? cl )
 	{
 
 		var pl = Entity as Player;

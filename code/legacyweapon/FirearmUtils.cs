@@ -7,7 +7,7 @@ using Sandbox;
 
 namespace ClockBlockers;
 
-public partial class Firearm
+public partial class LegacyFirearm
 {
 	/// <summary>
 	/// Create a <c>TraceInfo</c> appropriate for a bullet.

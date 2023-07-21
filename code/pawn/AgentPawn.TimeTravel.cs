@@ -16,7 +16,7 @@ namespace ClockBlockers;
  */
 public partial class AgentPawn
 {
-	public AnimPlayer AnimPlayer { get; protected set; } = new AnimPlayer();
+	public LegacyAnimPlayer AnimPlayer { get; protected set; } = new LegacyAnimPlayer();
 	public TimelinePlayer? TimelinePlayer { get; protected set; }
 
 	public AnimCapture? AnimCapture { get; protected set; }
