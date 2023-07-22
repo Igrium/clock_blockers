@@ -68,7 +68,12 @@ public struct UseAction : IAction
 
 	public string ActionID => ID;
 	public string TargetID { get; set; } = "";
+	public bool Continuous { get; set; }
 	public UseAction() { }
+	public UseAction(Entity target)
+	{
+		TargetID = target.GetPersistentIDOrThrow( true );
+	}
 
 	public bool Run( Player pawn )
 	{
@@ -78,7 +83,8 @@ public struct UseAction : IAction
 			Log.Warning( $"Use target '{TargetID}' not usable!" );
 			return false;
 		}
-		return pawn.UseComponent.StartUsing( target );
+		pawn.UseComponent.StartUsing( target );
+		return Continuous;
 	}
 
 	public void StopAction( Player pawn )
@@ -86,33 +92,6 @@ public struct UseAction : IAction
 		pawn.UseComponent.StopUsing();
 	}
 }
-
-/// <summary>
-/// The pawn uses <c>+use</c> on an entity.
-/// </summary>
-//public struct UseAction : IAction
-//{
-//	/// <summary>
-//	/// The persistent ID of the target entity.
-//	/// </summary>
-//	public string TargetID { get; set; } = "";
-
-//	public UseAction() { }
-
-//	public UseAction( Entity target )
-//	{
-//		TargetID = target.GetPersistentIDOrThrow( generate: true );
-//	}
-
-//	public void Run( AgentPawn pawn )
-//	{
-//		var ent = PersistentEntities.GetEntity( TargetID );
-//		if ( ent is not IUse target || !target.IsUsable( pawn ) )
-//			return;
-
-//		pawn.Use( ent );
-//	}
-//}
 
 public struct DropWeaponAction : IAction
 {
