@@ -1,4 +1,8 @@
-﻿using Sandbox;
+﻿#nullable enable
+
+using ClockBlockers.Anim;
+using ClockBlockers.Timeline;
+using Sandbox;
 
 namespace ClockBlockers;
 
@@ -7,49 +11,81 @@ public partial class UseComponent : SimulatedComponent
 	/// <summary>
 	/// Entity the player is currently using via their interaction key.
 	/// </summary>
-	public Entity Using { get; protected set; }
+	public Entity? Using { get; protected set; }
 
 	/// <summary>
 	/// This should be called somewhere in your player's tick to allow them to use entities
 	/// </summary>
-	public override void Simulate( IClient cl )
+	public override void Simulate( IClient? cl )
 	{
-		// This is serverside only
-		if ( !Game.IsServer || !Entity.HasClient ) return;
+		base.Simulate( cl );
 
-		// Turn prediction off
+		if ( !Game.IsServer )
+			return;
+
+		// Auto stop using if can no longer use.
+		if ( !Using.IsValid() || (Using is IUse use && !use.OnUse( Entity )) )
+			StopUsing();
+
+		// The rest of this method is only called on the server for players.
+		if ( !Game.IsServer || !Entity.HasClient || Entity.ControlMethod != AgentControlMethod.PLAYER )
+			return;
+
+
 		using ( Prediction.Off() )
 		{
+			var target = Using;
 			if ( Input.Pressed( "Use" ) )
 			{
-				Using = FindUsable();
+				target = FindUsable();
 
-				if ( Using == null )
+				if ( target == null )
 				{
 					UseFail();
 					return;
 				}
 			}
 
-			if ( !Input.Down( "Use" ) )
+			if ( !Input.Down( "use" ) )
 			{
 				StopUsing();
 				return;
 			}
 
-			if ( !Using.IsValid() )
+			if ( !target.IsValid() )
 				return;
 
-			// If we move too far away or something we should probably ClearUse()?
-
-			//
-			// If use returns true then we can keep using it
-			//
-			if ( Using is IUse use && use.OnUse( Entity ) )
-				return;
-
-			StopUsing();
+			StartUsing( target );
 		}
+	}
+
+	/// <summary>
+	/// Start using an entity.
+	/// </summary>
+	/// <param name="useTarget">The entity to use.</param>
+	/// <returns>If the target entity has a continuous use (key must be held)</returns>
+	public bool StartUsing( Entity useTarget )
+	{
+		// Make sure we're not using something else.
+		StopUsing();
+
+		if ( useTarget is not IUse use ) return false;
+		bool continuous = use.OnUse( Entity );
+		Using = useTarget;
+
+		if ( Entity.IsRecording )
+		{
+			Entity.AnimCapture?.AddAction( new UseAction()
+			{
+				TargetID = useTarget.GetPersistentIDOrThrow( generate: true )
+			} );
+		}
+
+		// Stop using immedietly if this is not continuous.
+		if ( !continuous )
+			StopUsing( stopAction: false );
+
+		return continuous;
 	}
 
 	/// <summary>
@@ -64,9 +100,14 @@ public partial class UseComponent : SimulatedComponent
 	/// <summary>
 	/// If we're using an entity, stop using it
 	/// </summary>
-	protected virtual void StopUsing()
+	public virtual void StopUsing(bool stopAction = true)
 	{
+		if ( Using == null ) return;
 		Using = null;
+		if (stopAction && Entity.IsRecording)
+		{
+			Entity.AnimCapture?.AddAction( new StopAction( UseAction.ID ) );
+		}
 	}
 
 	/// <summary>

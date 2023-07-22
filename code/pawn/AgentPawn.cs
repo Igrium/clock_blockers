@@ -125,7 +125,7 @@ public partial class AgentPawn : AnimatedEntity
 	public void DoJumpAnimation()
 	{
 		DidJump = true;
-		AnimCapture?.AddAction( IAction.Jump() );
+		AnimCapture?.AddAction( new JumpAction() );
 	}
 
 	public bool DidJump { get; protected set; }

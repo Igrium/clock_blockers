@@ -1,4 +1,6 @@
-﻿using Sandbox;
+﻿#nullable enable
+
+using Sandbox;
 
 namespace ClockBlockers;
 
@@ -7,7 +9,7 @@ namespace ClockBlockers;
 /// </summary>
 public class SimulatedComponent : EntityComponent<Player>
 {
-	public virtual void Simulate( IClient cl )
+	public virtual void Simulate( IClient? cl )
 	{
 
 	}

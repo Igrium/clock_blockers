@@ -21,6 +21,13 @@ public class AnimPlayer : EntityComponent<Player>, ISingletonComponent
 
 	private Animation _animation = new Animation();
 
+	private Dictionary<string, IAction> _persistentActions = new();
+
+	/// <summary>
+	/// All the persistent actions that are currently active.
+	/// </summary>
+	public IReadOnlyDictionary<string, IAction> PersistentActions { get => _persistentActions.AsReadOnly(); }
+
 	/// <summary>
 	/// The animation to play.
 	/// </summary>
@@ -105,33 +112,53 @@ public class AnimPlayer : EntityComponent<Player>, ISingletonComponent
 		_localTick++;
 	}
 
-	public void Stop()
+	public void RunAction( IAction action )
 	{
-		IsPlaying = false;
+		if ( action is StopAction stop )
+		{
+			StopAction( stop.TargetID );
+		}
+
+		string? id = action.ActionID;
+		if ( id != null )
+		{
+			StopAction( id );
+		}
+		if ( action.Run( Entity ) && id != null )
+		{
+			_persistentActions.Add( id, action );
+		}
 	}
 
 	/// <summary>
-	/// Create a pawn and animation player for a given animation
+	/// Stop an action if it is running.
 	/// </summary>
-	/// <param name="animation">The animation to use</param>
-	/// <returns>The animation player (the pawn can be extracted from this)</returns>
-	//public static AgentPawn Create( Animation animation )
-	//{
-	//	if ( animation.IsEmpty )
-	//	{
-	//		throw new ArgumentException( "Supplied animation is empty." );
-	//	}
+	/// <param name="actionID">The action's ID</param>
+	public void StopAction( string actionID )
+	{
+		IAction? action;
+		if ( _persistentActions.TryGetValue( actionID, out action ) )
+		{
+			action.Stop( Entity );
+			_persistentActions.Remove( actionID );
+		}
+	}
 
+	/// <summary>
+	/// Stop the current animation.
+	/// </summary>
+	/// <param name="clearActions">Stop all the persistent actions. Should only be false if a future animation intends to stop them.</param>
+	public void Stop( bool clearActions = true )
+	{
+		IsPlaying = false;
+		if ( clearActions )
+		{
+			foreach ( var action in _persistentActions )
+			{
+				action.Value.Stop( Entity );
+			}
+			_persistentActions.Clear();
+		}
 
-	//	AgentPawn pawn = new();
-	//	pawn.PostSpawn();
-	//	pawn.Clothing = animation.Clothing;
-	//	pawn.ControlMethod = PawnControlMethod.Animated;
-
-	//	animation.Segments[0].Frames[0].ApplyTo( pawn );
-
-	//	pawn.PlayAnimation( animation );
-
-	//	return pawn;
-	//}
+	}
 }

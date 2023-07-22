@@ -167,3 +167,13 @@ I've been debating for a while on how to structure the event system in the code,
   - Keeping animations separate and gatekeeping the next animation behind the event means actions won't be prematurely triggered in the event of a tickrate desync
 
 - Animation tree could be a recursive data structure.
+
+# Togglable Actions
+
+Sometimes, it's desirable for an action to last multiple ticks (`+use`, automatic weapons, etc.). it doesn't make sense to include an action instance for every tick that the action is active, as that would waste space and it would be impossible to discern which actions are meant to be continuations of previous actions.
+
+A potential solution is to have "togglable actions", a sub-interface of `Action` that implement a few extra features:
+
+- Each togglable action has a unique string ID. If a new action is started with that ID or a `StopAction` is added with that ID, the action is disabled. Until then, it gets added to a map of "active actions", which can be queried at any time by code.
+
+- An `OnStopped` method is added, which is called when the action is disabled. This is called *before* any replacement method's `Run` method is called.

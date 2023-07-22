@@ -17,26 +17,74 @@ namespace ClockBlockers.Anim;
 public interface IAction
 {
 	/// <summary>
+	/// The action ID to use if this action is continuous.
+	/// </summary>
+	public string? ActionID => null;
+
+	/// <summary>
 	/// Run this action.
 	/// </summary>
 	/// <param name="pawn">Pawn to use.</param>
-	public void Run( Player pawn );
+	/// <returns>If this action should act as a continuous action.</returns>
+	public bool Run( Player pawn );
 
-	private static JumpAction _jumpInstance = new JumpAction();
+	/// <summary>
+	/// Stop this action. Called before any replacement action is started.
+	/// </summary>
+	/// <param name="pawn">The pawn stopping the action</param>
+	public void Stop( Player pawn ) {}
 
-	public static IAction Jump()
-	{
-		return _jumpInstance;
-	}
 }
 
-class JumpAction : IAction
+/// <summary>
+/// Stops any action with the target ID.
+/// Implementation is in the anim player rather than the action.
+/// </summary>
+public struct StopAction : IAction
 {
-	public void Run( Player pawn )
+	public string TargetID { get; set; }
+
+	public StopAction(string targetID)
 	{
-		pawn.MovementController.SetTag( "jump" );
+		TargetID = targetID;
 	}
 
+	public bool Run( Player pawn ) { return false; }
+}
+
+public struct JumpAction : IAction
+{
+	public bool Run( Player pawn )
+	{
+		pawn.MovementController.AddEvent( "jump" );
+		return false;
+	}
+
+}
+
+public struct UseAction : IAction
+{
+	public static readonly string ID = "use";
+
+	public string ActionID => ID;
+	public string TargetID { get; set; } = "";
+	public UseAction() { }
+
+	public bool Run( Player pawn )
+	{
+		Entity? target = PersistentEntities.GetEntity( TargetID );
+		if (target is not IUse)
+		{
+			Log.Warning( $"Use target '{TargetID}' not usable!" );
+			return false;
+		}
+		return pawn.UseComponent.StartUsing( target );
+	}
+
+	public void StopAction( Player pawn )
+	{
+		pawn.UseComponent.StopUsing();
+	}
 }
 
 /// <summary>
@@ -71,9 +119,10 @@ public struct DropWeaponAction : IAction
 	public Vector3 Velocity { get; set; }
 
 
-	public void Run( Player pawn )
+	public bool Run( Player pawn )
 	{
 		pawn.Inventory.DropItem( pawn.Inventory.ActiveChild );
+		return false;
 	}
 }
 

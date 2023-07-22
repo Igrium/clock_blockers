@@ -93,7 +93,7 @@ partial class Player : AnimatedEntity
 	public AnimationComponent AnimationController => Components.Get<AnimationComponent>();
 	public InventoryComponent Inventory => Components.Get<InventoryComponent>();
 	public AmmoStorageComponent Ammo => Components.Get<AmmoStorageComponent>();
-	public UseComponent UseKey => Components.Get<UseComponent>();
+	public UseComponent UseComponent => Components.Get<UseComponent>();
 	public UnstuckComponent UnstuckController => Components.Get<UnstuckComponent>();
 
 
@@ -309,9 +309,10 @@ partial class Player : AnimatedEntity
 			UnstuckController?.Simulate( cl );
 
 		MovementController?.Simulate( cl );
-		TickTimeShit( cl );
 
 		// Time shit in between inputs and outputs.
+		// With the playback movement controller, animation can manipulate tags for animation purposes.
+		TickTimeShit( cl );
 
 		// Outputs
 		CameraController?.Simulate( cl );

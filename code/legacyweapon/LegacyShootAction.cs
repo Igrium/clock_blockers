@@ -18,10 +18,11 @@ public class LegacyShootAction : IAction
 {
 	public List<PersistentTrace> Traces { get; private set; } = new();
 
-	public void Run( Player pawn )
+	public bool Run( Player pawn )
 	{
 		//if ( pawn.ActiveWeapon is LegacyFirearm weapon )
 		//	weapon.ShootRemnant( this );
+		return false;
 	}
 }
 
