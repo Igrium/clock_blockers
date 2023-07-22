@@ -87,7 +87,7 @@ public struct UseAction : IAction
 		return Continuous;
 	}
 
-	public void StopAction( Player pawn )
+	public void Stop( Player pawn )
 	{
 		pawn.UseComponent.StopUsing();
 	}

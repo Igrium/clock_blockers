@@ -106,7 +106,7 @@ public class AnimPlayer : EntityComponent<Player>, ISingletonComponent
 
 		foreach ( IAction action in segment.GetActions( _localTick ) )
 		{
-			action.Run( Entity );
+			RunAction( action );
 		}
 
 		_localTick++;
@@ -117,6 +117,7 @@ public class AnimPlayer : EntityComponent<Player>, ISingletonComponent
 		if ( action is StopAction stop )
 		{
 			StopAction( stop.TargetID );
+			return;
 		}
 
 		string? id = action.ActionID;
