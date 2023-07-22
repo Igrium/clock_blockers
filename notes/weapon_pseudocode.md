@@ -98,3 +98,6 @@ We don't need to actually check that the held weapon is the same as in the recor
 - Purely visual; plays the reload animation.
 
 - One for each instance of the reload (shotguns will have multiple in a row)
+  
+# Edit
+Yeah, this system is way too overcomplicated. It's better to just temporarily set entities to their lag compensated state and re-run the trace.
