@@ -69,6 +69,11 @@ public partial class WalkController : MovementComponent
 	/// </summary>
 	public Vector3 TraceOffset;
 
+	/// <summary>
+	/// If this agent is controlled by a player. It's only safe to use <c>Input</c> if this returns true.
+	/// </summary>
+	public bool ControlledByPlayer => Entity.HasClient && Entity.ControlMethod == AgentControlMethod.PLAYER;
+
 	public virtual void SetBBox( Vector3 mins, Vector3 maxs )
 	{
 		if ( this.mins == mins && this.maxs == maxs )
@@ -116,6 +121,7 @@ public partial class WalkController : MovementComponent
 	public override void Simulate( IClient? cl )
 	{
 		var pl = Entity as Player;
+		if ( pl.ControlMethod != AgentControlMethod.PLAYER || !pl.HasClient ) return;
 
 		Events?.Clear();
 		Tags?.Clear();
@@ -123,10 +129,15 @@ public partial class WalkController : MovementComponent
 		pl.EyeLocalPosition = Vector3.Up * EyeHeight;
 		pl.EyeRotation = pl.ViewAngles.ToRotation();
 
+		if (ControlledByPlayer)
+		{
+			IsSprinting = Input.Down( "run" );
+			IsWalking = Input.Down( "walk" );
+		}
 
 		CheckDuck();
 		UpdateBBox();
-
+		
 
 		RestoreGroundPos();
 		//Entity.Velocity += Entity.BaseVelocity * (1 + Time.Delta * 0.5f);
@@ -297,14 +308,20 @@ public partial class WalkController : MovementComponent
 
 	}
 
+	public bool IsSprinting { get; set; } = false;
+	public bool IsWalking { get; set; } = false;
+
 	public virtual float GetWishSpeed()
 	{
 		var ws = -1;// Duck.GetWishSpeed();
 		if ( ws >= 0 ) return ws;
 
-		if ( Input.Down( "Duck" ) || IsDucking ) return CrouchSpeed;
-		if ( Input.Down( "Run" ) ) return SprintSpeed; ;
-		if ( Input.Down( "Walk" ) ) return WalkSpeed;
+		if ( IsDucking ) return CrouchSpeed;
+		if ( IsSprinting ) return SprintSpeed; ;
+		if ( IsWalking ) return WalkSpeed;
+
+		//if ( Input.Down( "Run" ) ) return SprintSpeed; ;
+		//if ( Input.Down( "Walk" ) ) return WalkSpeed;
 
 		return DefaultSpeed;
 	}

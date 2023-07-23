@@ -19,6 +19,11 @@ public abstract partial class BaseFirearm : Carriable
 {
 
 	/// <summary>
+	/// If the fire effects on this weapon should act continuous (smg, etc)
+	/// </summary>
+	public virtual bool IsFireContinuous => false;
+
+	/// <summary>
 	/// Fire a bullet from this weapon.
 	/// </summary>
 	/// <param name="bullet">The bullet to shoot.</param>
@@ -85,5 +90,19 @@ public abstract partial class BaseFirearm : Carriable
 	public virtual bool IsPenetrable( Entity entity )
 	{
 		return (entity.Tags.HasAny( new() { "penetrable", "water", "glass" } ) || entity is ShatterGlass || entity is GlassShard);
+	}
+
+	public virtual void DoShootEffects()
+	{
+		if ( Owner is Player player && player.IsRecording )
+			player.AnimCapture?.AddAction( new ShootEffectsAction( IsFireContinuous ) );
+	}
+
+	public virtual void StopShootEffects()
+	{
+		if ( Owner is Player player && player.IsRecording )
+		{
+			player.AnimCapture?.AddAction( new StopAction( ShootEffectsAction.ID ) );
+		}
 	}
 }

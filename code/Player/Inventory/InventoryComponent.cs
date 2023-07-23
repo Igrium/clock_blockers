@@ -138,7 +138,8 @@ public partial class InventoryComponent : SimulatedComponent, ISingletonComponen
 			if ( ActiveChild is Carriable cr2 ) cr2.OnActiveStart();
 		}
 
-		ActiveChild?.Simulate( cl );
+		if (Entity.HasClient)
+			ActiveChild?.Simulate( cl );
 	}
 	public override void FrameSimulate( IClient cl )
 	{

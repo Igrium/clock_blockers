@@ -16,6 +16,5 @@ public struct BulletInfo
 	public float FalloffMultiplier { get; set; }
 	public DamageFalloffType FalloffType { get; set; }
 	public float Force { get; set; }
-	public float Radius { get; set; }
-	
+	public float Radius { get; set; }	
 }

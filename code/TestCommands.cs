@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using ClockBlockers.Anim;
+using ClockBlockers.Weapon;
 using Sandbox;
 using System;
 using System.Collections.Generic;
@@ -130,8 +131,11 @@ public static class TestCommands
 	public static void TestPlayer()
 	{
 		var player = new Player();
+		player.Inventory?.AddItem( new Pistol() );
 		var client = ConsoleSystem.Caller;
 		if ( client != null ) client.Pawn = player;
+
+
 	}
 
 	public static Player PlayAnimation(Animation animation)
@@ -142,6 +146,7 @@ public static class TestCommands
 		}
 		var player = new Player();
 		player.SetControlMethod( AgentControlMethod.PLAYBACK );
+		player.Inventory.AddItem( new Pistol() );
 		player.CreateAnimPlayer().Play( animation );
 
 		return player;

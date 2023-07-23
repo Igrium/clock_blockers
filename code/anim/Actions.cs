@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design.Serialization;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 using ClockBlockers.Timeline;
@@ -33,7 +34,7 @@ public interface IAction
 	/// Stop this action. Called before any replacement action is started.
 	/// </summary>
 	/// <param name="pawn">The pawn stopping the action</param>
-	public void Stop( Player pawn ) {}
+	public void Stop( Player pawn ) { }
 
 }
 
@@ -45,7 +46,7 @@ public struct StopAction : IAction
 {
 	public string TargetID { get; set; }
 
-	public StopAction(string targetID)
+	public StopAction( string targetID )
 	{
 		TargetID = targetID;
 	}
@@ -71,7 +72,7 @@ public struct UseAction : IAction
 	public string TargetID { get; set; } = "";
 	public bool Continuous { get; set; }
 	public UseAction() { }
-	public UseAction(Entity target)
+	public UseAction( Entity target )
 	{
 		TargetID = target.GetPersistentIDOrThrow( true );
 	}
@@ -79,7 +80,7 @@ public struct UseAction : IAction
 	public bool Run( Player pawn )
 	{
 		Entity? target = PersistentEntities.GetEntity( TargetID );
-		if (target is not IUse)
+		if ( target is not IUse )
 		{
 			Log.Warning( $"Use target '{TargetID}' not usable!" );
 			return false;
@@ -110,18 +111,50 @@ public struct ShootAction : IAction
 {
 	public BulletInfo Bullet { get; init; }
 
-	public ShootAction(BulletInfo bullet)
+	public ShootAction( BulletInfo bullet )
 	{
 		Bullet = bullet;
 	}
 
-	public readonly bool Run( Player pawn )
+	public bool Run( Player pawn )
 	{
-		if (pawn.ActiveWeapon is BaseFirearm firearm)
+		if ( pawn.ActiveWeapon is BaseFirearm firearm )
 		{
 			firearm.FireBullet( Bullet, true );
 		}
 		return false;
+	}
+}
+
+public struct ShootEffectsAction : IAction
+{
+	public static readonly string ID = "ShootEffects";
+
+	public string ActionID => ID;
+
+	public bool IsContinuous { get; set; }
+
+	public ShootEffectsAction( bool isContinuous )
+	{
+		IsContinuous = isContinuous;
+	}
+
+	public bool Run( Player pawn )
+	{
+		if ( pawn.ActiveWeapon is BaseFirearm firearm )
+		{
+			firearm.DoShootEffects();
+		}
+
+		return IsContinuous;
+	}
+
+	public void Stop( Player pawn )
+	{
+		if ( pawn.ActiveWeapon is BaseFirearm firearm )
+		{
+			firearm.StopShootEffects();
+		}
 	}
 }
 

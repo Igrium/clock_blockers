@@ -14,9 +14,10 @@ public abstract class Carriable : AnimatedEntity
 	/// Utility - return the entity we should be spawning particles from etc
 	/// </summary>
 	public virtual ModelEntity EffectEntity => (ViewModelEntity.IsValid() && IsFirstPersonMode) ? ViewModelEntity : this;
-	public AnimatedEntity? Carrier { get; set; }
 	public abstract string? WorldModelPath { get; }
 	public abstract string? ViewModelPath { get; }
+
+	public Player? Pawn => Owner is Player player ? player : null;
 
 	public virtual CitizenAnimationHelper.HoldTypes HoldType => CitizenAnimationHelper.HoldTypes.Pistol;
 	public virtual CitizenAnimationHelper.Hand Handedness => CitizenAnimationHelper.Hand.Both;
