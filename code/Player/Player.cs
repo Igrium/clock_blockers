@@ -96,7 +96,7 @@ partial class Player : AnimatedEntity
 	public UseComponent UseComponent => Components.Get<UseComponent>();
 	public UnstuckComponent UnstuckController => Components.Get<UnstuckComponent>();
 
-
+	public Entity? ActiveWeapon => Inventory?.ActiveChild;
 
 	/// <summary>
 	/// Position a player should be looking from in world space.
@@ -198,6 +198,7 @@ partial class Player : AnimatedEntity
 			}
 			Inventory.Items.Clear();
 			Components.Add( new NoclipController() );
+			UseComponent?.StopUsing( false );
 		}
 		Event.Run( "Player.PostOnKilled", this );
 	}

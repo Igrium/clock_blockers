@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ClockBlockers.Timeline;
+using ClockBlockers.Weapon;
 using Sandbox;
 
 namespace ClockBlockers.Anim;
@@ -101,6 +102,25 @@ public struct DropWeaponAction : IAction
 	public bool Run( Player pawn )
 	{
 		pawn.Inventory.DropItem( pawn.Inventory.ActiveChild );
+		return false;
+	}
+}
+
+public struct ShootAction : IAction
+{
+	public BulletInfo Bullet { get; init; }
+
+	public ShootAction(BulletInfo bullet)
+	{
+		Bullet = bullet;
+	}
+
+	public readonly bool Run( Player pawn )
+	{
+		if (pawn.ActiveWeapon is BaseFirearm firearm)
+		{
+			firearm.FireBullet( Bullet, true );
+		}
 		return false;
 	}
 }

@@ -148,7 +148,7 @@ public class AnimPlayer : EntityComponent<Player>, ISingletonComponent
 	/// <summary>
 	/// Stop the current animation.
 	/// </summary>
-	/// <param name="clearActions">Stop all the persistent actions. Should only be false if a future animation intends to stop them.</param>
+	/// <param name="clearActions">Stop all the continuous actions. Should only be false if a future animation intends to stop them.</param>
 	public void Stop( bool clearActions = true )
 	{
 		IsPlaying = false;

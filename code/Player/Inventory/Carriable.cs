@@ -17,6 +17,9 @@ public abstract class Carriable : AnimatedEntity
 	public AnimatedEntity? Carrier { get; set; }
 	public abstract string? WorldModelPath { get; }
 	public abstract string? ViewModelPath { get; }
+
+	public virtual CitizenAnimationHelper.HoldTypes HoldType => CitizenAnimationHelper.HoldTypes.Pistol;
+	public virtual CitizenAnimationHelper.Hand Handedness => CitizenAnimationHelper.Hand.Both;
 	public BaseViewModel? ViewModelEntity { get; protected set; }
 	public override void Spawn()
 	{
@@ -118,8 +121,8 @@ public abstract class Carriable : AnimatedEntity
 	}
 	public virtual void SimulateAnimator( CitizenAnimationHelper anim )
 	{
-		anim.HoldType = CitizenAnimationHelper.HoldTypes.Pistol;
-		anim.Handedness = CitizenAnimationHelper.Hand.Both;
+		anim.HoldType = HoldType;
+		anim.Handedness = Handedness;
 		anim.AimBodyWeight = 1.0f;
 	}
 }
