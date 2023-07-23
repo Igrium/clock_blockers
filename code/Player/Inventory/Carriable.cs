@@ -7,7 +7,7 @@ namespace ClockBlockers;
 /// <summary>
 ///  Something that can go into the player's inventory and have a worldmodel and viewmodel etc, 
 /// </summary>
-public abstract class Carriable : AnimatedEntity
+public abstract partial class Carriable : AnimatedEntity
 {
 
 	/// <summary>
@@ -54,6 +54,7 @@ public abstract class Carriable : AnimatedEntity
 	/// <summary>
 	/// We're done with the viewmodel - delete it
 	/// </summary>
+	[ClientRpc]
 	public virtual void DestroyViewModel()
 	{
 		ViewModelEntity?.Delete();
@@ -102,6 +103,7 @@ public abstract class Carriable : AnimatedEntity
 		EnableDrawing = true;
 		EnableHideInFirstPerson = false;
 		EnableShadowInFirstPerson = false;
+		DestroyViewModel();
 	}
 	public virtual void OnActiveStart()
 	{

@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using ClockBlockers.Anim;
+using ClockBlockers.Spectator;
 using ClockBlockers.Weapon;
 using Sandbox;
 using System;
@@ -133,9 +134,15 @@ public static class TestCommands
 		var player = new Player();
 		player.Inventory?.AddItem( new Pistol() );
 		var client = ConsoleSystem.Caller;
-		if ( client != null ) client.Pawn = player;
 
-
+		if ( client != null )
+		{
+			if (client.Pawn is SpectatorPawn)
+			{
+				client.Pawn.Delete();
+			}
+			client.Pawn = player;
+		}
 	}
 
 	public static Player PlayAnimation(Animation animation)

@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using ClockBlockers.Spectator;
 using Sandbox;
 using System;
 using System.ComponentModel;
@@ -181,26 +182,25 @@ partial class Player : AnimatedEntity
 	public override void OnKilled()
 	{
 		if ( Game.IsClient ) return;
+
 		Event.Run( "Player.PreOnKilled", this );
 		LifeState = LifeState.Dead;
 		BecomeRagdoll( LastDamage );
 
-		Inventory.ActiveChild = null;
-		Inventory.ActiveChildInput = null;
-		if ( Game.IsServer )
+		Inventory?.DropItem( Inventory?.ActiveChild );
+		Inventory?.Items.Clear();
+		EnableDrawing = false;
+
+		if (HasClient)
 		{
-			EnableAllCollisions = false;
-			EnableDrawing = false;
-			Inventory.DropItem( Inventory.ActiveChild );
-			foreach ( var item in Inventory.Items.ToList() )
-			{
-				Inventory.DropItem( item );
-			}
-			Inventory.Items.Clear();
-			Components.Add( new NoclipController() );
-			UseComponent?.StopUsing( false );
+			SpectatorPawn specPawn = SpectatorPawn.Create();
+			Client.Pawn = specPawn;
+			specPawn.Position = EyePosition;
+			specPawn.ViewAngles = ViewAngles;
 		}
+
 		Event.Run( "Player.PostOnKilled", this );
+		this.Delete();
 	}
 
 	//---------------------------------------------// 
@@ -215,7 +215,7 @@ partial class Player : AnimatedEntity
 
 	public void SetControlMethod( AgentControlMethod controlMethod )
 	{
-		if ( !IsAuthority ) return;
+		if ( !Game.IsServer ) return;
 
 		var prevControlMethod = ControlMethod;
 		if ( controlMethod == prevControlMethod ) return;
@@ -321,6 +321,15 @@ partial class Player : AnimatedEntity
 		foreach ( var i in Components.GetAll<SimulatedComponent>() )
 		{
 			if ( i.Enabled ) i.Simulate( cl );
+		}
+
+		// Ensure all viewmodels are destroyed
+		if ( !HasClient && Inventory != null )
+		{
+			foreach ( var item in Inventory.Items )
+			{
+				if ( item is Carriable carriable ) carriable.DestroyViewModel();
+			}
 		}
 	}
 
