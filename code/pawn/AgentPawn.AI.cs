@@ -12,7 +12,7 @@ namespace ClockBlockers;
 
 public partial class AgentPawn
 {
-	public AIController? AIController { get; private set; }
+	public LegacyAIController? AIController { get; private set; }
 
 	[GameEvent.Tick.Server]
 	public void TickAI()
@@ -22,7 +22,7 @@ public partial class AgentPawn
 
 		if ( AIController == null)
 		{
-			AIController = new AIController();
+			AIController = new LegacyAIController();
 			Components.Add( AIController );
 		}
 

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ClockBlockers.AI;
 
-public partial class AIController
+public partial class LegacyAIController
 {
 
 	public static readonly float PATH_INTERVAL = .5f;

@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using ClockBlockers.AI;
 using ClockBlockers.Spectator;
 using Sandbox;
 using System;
@@ -108,6 +109,7 @@ partial class Player : AnimatedEntity
 	public AmmoStorageComponent Ammo => Components.Get<AmmoStorageComponent>();
 	public UseComponent UseComponent => Components.Get<UseComponent>();
 	public UnstuckComponent UnstuckController => Components.Get<UnstuckComponent>();
+	public AIComponent? AIController => Components.Get<AIComponent>();
 
 	public Entity? ActiveWeapon => Inventory?.ActiveChild;
 
@@ -236,6 +238,12 @@ partial class Player : AnimatedEntity
 
 		ControlMethod = controlMethod;
 
+		// Do we actually want to remove this or just disable it?
+		if (controlMethod != AgentControlMethod.AI)
+		{
+			Components.RemoveAny<AIComponent>();
+		}
+
 		if ( controlMethod == AgentControlMethod.Player )
 		{
 			Components.Create<WalkController>();
@@ -266,7 +274,7 @@ partial class Player : AnimatedEntity
 		MovementController?.BuildInput();
 		AnimationController?.BuildInput();
 
-		foreach ( var i in Components.GetAll<SimulatedComponent>() )
+		foreach ( var i in Components.GetAll<SimulatedComponent>())
 		{
 			if ( i.Enabled ) i.BuildInput();
 		}

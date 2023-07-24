@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using ClockBlockers.AI;
 using ClockBlockers.Anim;
 using ClockBlockers.Timeline;
 using Sandbox;
@@ -140,6 +141,7 @@ public partial class Player
 
 		timelineCapture.StartCapture();
 		SetControlMethod( AgentControlMethod.AI );
+		Components.Create<FollowAIController>();
 
 		Log.Info( $"{this.GetPersistentID()} has unlinked: {branch.EndEvent?.Name}" );
 	}	

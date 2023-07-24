@@ -44,6 +44,16 @@ public partial class AIMovementController : MovementComponent
 	public bool WantsDuck { get; set; }
 
 	/// <summary>
+	/// Look at a specified target.
+	/// </summary>
+	/// <param name="target">Look target</param>
+	public void LookAt(Vector3 target)
+	{
+		var rot = Rotation.LookAt( (target - Entity.Position).Normal );
+		Entity.ViewAngles = rot.Angles().WithRoll( 0 );
+	}
+
+	/// <summary>
 	/// This is temporary, get the hull size for the player's collision
 	/// </summary>
 	public BBox GetHull()
