@@ -83,7 +83,7 @@ public partial class Player
 
 	public virtual void InitTimeShit(AgentControlMethod controlMethod, TimelineBranch? branch = null)
 	{
-		ControlMethod = controlMethod;
+		SetControlMethod( controlMethod );
 		if (IsFreeAgent)
 		{
 			var timelineCapture = Components.Create<TimelineCapture>();
@@ -127,6 +127,6 @@ public partial class Player
 
 	public virtual void OnUnlink(TimelineBranch branch, TimelinePlayer player)
 	{
-
-	}
+		Log.Info( $"{this.GetPersistentID()} unlinked!" );
+	}	
 }

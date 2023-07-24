@@ -145,18 +145,22 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 
 	protected void SpawnRemnant( TimelineBranch timeline )
 	{
-		var pawn = new Player();
-		//pawn.PostSpawn();
-
+		var player = new Player();
 		if ( timeline.PersistentID != null )
 		{
-			pawn.SetPersistentID( timeline.PersistentID );
+			player.SetPersistentID( timeline.PersistentID );
 		}
 
-		//pawn.Clothing = timeline.Animation.Clothing;
-		pawn.InitTimeShit( AgentControlMethod.Playback, timeline );
+		//player.SetControlMethod( AgentControlMethod.Playback );
+		//player.Inventory.AddItem( new Pistol() );
+		//player.CreateAnimPlayer().Play( timeline.Animation );
+		//var pawn = new Player();
 
-		Pawns.AddLast( pawn );
+
+		//pawn.Clothing = timeline.Animation.Clothing;
+		player.InitTimeShit( AgentControlMethod.Playback, timeline );
+
+		Pawns.AddLast( player );
 	}
 
 	/// <summary>
