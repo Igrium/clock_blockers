@@ -77,8 +77,8 @@ public partial class Player
 			player.Tick();
 		}
 
-		var capture = AnimCapture;
-		if ( capture != null ) capture.Tick();
+		TimelinePlayer?.Tick();
+		AnimCapture?.Tick();
 	}
 
 	public virtual void InitTimeShit(AgentControlMethod controlMethod, TimelineBranch? branch = null)
@@ -127,6 +127,19 @@ public partial class Player
 
 	public virtual void OnUnlink(TimelineBranch branch, TimelinePlayer player)
 	{
-		Log.Info( $"{this.GetPersistentID()} unlinked!" );
+		if (ControlMethod != AgentControlMethod.Playback)
+		{
+			throw new InvalidOperationException( "Unlink was called on a free agent." );
+		}
+		player.Stop();
+
+		// When we unlink, we switch from PLAYING a timeline to CAPTURING a timeline.
+		var timelineCapture = Components.Create<TimelineCapture>();
+		timelineCapture.ForkedBranch = branch;
+
+		timelineCapture.StartCapture();
+		SetControlMethod( AgentControlMethod.AI );
+
+		Log.Info( $"{this.GetPersistentID()} has unlinked: {branch.EndEvent?.Name}" );
 	}	
 }

@@ -93,7 +93,7 @@ partial class Player : AnimatedEntity
 
 	public virtual void OnEndRound(Round round)
 	{
-		Inventory.ActiveChild = null;
+		if ( Inventory != null ) Inventory.ActiveChild = null;
 		FinalizeAnimations();
 	}
 

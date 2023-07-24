@@ -43,10 +43,10 @@ public partial class TriggerUnlink : BaseTrigger, IHasTimelineState
 	public override void OnTouchStart( Entity toucher )
 	{
 		base.OnTouchStart( toucher );
-		if ( toucher is AgentPawn pawn ) RecordPawnEvent( pawn );
+		if ( toucher is Player pawn ) RecordPawnEvent( pawn );
 	}
 
-	public virtual void RecordPawnEvent( AgentPawn pawn )
+	public virtual void RecordPawnEvent( Player pawn )
 	{
 		if ( !Game.IsServer ) return;
 		var capture = pawn.TimelineCapture;
