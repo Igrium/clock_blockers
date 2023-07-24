@@ -76,10 +76,10 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 		if ( RoundStarted && TimeLeft <= 0 ) EndRound();
 	}
 
+	protected LinkedList<TimelineBranch> finalBranches = new();
+
 	public IEnumerable<TimelineBranch> EndRound()
 	{
-		LinkedList<TimelineBranch> finalBranches = new();
-
 		foreach ( Player pawn in Pawns )
 		{
 			if ( pawn.Client != null )
@@ -181,5 +181,16 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 		{
 			return spawnpoints.RandomElement();
 		}
+	}
+
+	/// <summary>
+	/// Because players will be deleted when killed, we need to save their animation data
+	/// now so its not deleted as well.
+	/// </summary>
+	[Event( "Player.PostOnKilled" )]
+	protected void OnPlayerKilled(Player player)
+	{
+		var t = player.ActiveTimeline;
+		if ( t != null ) finalBranches.AddLast( t );
 	}
 }

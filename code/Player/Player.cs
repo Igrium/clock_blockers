@@ -211,6 +211,8 @@ partial class Player : AnimatedEntity
 			specPawn.ViewAngles = ViewAngles;
 		}
 
+		FinalizeAnimations();
+
 		Event.Run( "Player.PostOnKilled", this );
 		this.Delete();
 	}
@@ -236,11 +238,11 @@ partial class Player : AnimatedEntity
 
 		if ( IsFreeAgent )
 		{
-			Components.Add( new WalkController() );
+			Components.Create<WalkController>();
 		}
 		else
 		{
-			Components.Add( new PlaybackMovementController() );
+			Components.Create<PlaybackMovementController>();
 		}
 	}
 
