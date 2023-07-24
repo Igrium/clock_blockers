@@ -236,13 +236,17 @@ partial class Player : AnimatedEntity
 
 		ControlMethod = controlMethod;
 
-		if ( IsFreeAgent )
+		if ( controlMethod == AgentControlMethod.Player )
 		{
 			Components.Create<WalkController>();
 		}
-		else
+		else if ( controlMethod == AgentControlMethod.Playback )
 		{
 			Components.Create<PlaybackMovementController>();
+		}
+		else
+		{
+			Components.Create<AIMovementController>();
 		}
 	}
 

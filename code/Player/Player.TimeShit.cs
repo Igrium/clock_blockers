@@ -127,6 +127,7 @@ public partial class Player
 
 	public virtual void OnUnlink(TimelineBranch branch, TimelinePlayer player)
 	{
+		if ( !Game.IsServer ) return;
 		if (ControlMethod != AgentControlMethod.Playback)
 		{
 			throw new InvalidOperationException( "Unlink was called on a free agent." );
