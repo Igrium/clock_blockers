@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using ClockBlockers.Anim;
+using ClockBlockers.Weapon;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,7 +53,7 @@ public class TimelineBranch
 	/// If set, the remnant will recieve this weapon when this timeline is played,
 	/// assuming it doesn't already have a weapon.
 	/// </summary>
-	public WeaponSpawner? Weapon { get; set; }
+	public WeaponTypes.Spawner? Weapon { get; set; }
 
 	public TimelineBranch( Animation animation )
 	{

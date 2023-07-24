@@ -30,12 +30,12 @@ public struct PickupWeaponEvent : ITimelineEvent
 
 	public string Name => $"Pickup weapon {WeaponID}";
 
-	public bool IsValid( AgentPawn pawn )
+	public bool IsValid( Player pawn )
 	{
-		if ( pawn.ActiveWeapon != null && !pawn.ActiveWeapon.CanDrop ) return false;
+		if ( pawn.ActiveWeapon is Carriable carriable && !carriable.CanDrop ) return false;
 
-		var weapon = PersistentEntities.GetEntity<LegacyWeapon>( WeaponID );
-		if (weapon == null || weapon.IsHeld)
+		var weapon = PersistentEntities.GetEntity<Carriable>( WeaponID );
+		if (weapon == null || weapon.IsActive)
 		{
 			return false;
 		}

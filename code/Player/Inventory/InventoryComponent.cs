@@ -3,12 +3,34 @@ using System.Collections.Generic;
 namespace ClockBlockers;
 public partial class InventoryComponent : SimulatedComponent, ISingletonComponent
 {
-	[Net, Predicted] public Entity ActiveChild { get; set; }
+	[Net, Predicted] private Entity? _networkedActiveChild { get; set; }
+
+	public Entity? ActiveChild
+	{
+		get => _networkedActiveChild; set
+		{
+			if ( value == _networkedActiveChild ) return;
+
+			if ( _networkedActiveChild is Carriable prev ) prev.OnActiveEnd();
+
+			if ( value is Carriable c ) c.OnActiveStart();
+			_networkedActiveChild = value;
+		}
+	}
 	[ClientInput] public Entity ActiveChildInput { get; set; }
 	[Net] public List<Entity> Items { get; set; } = new();
 	public static int MaxItems { get; set; } = 32;
 
 	[Predicted] Entity PreviousActiveChild { get; set; }
+
+	public bool AddActiveChild(Entity item)
+	{
+		if (!Items.Contains(item))
+			if (!AddItem( item )) return false;
+
+		ActiveChild = item;
+		return true;
+	}
 
 	public bool AddItem( Entity item )
 	{
@@ -111,7 +133,7 @@ public partial class InventoryComponent : SimulatedComponent, ISingletonComponen
 
 		// drop weapons
 
-		if ( Entity.HasClient && Entity.ControlMethod == AgentControlMethod.PLAYER && Input.Pressed( "Drop" ) && ActiveChild != null )
+		if ( Entity.HasClient && Entity.ControlMethod == AgentControlMethod.Player && Input.Pressed( "Drop" ) && ActiveChild != null )
 		{
 			var item = ActiveChild;
 			DropItem( item );
@@ -131,12 +153,12 @@ public partial class InventoryComponent : SimulatedComponent, ISingletonComponen
 		}
 
 		// Check to see if we've changed weapons
-		if ( ActiveChild != PreviousActiveChild )
-		{
-			if ( PreviousActiveChild is Carriable cr1 ) cr1.OnActiveEnd();
-			PreviousActiveChild = ActiveChild;
-			if ( ActiveChild is Carriable cr2 ) cr2.OnActiveStart();
-		}
+		//if ( ActiveChild != PreviousActiveChild )
+		//{
+		//	if ( PreviousActiveChild is Carriable cr1 ) cr1.OnActiveEnd();
+		//	PreviousActiveChild = ActiveChild;
+		//	if ( ActiveChild is Carriable cr2 ) cr2.OnActiveStart();
+		//}
 
 		if (Entity.HasClient)
 			ActiveChild?.Simulate( cl );

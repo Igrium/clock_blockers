@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using ClockBlockers.Anim;
+using ClockBlockers.Timeline;
 using Sandbox;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,27 @@ public partial class Player
 {
 	public AnimCapture? AnimCapture => Components.Get<AnimCapture>();
 	public AnimPlayer? AnimPlayer => Components.Get<AnimPlayer>();
+	public TimelineCapture? TimelineCapture => Components.Get<TimelineCapture>();
+	public TimelinePlayer? TimelinePlayer => Components.Get<TimelinePlayer>();
+
+	public TimelineBranch? ActiveTimeline
+	{
+		get
+		{
+			if ( TimelineCapture != null )
+			{
+				return TimelineCapture.RootBranch;
+			}
+			else if ( TimelinePlayer != null )
+			{
+				return TimelinePlayer.RootBranch;
+			}
+			else
+			{
+				return null;
+			}
+		}
+	}
 
 	/// <summary>
 	/// Get or create the anim capture component.
@@ -50,13 +72,32 @@ public partial class Player
 		if ( IsFreeAgent ) IsGrounded = GroundEntity != null;
 
 		var player = AnimPlayer;
-		if ( player != null && ControlMethod == AgentControlMethod.PLAYBACK )
+		if ( player != null && ControlMethod == AgentControlMethod.Playback )
 		{
 			player.Tick();
 		}
 
 		var capture = AnimCapture;
 		if ( capture != null ) capture.Tick();
+	}
+
+	public virtual void InitTimeShit(AgentControlMethod controlMethod, TimelineBranch? branch = null)
+	{
+		ControlMethod = controlMethod;
+		if (IsFreeAgent)
+		{
+			var timelineCapture = Components.Create<TimelineCapture>();
+			timelineCapture.StartCapture();
+		}
+		else
+		{
+			if ( branch == null )
+			{
+				throw new ArgumentException( "Timeline branch must be specified when using animated control method.", "branch" );
+			}
+			var timelinePlayer = Components.Create<TimelinePlayer>();
+			timelinePlayer.PlayTimeline( branch, root: true );
+		}
 	}
 
 	public void StartCapture()
@@ -71,5 +112,21 @@ public partial class Player
 		if ( anim == null )
 			throw new InvalidOperationException( "Not recording." );
 		return anim;
+	}
+
+	public void FinalizeAnimations()
+	{
+		TimelineCapture?.Complete();
+		TimelinePlayer?.Stop();
+
+		if ( AnimCapture != null && AnimCapture.IsRecording )
+		{
+			AnimCapture.Stop();
+		}
+	}
+
+	public virtual void OnUnlink(TimelineBranch branch, TimelinePlayer player)
+	{
+
 	}
 }

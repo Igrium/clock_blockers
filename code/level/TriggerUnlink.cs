@@ -35,7 +35,7 @@ public partial class TriggerUnlink : BaseTrigger, IHasTimelineState
 		base.Spawn();
 	}
 
-	public int GetState( AgentPawn pawn )
+	public int GetState( Player pawn )
 	{
 		return State;
 	}
@@ -79,7 +79,7 @@ public struct MapTimelineEvent : ITimelineEvent
 
 	public string Name { get; set; }
 
-	public bool IsValid( AgentPawn pawn )
+	public bool IsValid( Player pawn )
 	{
 		var ent = PersistentEntities.GetEntity<Entity>( TriggerID );
 		if ( ent is IHasTimelineState trigger )

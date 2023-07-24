@@ -18,7 +18,7 @@ public interface ITimelineEvent
 	/// </summary>
 	/// <param name="pawn">The pawn executing this event.</param>
 	/// <returns>If the event is valid. If this returns false, the pawn will unlink.</returns>
-	public bool IsValid( AgentPawn pawn );
+	public bool IsValid( Player pawn );
 
 	/// <summary>
 	/// The name to show in the UI regarding this event.
@@ -33,7 +33,7 @@ public struct DeathEvent : ITimelineEvent
 {
 	public string Name => "Death";
 
-	public bool IsValid( AgentPawn pawn )
+	public bool IsValid( Player pawn )
 	{
 		return pawn.LifeState != LifeState.Alive;
 	}
@@ -43,7 +43,7 @@ public struct GameEndEvent : ITimelineEvent
 {
 	public string Name => "Game End";
 
-	public bool IsValid( AgentPawn pawn )
+	public bool IsValid( Player pawn )
 	{
 		return true;
 	}
@@ -71,7 +71,7 @@ public struct UseEvent : ITimelineEvent
 		TargetID = targetID;
 	}
 
-	public bool IsValid( AgentPawn pawn )
+	public bool IsValid( Player pawn )
 	{
 		var ent = PersistentEntities.GetEntity( TargetID );
 		if ( ent is not IUse usable || !usable.IsUsable( pawn ) )

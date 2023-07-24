@@ -13,9 +13,9 @@ namespace ClockBlockers;
 /// </summary>
 public enum AgentControlMethod
 {
-	PLAYER,
+	Player,
 	AI,
-	PLAYBACK
+	Playback
 }
 
 partial class Player : AnimatedEntity
@@ -85,6 +85,18 @@ partial class Player : AnimatedEntity
 			Transform = tx;
 		}
 	}
+
+	public virtual void OnStartRound(Round round)
+	{
+
+	}
+
+	public virtual void OnEndRound(Round round)
+	{
+		Inventory.ActiveChild = null;
+		FinalizeAnimations();
+	}
+
 	// An example BuildInput method within a player's Pawn class.
 	[ClientInput] public Vector3 InputDirection { get; set; }
 	[ClientInput] public Angles ViewAngles { get; set; }
@@ -211,7 +223,7 @@ partial class Player : AnimatedEntity
 	/// The current control method of this agent.
 	/// </summary>
 	[Net]
-	public AgentControlMethod ControlMethod { get; private set; } = AgentControlMethod.PLAYER;
+	public AgentControlMethod ControlMethod { get; private set; } = AgentControlMethod.Player;
 
 	public void SetControlMethod( AgentControlMethod controlMethod )
 	{
@@ -235,7 +247,7 @@ partial class Player : AnimatedEntity
 	/// <summary>
 	/// Whether this agent is considered a "free agent"
 	/// </summary>
-	public bool IsFreeAgent => ControlMethod != AgentControlMethod.PLAYBACK;
+	public bool IsFreeAgent => ControlMethod != AgentControlMethod.Playback;
 
 	/// <summary>
 	/// Pawns get a chance to mess with the input. This is called on the client.
@@ -291,7 +303,7 @@ partial class Player : AnimatedEntity
 					Components.Add( new FirstPersonCamera() );
 				}
 			}
-			if ( ControlMethod == AgentControlMethod.PLAYER )
+			if ( ControlMethod == AgentControlMethod.Player )
 			{
 				if ( Input.MouseWheel > 0.1 )
 				{

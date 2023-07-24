@@ -13,7 +13,7 @@ namespace ClockBlockers.Timeline;
 /// </summary>
 public interface IHasTimelineState
 {
-	public int GetState( AgentPawn pawn );
+	public int GetState( Player pawn );
 
 	/// <summary>
 	/// If true, use events on entities that implent this interface
@@ -23,7 +23,7 @@ public interface IHasTimelineState
 	/// </summary>
 	/// <param name="pawn">The pawn trying to use.</param>
 	/// <returns></returns>
-	public bool RequireUseStateMatch( AgentPawn? pawn = null )
+	public bool RequireUseStateMatch( Player? pawn = null )
 	{
 		return false;
 	}

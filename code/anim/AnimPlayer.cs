@@ -71,10 +71,10 @@ public class AnimPlayer : EntityComponent<Player>, ISingletonComponent
 	/// </summary>
 	public void Start()
 	{
-		if ( Entity.ControlMethod != AgentControlMethod.PLAYBACK )
+		if ( Entity.ControlMethod != AgentControlMethod.Playback )
 		{
 			Log.Warning( $"Pawn {Entity} was not set to AgentControlMethod.PLAYBACK before animation playback." );
-			Entity.SetControlMethod( AgentControlMethod.PLAYBACK );
+			Entity.SetControlMethod( AgentControlMethod.Playback );
 		}
 
 		IsPlaying = true;

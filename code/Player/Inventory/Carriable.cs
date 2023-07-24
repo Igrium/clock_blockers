@@ -16,8 +16,18 @@ public abstract partial class Carriable : AnimatedEntity
 	public virtual ModelEntity EffectEntity => (ViewModelEntity.IsValid() && IsFirstPersonMode) ? ViewModelEntity : this;
 	public abstract string? WorldModelPath { get; }
 	public abstract string? ViewModelPath { get; }
-
 	public Player? Pawn => Owner is Player player ? player : null;
+
+	/// <summary>
+	/// Whether this item is allowed to be dropped.
+	/// </summary>
+	public virtual bool CanDrop => true;
+
+	/// <summary>
+	/// Whether this item is currently being held by an agent.
+	/// </summary>
+	[Net]
+	public bool IsActive { get; protected set; }
 
 	public virtual CitizenAnimationHelper.HoldTypes HoldType => CitizenAnimationHelper.HoldTypes.Pistol;
 	public virtual CitizenAnimationHelper.Hand Handedness => CitizenAnimationHelper.Hand.Both;
@@ -37,9 +47,11 @@ public abstract partial class Carriable : AnimatedEntity
 	/// Create the viewmodel. You can override this in your base classes if you want
 	/// to create a certain viewmodel entity.
 	/// </summary>
+	[ClientRpc]
 	public virtual void CreateViewModel()
 	{
 		Game.AssertClient();
+		if ( Owner == null || !Owner.IsLocalPawn ) return;
 
 		if ( string.IsNullOrEmpty( ViewModelPath ) )
 			return;
@@ -103,24 +115,20 @@ public abstract partial class Carriable : AnimatedEntity
 		EnableDrawing = true;
 		EnableHideInFirstPerson = false;
 		EnableShadowInFirstPerson = false;
-		DestroyViewModel();
+		OnActiveEnd();
 	}
 	public virtual void OnActiveStart()
 	{
 		EnableDrawing = true;
-		if ( Game.IsClient )
-		{
-			DestroyViewModel();
-			CreateViewModel();
-		}
+		DestroyViewModel();
+		CreateViewModel();
+		IsActive = true;
 	}
 	public virtual void OnActiveEnd()
 	{
 		if ( Parent is Player ) EnableDrawing = false;
-		if ( Game.IsClient )
-		{
-			DestroyViewModel();
-		}
+		DestroyViewModel();
+		IsActive = false;
 	}
 	public virtual void SimulateAnimator( CitizenAnimationHelper anim )
 	{

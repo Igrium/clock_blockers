@@ -72,7 +72,7 @@ public partial class WalkController : MovementComponent
 	/// <summary>
 	/// If this agent is controlled by a player. It's only safe to use <c>Input</c> if this returns true.
 	/// </summary>
-	public bool ControlledByPlayer => Entity.HasClient && Entity.ControlMethod == AgentControlMethod.PLAYER;
+	public bool ControlledByPlayer => Entity.HasClient && Entity.ControlMethod == AgentControlMethod.Player;
 
 	public virtual void SetBBox( Vector3 mins, Vector3 maxs )
 	{
@@ -121,7 +121,7 @@ public partial class WalkController : MovementComponent
 	public override void Simulate( IClient? cl )
 	{
 		var pl = Entity as Player;
-		if ( pl.ControlMethod != AgentControlMethod.PLAYER || !pl.HasClient ) return;
+		if ( pl.ControlMethod != AgentControlMethod.Player || !pl.HasClient ) return;
 
 		Events?.Clear();
 		Tags?.Clear();

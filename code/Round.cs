@@ -4,6 +4,7 @@ using ClockBlockers.Anim;
 using ClockBlockers.Spectator;
 using ClockBlockers.Timeline;
 using ClockBlockers.Util;
+using ClockBlockers.Weapon;
 using Sandbox;
 using System;
 using System.Collections.Generic;
@@ -18,7 +19,7 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 {
 	public static readonly float ROUND_TIME = 15f;
 
-	private LinkedList<AgentPawn> pawns = new();
+	private LinkedList<Player> Pawns = new();
 
 	private TaskCompletionSource<IEnumerable<TimelineBranch>> task = new();
 
@@ -61,7 +62,7 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 		foreach ( var client in Game.Clients )
 		{
 			var oldPawn = client.Pawn;
-			SpawnPlayerPawn( client, weapon: WeaponTypes.SHOTGUN );
+			SpawnPlayerPawn( client, weapon: WeaponTypes.Get( WeaponTypes.PISTOL ) );
 			oldPawn?.Delete();
 			clients++;
 		}
@@ -79,28 +80,28 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 	{
 		LinkedList<TimelineBranch> finalBranches = new();
 
-		foreach ( AgentPawn pawn in pawns )
+		foreach ( Player pawn in Pawns )
 		{
 			if ( pawn.Client != null )
 				pawn.Client.Pawn = SpectatorPawn.Create();
 
 
-			pawn.EndRound();
+			pawn.OnEndRound(this);
 			var t = pawn.ActiveTimeline;
 			if ( t != null ) finalBranches.AddLast( t );
 		}
 
-		foreach ( AgentPawn pawn in pawns ) pawn.Delete();
+		foreach ( var pawn in Pawns ) pawn.Delete();
 
 		task.SetResult( finalBranches );
 		return finalBranches;
 	}
 
-	protected void SpawnPlayerPawn( IClient cl, WeaponFactory? weapon = null )
+	protected void SpawnPlayerPawn( IClient cl, WeaponTypes.WeaponFactory? weapon = null )
 	{
 		var oldPawn = cl.Pawn;
 
-		var pawn = new AgentPawn();
+		var pawn = new Player();
 		cl.Pawn = pawn;
 
 		// chose a random one
@@ -114,46 +115,48 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 			pawn.Transform = tx;
 		}
 
-		pawn.DressFromClient( cl );
-		pawn.PostSpawn();
+		//pawn.DressFromClient( cl );
+		//pawn.PostSpawn();
 
 		var id = $"{cl.SteamId}.round{RoundID}";
 		pawn.SetPersistentID( id );
 
 		// This will start the timeline capture.
-		pawn.InitTimeTravel( PawnControlMethod.Player );
+		pawn.InitTimeShit( AgentControlMethod.Player );
 
 		if ( weapon != null )
 		{
-			var spawner = new WeaponSpawner()
+			var spawner = new WeaponTypes.Spawner()
 			{
 				Factory = weapon,
-				PersistentID = pawn.GetWeaponID()
+				PersistentID = $"{id}.weapon"
 			};
 
 			pawn.TimelineCapture?.SetWeaponSpawn( spawner );
-			pawn.SetActiveWeapon( spawner.Spawn() );
+			var wEnt = weapon.Invoke();
+			pawn.Inventory.AddActiveChild( wEnt );
+			
 		}
 
-		pawns.AddLast( pawn );
+		Pawns.AddLast( pawn );
 
 		if ( oldPawn != null ) oldPawn.Delete();
 	}
 
 	protected void SpawnRemnant( TimelineBranch timeline )
 	{
-		var pawn = new AgentPawn();
-		pawn.PostSpawn();
+		var pawn = new Player();
+		//pawn.PostSpawn();
 
 		if ( timeline.PersistentID != null )
 		{
 			pawn.SetPersistentID( timeline.PersistentID );
 		}
 
-		pawn.Clothing = timeline.Animation.Clothing;
-		pawn.InitTimeTravel( PawnControlMethod.Animated, timeline );
+		//pawn.Clothing = timeline.Animation.Clothing;
+		pawn.InitTimeShit( AgentControlMethod.Playback, timeline );
 
-		pawns.AddLast( pawn );
+		Pawns.AddLast( pawn );
 	}
 
 	/// <summary>

@@ -32,7 +32,7 @@ public partial class UseComponent : SimulatedComponent
 	public void TickUse()
 	{
 		// We only check inputs if we are controlled by a player.
-		if ( Entity.HasClient && Entity.ControlMethod == AgentControlMethod.PLAYER )
+		if ( Entity.HasClient && Entity.ControlMethod == AgentControlMethod.Player )
 		{
 			if ( Input.Pressed( "use" ) )
 			{

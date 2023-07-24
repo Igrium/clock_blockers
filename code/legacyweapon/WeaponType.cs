@@ -9,13 +9,13 @@ namespace ClockBlockers;
 
 public delegate LegacyWeapon WeaponFactory();
 
-public static class WeaponTypes
+public static class LegacyWeaponTypes
 {
 	public static readonly WeaponFactory PISTOL = () => new LegacyPistol();
 	public static readonly WeaponFactory SHOTGUN = () => new LegacyShotgun();
 }
 
-public struct WeaponSpawner
+public struct LegacyWeaponSpawner
 {
 	public string PersistentID { get; set; }
 	public WeaponFactory Factory { get; set; }

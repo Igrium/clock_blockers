@@ -152,7 +152,7 @@ public static class TestCommands
 			throw new ArgumentException( "Animation must not be empty.", "animation" );
 		}
 		var player = new Player();
-		player.SetControlMethod( AgentControlMethod.PLAYBACK );
+		player.SetControlMethod( AgentControlMethod.Playback );
 		player.Inventory.AddItem( new Pistol() );
 		player.CreateAnimPlayer().Play( animation );
 
