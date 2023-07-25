@@ -21,7 +21,12 @@
         "facepunch.star_bin#19205",
         "facepunch.glass_c#19949",
         "facepunch.glass_a#19946",
-        "igrium.clock_blockers"
+        "igrium.clock_blockers",
+        "facepunch.pallet#19226",
+        "meihoff.garagebutton#26130",
+        "polyhaven.wooden_barrel_01b#24461",
+        "polyhaven.sky_kloofendal_38d_partly_cloudy#25710",
+        "polyhaven.concrete_cat_statue#24464"
       ],
       "Metadata": {
         "SingleAssetSource": "maps/test/testmap.vmap"

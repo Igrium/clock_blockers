@@ -91,4 +91,5 @@ public struct MapTimelineEvent : ITimelineEvent
 			return false;
 		}
 	}
+
 }
