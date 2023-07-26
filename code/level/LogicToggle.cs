@@ -50,4 +50,10 @@ public partial class LogicToggle : Entity
 
 	public Output OnTrue { get; set; }
 	public Output OnFalse { get; set; }
+
+	[GameEvent.Entity.PostCleanup]
+	public void OnReset()
+	{
+		State = false;
+	}
 }
