@@ -13,15 +13,17 @@ public static class WeaponTypes
 	public delegate Carriable WeaponFactory();
 
 	public static readonly string PISTOL = "pistol";
+	public static readonly string SHOTGUN = "shotgun";
 
 	public static readonly Dictionary<string, WeaponFactory> REGISTRY = new()
 	{
-		{ "pistol", () => new Pistol() }
+		{ "pistol", () => new Pistol() },
+		{ "shotgun", () => new Shotgun() }
 	};
 
-	public static WeaponFactory? Get(string id)
+	public static WeaponFactory? Get( string id )
 	{
-		if (REGISTRY.TryGetValue(id, out WeaponFactory? factory))
+		if ( REGISTRY.TryGetValue( id, out WeaponFactory? factory ) )
 		{
 			return factory;
 		}

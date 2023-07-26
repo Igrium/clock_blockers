@@ -132,7 +132,7 @@ public static class TestCommands
 	public static void TestPlayer()
 	{
 		var player = new Player();
-		player.Inventory?.AddItem( new Pistol() );
+		player.Inventory?.AddItem( new Shotgun() );
 		var client = ConsoleSystem.Caller;
 
 		if ( client != null )

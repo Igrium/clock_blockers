@@ -23,6 +23,13 @@ public abstract partial class BaseFirearm : Carriable
 	/// </summary>
 	public virtual bool IsFireContinuous => false;
 
+	public void FireBullets( IEnumerable<BulletInfo> bullets, bool isRemnant = false )
+	{
+		foreach ( var bullet in bullets )
+			FireBullet( bullet, isRemnant );
+	}
+
+
 	/// <summary>
 	/// Fire a bullet from this weapon.
 	/// </summary>

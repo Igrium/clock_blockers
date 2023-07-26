@@ -12,7 +12,6 @@ namespace ClockBlockers;
 public partial class LegacyShotgun : LegacyFirearm
 {
 	public override string ViewModelPath => "weapons/rust_pumpshotgun/v_rust_pumpshotgun";
-
 	public override string WorldModelPath => "weapons/rust_pumpshotgun/rust_pumpshotgun";
 
 	public override CitizenAnimationHelper.HoldTypes HoldType => CitizenAnimationHelper.HoldTypes.Shotgun;

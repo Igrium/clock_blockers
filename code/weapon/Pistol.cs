@@ -31,7 +31,7 @@ public partial class Pistol : BaseFirearm
 	public override void DoShootEffects()
 	{
 		base.DoShootEffects();
-		Pawn?.PlaySound( "rust_pistol.shoot" );
+		Pawn?.PlaySound( "rust_pumpshotgun.shoot" );
 
 		Particles.Create( "particles/pistol_muzzleflash.vpcf", EffectEntity, "muzzle" );
 		Pawn?.SetAnimParameter( "b_attack", true );
