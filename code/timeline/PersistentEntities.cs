@@ -91,6 +91,16 @@ public static class PersistentEntities
 	}
 
 	/// <summary>
+	/// Get the persistent ID of an entity, or generate it if one does not exist.
+	/// </summary>
+	/// <param name="entity">The entity.</param>
+	/// <returns>The ID.</returns>
+	public static string GetPersistentIDOrCreate(this Entity entity)
+	{
+		return GetPersistentIDOrThrow( entity, true );
+	}
+
+	/// <summary>
 	/// Manually set a dynamic persistent ID of an entity. Don't use unless you know what you're doing.
 	/// </summary>
 	/// <param name="entity">Entity to set.</param>

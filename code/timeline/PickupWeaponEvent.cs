@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sandbox;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -30,12 +31,18 @@ public struct PickupWeaponEvent : ITimelineEvent
 
 	public string Name => $"Pickup weapon {WeaponID}";
 
+	public PickupWeaponEvent(Entity weapon)
+	{
+		WeaponID = weapon.GetPersistentIDOrCreate();
+		Position = weapon.Position;
+	}
+
 	public bool IsValid( Player pawn )
 	{
 		if ( pawn.ActiveWeapon is Carriable carriable && !carriable.CanDrop ) return false;
 
 		var weapon = PersistentEntities.GetEntity<Carriable>( WeaponID );
-		if (weapon == null || weapon.IsActive)
+		if (weapon == null || weapon.Parent != null )
 		{
 			return false;
 		}

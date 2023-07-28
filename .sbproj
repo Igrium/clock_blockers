@@ -85,13 +85,11 @@
         },
         {
           "a": "player",
-          "b": "player",
-          "r": "Ignore"
+          "b": "player"
         },
         {
           "a": "weapon",
-          "b": "weapon",
-          "r": "Ignore"
+          "b": "weapon"
         },
         {
           "a": "player",

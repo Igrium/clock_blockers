@@ -60,7 +60,7 @@ public partial class UseComponent : SimulatedComponent
 
 		bool continuous = use.OnUse( Entity );
 
-		if ( Entity.IsRecording && _prevUsing != Using )
+		if ( Entity.IsRecording && _prevUsing != Using && Using is not IUseNotCanon )
 		{
 			Entity.AnimCapture?.AddAction( new UseAction( Using )
 			{

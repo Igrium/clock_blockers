@@ -49,9 +49,9 @@ public struct GameEndEvent : ITimelineEvent
 	}
 }
 
+
 public struct UseEvent : ITimelineEvent
 {
-
 	public string Name => $"Use {TargetID}";
 
 	public string TargetID { get; init; }
@@ -63,7 +63,7 @@ public struct UseEvent : ITimelineEvent
 
 	public UseEvent( Entity target )
 	{
-		TargetID = target.GetPersistentID( generate: true );
+		TargetID = target.GetPersistentIDOrCreate();
 	}
 
 	public UseEvent( string targetID )

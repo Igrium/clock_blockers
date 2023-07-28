@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using ClockBlockers.Timeline;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,5 +38,12 @@ public static class WeaponTypes
 	{
 		public WeaponFactory Factory { get; set; }
 		public string PersistentID { get; set; }
+
+		public Carriable Spawn()
+		{
+			var ent = Factory.Invoke();
+			ent.SetPersistentID( PersistentID );
+			return ent;
+		}
 	}
 }

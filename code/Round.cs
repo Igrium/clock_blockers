@@ -133,8 +133,7 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 			};
 
 			pawn.TimelineCapture?.SetWeaponSpawn( spawner );
-			var wEnt = weapon.Invoke();
-			pawn.Inventory.AddActiveChild( wEnt );
+			pawn.Inventory.AddActiveChild( spawner.Spawn() );
 			
 		}
 

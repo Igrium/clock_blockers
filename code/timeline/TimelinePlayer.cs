@@ -49,8 +49,7 @@ public partial class TimelinePlayer : EntityComponent<Player>, ISingletonCompone
 		{
 			//Entity.SetActiveWeapon( branch.Weapon.Value.Spawn() );
 			var spawner = branch.Weapon.Value;
-			Carriable weapon = spawner.Factory.Invoke();
-			weapon.SetPersistentID( spawner.PersistentID );
+			Carriable weapon = spawner.Spawn();
 
 			Entity.Inventory.AddItem( weapon );
 			Entity.Inventory.ActiveChild = weapon;

@@ -98,11 +98,41 @@ public struct UseAction : IAction
 public struct DropWeaponAction : IAction
 {
 	public Vector3 Velocity { get; set; }
-
+	public string? WeaponID { get; set; }
 
 	public bool Run( Player pawn )
 	{
-		pawn.Inventory.DropItem( pawn.Inventory.ActiveChild );
+		var entity = WeaponID != null ? PersistentEntities.GetEntity( WeaponID ) : null;
+		if ( entity == null )
+			entity = pawn.Inventory.ActiveChild;
+
+		if ( entity is not Carriable carriable )
+			return false;
+
+		pawn.Inventory.DropItem( carriable, Velocity );
+		return false;
+	}
+}
+
+public struct PickupWeaponAction : IAction
+{
+	public string WeaponID { get; set; }
+
+	public PickupWeaponAction(string weaponID)
+	{
+		WeaponID = weaponID;
+	}
+
+	public PickupWeaponAction(Carriable weapon)
+	{
+		WeaponID = weapon.GetPersistentIDOrCreate();
+	}
+
+	public bool Run( Player pawn )
+	{
+		var entity = PersistentEntities.GetEntity( WeaponID );
+		if ( entity is not Carriable carriable ) return false;
+		pawn.Inventory.PickupItem( carriable );
 		return false;
 	}
 }

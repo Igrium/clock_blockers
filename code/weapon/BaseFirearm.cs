@@ -18,6 +18,8 @@ namespace ClockBlockers.Weapon;
 public abstract partial class BaseFirearm : Carriable
 {
 
+	public override bool CanDrop => true;
+
 	/// <summary>
 	/// If the fire effects on this weapon should act continuous (smg, etc)
 	/// </summary>

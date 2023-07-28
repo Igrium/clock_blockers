@@ -1,13 +1,15 @@
 ﻿#nullable enable
 
+using ClockBlockers.Timeline;
 using Sandbox;
+using System;
 using System.Linq;
 
 namespace ClockBlockers;
 /// <summary>
 ///  Something that can go into the player's inventory and have a worldmodel and viewmodel etc, 
 /// </summary>
-public abstract partial class Carriable : AnimatedEntity
+public abstract partial class Carriable : AnimatedEntity, IUse, IUseNotCanon
 {
 
 	/// <summary>
@@ -16,12 +18,13 @@ public abstract partial class Carriable : AnimatedEntity
 	public virtual ModelEntity EffectEntity => (ViewModelEntity.IsValid() && IsFirstPersonMode) ? ViewModelEntity : this;
 	public abstract string? WorldModelPath { get; }
 	public abstract string? ViewModelPath { get; }
+
 	public Player? Pawn => Owner is Player player ? player : null;
 
 	/// <summary>
 	/// Whether this item is allowed to be dropped.
 	/// </summary>
-	public virtual bool CanDrop => true;
+	public virtual bool CanDrop => false;
 
 	/// <summary>
 	/// Whether this item is currently being held by an agent.
@@ -36,6 +39,7 @@ public abstract partial class Carriable : AnimatedEntity
 	{
 		base.Spawn();
 		CarriableSpawn();
+		Tags.Add( "weapon" );
 	}
 	internal virtual void CarriableSpawn()
 	{
@@ -72,30 +76,30 @@ public abstract partial class Carriable : AnimatedEntity
 		ViewModelEntity?.Delete();
 		ViewModelEntity = null;
 	}
-	public override void StartTouch( Entity other )
-	{
-		base.Touch( other );
-		if ( other is Player ply )
-		{
-			if ( ply.Inventory?.Items.Where( x => x.GetType() == this.GetType() ).Count() <= 0 )
-			{
+	//public override void StartTouch( Entity other )
+	//{
+	//	base.Touch( other );
+	//	if ( other is Player ply )
+	//	{
+	//		if ( ply.Inventory?.Items.Where( x => x.GetType() == this.GetType() ).Count() <= 0 )
+	//		{
 
-				ply.Inventory?.AddItem( this );
-			}
-			else
-			{
-				//if ( this is Weapon wep )
-				//{
-				//	wep.PrimaryAmmo -= (int)(ply.Ammo?.GiveAmmo( wep.PrimaryAmmoType, wep.PrimaryAmmo ));
-				//	wep.SecondaryAmmo -= (int)(ply.Ammo?.GiveAmmo( wep.SecondaryAmmoType, wep.SecondaryAmmo ));
-				//	if ( wep.PrimaryAmmo <= 0 && wep.SecondaryAmmo <= 0 )
-				//	{
-				//		wep.Delete();
-				//	}
-				//}
-			}
-		}
-	}
+	//			ply.Inventory?.AddItem( this );
+	//		}
+	//		else
+	//		{
+	//			//if ( this is Weapon wep )
+	//			//{
+	//			//	wep.PrimaryAmmo -= (int)(ply.Ammo?.GiveAmmo( wep.PrimaryAmmoType, wep.PrimaryAmmo ));
+	//			//	wep.SecondaryAmmo -= (int)(ply.Ammo?.GiveAmmo( wep.SecondaryAmmoType, wep.SecondaryAmmo ));
+	//			//	if ( wep.PrimaryAmmo <= 0 && wep.SecondaryAmmo <= 0 )
+	//			//	{
+	//			//		wep.Delete();
+	//			//	}
+	//			//}
+	//		}
+	//	}
+	//}
 	public virtual void OnPickup( Entity equipper )
 	{
 		SetParent( equipper, true );
@@ -108,6 +112,9 @@ public abstract partial class Carriable : AnimatedEntity
 	}
 	public virtual void OnDrop( Entity dropper )
 	{
+		var vel = Velocity;
+		var pos = Position;
+
 		SetParent( null );
 		Owner = null;
 		PhysicsEnabled = true;
@@ -116,6 +123,9 @@ public abstract partial class Carriable : AnimatedEntity
 		EnableHideInFirstPerson = false;
 		EnableShadowInFirstPerson = false;
 		OnActiveEnd();
+
+		Position = pos;
+		Velocity = vel;
 	}
 	public virtual void OnActiveStart()
 	{
@@ -135,5 +145,20 @@ public abstract partial class Carriable : AnimatedEntity
 		anim.HoldType = HoldType;
 		anim.Handedness = Handedness;
 		anim.AimBodyWeight = 1.0f;
+	}
+
+	public bool OnUse( Entity user )
+	{
+		if ( user is not Player player )
+			return false;
+
+		player.Inventory.PickupItem( this );
+
+		return false;
+	}
+
+	public bool IsUsable( Entity user )
+	{
+		return (user is Player && Parent == null);
 	}
 }
