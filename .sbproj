@@ -55,7 +55,8 @@
         "ladder": "Ignore",
         "water": "Trigger",
         "player": "Unset",
-        "weapon": "Collide"
+        "weapon": "Unset",
+        "ragdoll": "Unset"
       },
       "Pairs": [
         {
@@ -99,6 +100,19 @@
         {
           "a": "solid",
           "b": "weapon"
+        },
+        {
+          "a": "ragdoll",
+          "b": "ragdoll"
+        },
+        {
+          "a": "solid",
+          "b": "ragdoll"
+        },
+        {
+          "a": "player",
+          "b": "ragdoll",
+          "r": "Ignore"
         }
       ]
     }
