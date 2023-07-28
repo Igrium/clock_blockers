@@ -12,7 +12,7 @@ namespace ClockBlockers.Anim;
 /// <summary>
 /// Responsible for capturing the animation of a pawn.
 /// </summary>
-public class AnimCapture : EntityComponent<AgentPawn>, ISingletonComponent
+public class AnimCapture : EntityComponent<PlayerAgent>, ISingletonComponent
 {
 	public AnimCapture()
 	{
@@ -35,7 +35,7 @@ public class AnimCapture : EntityComponent<AgentPawn>, ISingletonComponent
 
 	public void Start()
 	{
-		if ( Animation != null )
+		if ( IsRecording )
 		{
 			throw new InvalidOperationException( "Animation already is recording or has finished." );
 		}
@@ -66,6 +66,9 @@ public class AnimCapture : EntityComponent<AgentPawn>, ISingletonComponent
 
 		int tickIndex = segment.Frames.Count;
 		segment.Frames.Add( AnimFrame.Capture( Entity ) );
+
+		if ( Entity.MovementController != null && Entity.MovementController.HasEvent( "jump" ) )
+			segment.AddAction( tickIndex, new JumpAction() );
 
 		if ( _cachedActions.Count > 0 ) segment.AddActions( tickIndex, _cachedActions );
 		_cachedActions.Clear();

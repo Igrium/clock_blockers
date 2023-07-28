@@ -1,6 +1,8 @@
 ﻿#nullable enable
 
 using ClockBlockers.Anim;
+using ClockBlockers.Spectator;
+using ClockBlockers.Weapon;
 using Sandbox;
 using System;
 using System.Collections.Generic;
@@ -15,33 +17,16 @@ public static class TestCommands
 {
 	public static Animation? CachedAnimation { get; set; }
 
-	static AgentPawn? Caller
+	static PlayerAgent? Caller
 	{
 		get
 		{
-			var client = ConsoleSystem.Caller;
-
-			if ( client == null )
-			{
-				var clients = Game.Clients.Where( c => c.Pawn is AgentPawn );
-				if ( clients.Any() )
-				{
-					client = clients.First();
-				}
-			}
-
-			if ( client == null ) return null;
-
-			if ( client.Pawn is AgentPawn p )
-			{
-				return p;
-			}
-			else
-			{
-				return null;
-			}
+			var pawn = ConsoleSystem.Caller?.Pawn;
+			if ( pawn is PlayerAgent player ) return player;
+			else return null;
 		}
 	}
+	
 
 	[ConCmd.Server( "testcapture_start" )]
 	public static void StartCapture()
@@ -82,7 +67,7 @@ public static class TestCommands
 		}
 
 		Log.Info( "Starting capture playback" );
-		AnimPlayer.Create( CachedAnimation );
+		PlayAnimation( CachedAnimation );
 
 	}
 
@@ -91,38 +76,6 @@ public static class TestCommands
 	{
 		var ignoreEntities = Entity.All.Where( e => e.Owner != null ).ToArray();
 		Game.ResetMap( ignoreEntities );
-	}
-
-	[ConCmd.Server( "ent_create_ai_agent" )]
-	public static void CreateAIAgent()
-	{
-		Vector3 vec;
-		var caller = Caller;
-
-		if ( caller != null )
-		{
-			var viewTarget = caller.ViewTarget;
-			if ( viewTarget.Hit )
-			{
-				vec = viewTarget.HitPosition;
-			}
-			else
-			{
-				Log.Error( "No spawn target" );
-				return;
-			}
-		}
-		else
-		{
-			Log.Error( "No caller pawn" );
-			return;
-		}
-
-		AgentPawn entity = new AgentPawn();
-		entity.Position = vec;
-		entity.PostSpawn();
-
-		entity.InitTimeTravel( PawnControlMethod.AI );
 	}
 
 	[ConCmd.Server( "round_start" )]
@@ -141,5 +94,36 @@ public static class TestCommands
 		}
 
 		game.DoRound();
+	}
+
+	[ConCmd.Server("spawn_player")]
+	public static void TestPlayer()
+	{
+		var player = new PlayerAgent();
+		player.Inventory?.AddItem( new Shotgun() );
+		var client = ConsoleSystem.Caller;
+
+		if ( client != null )
+		{
+			if (client.Pawn is SpectatorPawn)
+			{
+				client.Pawn.Delete();
+			}
+			client.Pawn = player;
+		}
+	}
+
+	public static PlayerAgent PlayAnimation(Animation animation)
+	{
+		if (animation.IsEmpty)
+		{
+			throw new ArgumentException( "Animation must not be empty.", "animation" );
+		}
+		var player = new PlayerAgent();
+		player.SetControlMethod( AgentControlMethod.Playback );
+		player.Inventory.AddItem( new Pistol() );
+		player.CreateAnimPlayer().Play( animation );
+
+		return player;
 	}
 }

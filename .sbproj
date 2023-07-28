@@ -32,6 +32,7 @@
       "RootNamespace": "ClockBlockers",
       "DefineConstants": "SANDBOX;ADDON;DEBUG",
       "NoWarn": "1701;1702;1591;",
+      "Nullables": true,
       "References": [],
       "DistinctReferences": []
     },
@@ -39,7 +40,7 @@
       {
         "Name": "Test Map",
         "GameIdent": "igrium.clock_blockers#local",
-        "MapName": "testmap.vmap",
+        "MapName": "test/testmap.vmap",
         "MaxPlayers": 1,
         "GameSettings": {},
         "Addons": "",
@@ -84,13 +85,11 @@
         },
         {
           "a": "player",
-          "b": "player",
-          "r": "Ignore"
+          "b": "player"
         },
         {
           "a": "weapon",
-          "b": "weapon",
-          "r": "Ignore"
+          "b": "weapon"
         },
         {
           "a": "player",

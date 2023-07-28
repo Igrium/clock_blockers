@@ -4,6 +4,7 @@ using ClockBlockers.Anim;
 using ClockBlockers.Spectator;
 using ClockBlockers.Timeline;
 using ClockBlockers.Util;
+using ClockBlockers.Weapon;
 using Sandbox;
 using System;
 using System.Collections.Generic;
@@ -16,9 +17,9 @@ namespace ClockBlockers;
 
 public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonComponent
 {
-	public static readonly float ROUND_TIME = 15f;
+	public static readonly float ROUND_TIME = 23;
 
-	private LinkedList<AgentPawn> pawns = new();
+	private LinkedList<PlayerAgent> Pawns = new();
 
 	private TaskCompletionSource<IEnumerable<TimelineBranch>> task = new();
 
@@ -61,7 +62,7 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 		foreach ( var client in Game.Clients )
 		{
 			var oldPawn = client.Pawn;
-			SpawnPlayerPawn( client, weapon: WeaponTypes.SHOTGUN );
+			SpawnPlayerPawn( client, weapon: WeaponTypes.Get( WeaponTypes.SHOTGUN ) );
 			oldPawn?.Delete();
 			clients++;
 		}
@@ -75,32 +76,32 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 		if ( RoundStarted && TimeLeft <= 0 ) EndRound();
 	}
 
+	protected LinkedList<TimelineBranch> finalBranches = new();
+
 	public IEnumerable<TimelineBranch> EndRound()
 	{
-		LinkedList<TimelineBranch> finalBranches = new();
-
-		foreach ( AgentPawn pawn in pawns )
+		foreach ( PlayerAgent pawn in Pawns )
 		{
 			if ( pawn.Client != null )
 				pawn.Client.Pawn = SpectatorPawn.Create();
 
 
-			pawn.EndRound();
+			pawn.OnEndRound(this);
 			var t = pawn.ActiveTimeline;
 			if ( t != null ) finalBranches.AddLast( t );
 		}
 
-		foreach ( AgentPawn pawn in pawns ) pawn.Delete();
+		foreach ( var pawn in Pawns ) pawn.Delete();
 
 		task.SetResult( finalBranches );
 		return finalBranches;
 	}
 
-	protected void SpawnPlayerPawn( IClient cl, WeaponFactory? weapon = null )
+	protected void SpawnPlayerPawn( IClient cl, WeaponTypes.WeaponFactory? weapon = null )
 	{
 		var oldPawn = cl.Pawn;
 
-		var pawn = new AgentPawn();
+		var pawn = new PlayerAgent();
 		cl.Pawn = pawn;
 
 		// chose a random one
@@ -114,46 +115,51 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 			pawn.Transform = tx;
 		}
 
-		pawn.DressFromClient( cl );
-		pawn.PostSpawn();
+		//pawn.DressFromClient( cl );
+		//pawn.PostSpawn();
 
 		var id = $"{cl.SteamId}.round{RoundID}";
 		pawn.SetPersistentID( id );
 
 		// This will start the timeline capture.
-		pawn.InitTimeTravel( PawnControlMethod.Player );
+		pawn.InitTimeShit( AgentControlMethod.Player );
 
 		if ( weapon != null )
 		{
-			var spawner = new WeaponSpawner()
+			var spawner = new WeaponTypes.Spawner()
 			{
 				Factory = weapon,
-				PersistentID = pawn.GetWeaponID()
+				PersistentID = $"{id}.weapon"
 			};
 
 			pawn.TimelineCapture?.SetWeaponSpawn( spawner );
-			pawn.SetActiveWeapon( spawner.Spawn() );
+			pawn.Inventory.AddActiveChild( spawner.Spawn() );
+			
 		}
 
-		pawns.AddLast( pawn );
+		Pawns.AddLast( pawn );
 
 		if ( oldPawn != null ) oldPawn.Delete();
 	}
 
 	protected void SpawnRemnant( TimelineBranch timeline )
 	{
-		var pawn = new AgentPawn();
-		pawn.PostSpawn();
-
+		var player = new PlayerAgent();
 		if ( timeline.PersistentID != null )
 		{
-			pawn.SetPersistentID( timeline.PersistentID );
+			player.SetPersistentID( timeline.PersistentID );
 		}
 
-		pawn.Clothing = timeline.Animation.Clothing;
-		pawn.InitTimeTravel( PawnControlMethod.Animated, timeline );
+		//player.SetControlMethod( AgentControlMethod.Playback );
+		//player.Inventory.AddItem( new Pistol() );
+		//player.CreateAnimPlayer().Play( timeline.Animation );
+		//var pawn = new Player();
 
-		pawns.AddLast( pawn );
+
+		//pawn.Clothing = timeline.Animation.Clothing;
+		player.InitTimeShit( AgentControlMethod.Playback, timeline );
+
+		Pawns.AddLast( player );
 	}
 
 	/// <summary>
@@ -174,5 +180,16 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 		{
 			return spawnpoints.RandomElement();
 		}
+	}
+
+	/// <summary>
+	/// Because players will be deleted when killed, we need to save their animation data
+	/// now so its not deleted as well.
+	/// </summary>
+	[Event( "Player.PostOnKilled" )]
+	protected void OnPlayerKilled(PlayerAgent player)
+	{
+		var t = player.ActiveTimeline;
+		if ( t != null ) finalBranches.AddLast( t );
 	}
 }

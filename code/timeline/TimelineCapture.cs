@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using ClockBlockers.Anim;
+using ClockBlockers.Weapon;
 using Sandbox;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ namespace ClockBlockers.Timeline;
 /// Records a series of events within a single timeline.
 /// There is no branching here because this is only for free agents.
 /// </summary>
-public partial class TimelineCapture : EntityComponent<AgentPawn>, ISingletonComponent
+public partial class TimelineCapture : EntityComponent<PlayerAgent>, ISingletonComponent
 {
 	public TimelineCapture()
 	{
@@ -97,7 +98,7 @@ public partial class TimelineCapture : EntityComponent<AgentPawn>, ISingletonCom
 
 	// WEAPON SPAWNING
 
-	private WeaponSpawner? _weaponSpawner;
+	private WeaponTypes.Spawner? _weaponSpawner;
 
 	/// <summary>
 	/// Add a weapon spawner to the current branch.
@@ -106,7 +107,7 @@ public partial class TimelineCapture : EntityComponent<AgentPawn>, ISingletonCom
 	/// <param name="spawner">
 	/// The weapon spawner.
 	/// </param>
-	public void SetWeaponSpawn(WeaponSpawner spawner)
+	public void SetWeaponSpawn(WeaponTypes.Spawner spawner)
 	{
 		_weaponSpawner = spawner;
 	}
