@@ -14,9 +14,9 @@ public partial class Pistol : BaseFirearm
 
 	public void PrimaryFire()
 	{
-		BulletInfo bullet = BulletHelper.FromWeapon( this, 20f );
 		using (LagCompensation())
 		{
+			BulletInfo bullet = BulletHelper.FromWeapon( this, 20f );
 			FireBullet( bullet );
 		}
 		DoShootEffects();

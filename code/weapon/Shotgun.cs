@@ -21,17 +21,17 @@ public partial class Shotgun : BaseFirearm
 
 	public virtual void PrimaryFire()
 	{
-		BulletInfo[] bullets = new BulletInfo[SHOT_COUNT];
 
 		using (LagCompensation())
 		{
+			BulletInfo[] bullets = new BulletInfo[SHOT_COUNT];
 			for ( int i = 0; i < SHOT_COUNT; i++ )
 			{
 				bullets[i] = BulletHelper.FromWeapon( this, 10f, spread: .25f );
 			}
+			FireBullets( bullets );
 		}
 
-		FireBullets( bullets );
 		DoShootEffects();
 		LastFire = 0;
 	}

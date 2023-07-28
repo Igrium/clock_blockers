@@ -38,36 +38,40 @@ public abstract partial class BaseFirearm : Carriable
 	/// </summary>
 	/// <param name="bullet">The bullet to shoot.</param>
 	/// <param name="isRemnant">If this is being shot by a remnant.</param>
-	public virtual void FireBullet(BulletInfo bullet, bool isRemnant = false)
+	public virtual void FireBullet( BulletInfo bullet, bool isRemnant = false )
 	{
 		Vector3 start = bullet.Ray.Position;
 		Vector3 end = bullet.Ray.Project( 2048 );
 		float radius = bullet.Radius;
 
 		// Store the lag-compensated positions of all hit entities.
-		Dictionary<string, Vector3> entityPositions = new();
+		Dictionary<string, EntityTraceState> entityPositions = new();
 
-		foreach (var tr in DoBulletTrace(start, end, radius))
+		foreach ( var tr in DoBulletTrace( start, end, radius ) )
 		{
 			if ( !tr.Hit ) continue;
 			DealDamage( tr, bullet );
 			tr.Surface.DoBulletImpact( tr );
 
 			string? id = tr.Entity.GetPersistentID();
-			if (id != null)
+			var entity = tr.Entity;
+			if ( id != null && entity is ModelEntity modelEntity )
 			{
-				entityPositions.Add( id, tr.Entity.Position );
+				entityPositions.Add( id, new EntityTraceState().CopyFrom( modelEntity ));
 				Log.Info( $"Position of {id} is {tr.Entity.Position}" );
 			}
-				
+			if ( Prediction.FirstTime )
+			{
+				DebugOverlay.TraceResult( tr, .5f );
+			}
 		}
 
-		if (Owner is PlayerAgent player && player.IsRecording)
+		if ( Owner is PlayerAgent player && player.IsRecording )
 		{
 			player.AnimCapture?.AddAction( new ShootAction( bullet )
 			{
 				EntityPositions = entityPositions
-			} ) ;
+			} );
 		}
 	}
 
@@ -87,7 +91,7 @@ public abstract partial class BaseFirearm : Carriable
 			.WithAnyTags( "solid", "player", "npc", "penetrable", "corpse", "glass", "water", "carriable" )
 			.WithoutTags( "trigger", "skybox", "playerclip" );
 
-		foreach (var result in trace.RunAll())
+		foreach ( var result in trace.RunAll() )
 		{
 			yield return result;
 			if ( !IsPenetrable( result.Entity ) )
@@ -118,7 +122,7 @@ public abstract partial class BaseFirearm : Carriable
 
 	public virtual void DoShootEffects()
 	{
-		if (Game.IsServer && Owner is PlayerAgent player && player.IsRecording )
+		if ( Game.IsServer && Owner is PlayerAgent player && player.IsRecording )
 			player.AnimCapture?.AddAction( new ShootEffectsAction( IsFireContinuous ) );
 	}
 
