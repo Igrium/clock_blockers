@@ -62,7 +62,7 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 		foreach ( var client in Game.Clients )
 		{
 			var oldPawn = client.Pawn;
-			SpawnPlayerPawn( client, weapon: WeaponTypes.Get( WeaponTypes.SHOTGUN ) );
+			SpawnPlayerPawn( client, weapon: WeaponTypes.Get( WeaponTypes.PISTOL ) );
 			oldPawn?.Delete();
 			clients++;
 		}

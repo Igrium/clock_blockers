@@ -118,12 +118,12 @@ public struct PickupWeaponAction : IAction
 {
 	public string WeaponID { get; set; }
 
-	public PickupWeaponAction(string weaponID)
+	public PickupWeaponAction( string weaponID )
 	{
 		WeaponID = weaponID;
 	}
 
-	public PickupWeaponAction(Carriable weapon)
+	public PickupWeaponAction( Carriable weapon )
 	{
 		WeaponID = weapon.GetPersistentIDOrCreate();
 	}
@@ -141,6 +141,11 @@ public struct ShootAction : IAction
 {
 	public BulletInfo Bullet { get; init; }
 
+	/// <summary>
+	/// The lag-compensated positions of all relevent entities.
+	/// </summary>
+	public Dictionary<string, Vector3> EntityPositions { get; set; } = new();
+
 	public ShootAction( BulletInfo bullet )
 	{
 		Bullet = bullet;
@@ -148,10 +153,27 @@ public struct ShootAction : IAction
 
 	public bool Run( PlayerAgent pawn )
 	{
-		if ( pawn.ActiveWeapon is BaseFirearm firearm )
+		if ( pawn.ActiveWeapon is not BaseFirearm firearm ) return false;
+
+		// Temporarily restore all entities to recorded positions
+		Dictionary<Entity, Vector3> originalPositions = new();
+		foreach ( var entry in EntityPositions )
 		{
-			firearm.FireBullet( Bullet, true );
+			var target = PersistentEntities.GetEntity( entry.Key );
+			if ( target != null )
+			{
+				originalPositions.Add( target, target.Position );
+				target.Position = entry.Value;
+			}
 		}
+
+		firearm.FireBullet( Bullet, true );
+
+		foreach ( var entry in originalPositions )
+		{
+			entry.Key.Position = entry.Value;
+		}
+
 		return false;
 	}
 }

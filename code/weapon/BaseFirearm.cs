@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using ClockBlockers.Anim;
+using ClockBlockers.Timeline;
 using Sandbox;
 using System;
 using System.Collections.Generic;
@@ -43,16 +44,30 @@ public abstract partial class BaseFirearm : Carriable
 		Vector3 end = bullet.Ray.Project( 2048 );
 		float radius = bullet.Radius;
 
+		// Store the lag-compensated positions of all hit entities.
+		Dictionary<string, Vector3> entityPositions = new();
+
 		foreach (var tr in DoBulletTrace(start, end, radius))
 		{
 			if ( !tr.Hit ) continue;
 			DealDamage( tr, bullet );
 			tr.Surface.DoBulletImpact( tr );
+
+			string? id = tr.Entity.GetPersistentID();
+			if (id != null)
+			{
+				entityPositions.Add( id, tr.Entity.Position );
+				Log.Info( $"Position of {id} is {tr.Entity.Position}" );
+			}
+				
 		}
 
 		if (Owner is PlayerAgent player && player.IsRecording)
 		{
-			player.AnimCapture?.AddAction( new ShootAction( bullet ) );
+			player.AnimCapture?.AddAction( new ShootAction( bullet )
+			{
+				EntityPositions = entityPositions
+			} ) ;
 		}
 	}
 
@@ -103,7 +118,7 @@ public abstract partial class BaseFirearm : Carriable
 
 	public virtual void DoShootEffects()
 	{
-		if ( Owner is PlayerAgent player && player.IsRecording )
+		if (Game.IsServer && Owner is PlayerAgent player && player.IsRecording )
 			player.AnimCapture?.AddAction( new ShootEffectsAction( IsFireContinuous ) );
 	}
 
