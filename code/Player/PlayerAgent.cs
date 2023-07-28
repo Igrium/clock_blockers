@@ -2,6 +2,7 @@
 
 using ClockBlockers.AI;
 using ClockBlockers.Spectator;
+using ClockBlockers.Timeline;
 using Sandbox;
 using System;
 using System.ComponentModel;
@@ -211,6 +212,10 @@ partial class PlayerAgent : AnimatedEntity
 			Client.Pawn = specPawn;
 			specPawn.Position = EyePosition;
 			specPawn.ViewAngles = ViewAngles;
+		}
+		if (IsRecording)
+		{
+			TimelineCapture?.Event( new DeathEvent(), true );
 		}
 
 		FinalizeAnimations();
