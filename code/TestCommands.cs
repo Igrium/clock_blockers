@@ -78,38 +78,6 @@ public static class TestCommands
 		Game.ResetMap( ignoreEntities );
 	}
 
-	[ConCmd.Server( "ent_create_ai_agent" )]
-	public static void CreateAIAgent()
-	{
-		Vector3 vec;
-		var caller = Caller;
-
-		if ( caller != null )
-		{
-			var viewTarget = caller.ViewTarget;
-			if ( viewTarget.Hit )
-			{
-				vec = viewTarget.HitPosition;
-			}
-			else
-			{
-				Log.Error( "No spawn target" );
-				return;
-			}
-		}
-		else
-		{
-			Log.Error( "No caller pawn" );
-			return;
-		}
-
-		AgentPawn entity = new AgentPawn();
-		entity.Position = vec;
-		entity.PostSpawn();
-
-		entity.InitTimeTravel( PawnControlMethod.AI );
-	}
-
 	[ConCmd.Server( "round_start" )]
 	public static void StartRound()
 	{
