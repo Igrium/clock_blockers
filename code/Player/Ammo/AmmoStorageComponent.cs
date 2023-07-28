@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 
 namespace ClockBlockers;
-public partial class AmmoStorageComponent : EntityComponent<Player>, ISingletonComponent
+public partial class AmmoStorageComponent : EntityComponent<PlayerAgent>, ISingletonComponent
 {
 	[Net, Local]
 	public IList<int> Ammo { get; set; }

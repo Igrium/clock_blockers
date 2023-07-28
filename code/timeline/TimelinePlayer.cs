@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ClockBlockers.Timeline;
 
-public partial class TimelinePlayer : EntityComponent<Player>, ISingletonComponent
+public partial class TimelinePlayer : EntityComponent<PlayerAgent>, ISingletonComponent
 {
 	/// <summary>
 	/// The branch currently being played

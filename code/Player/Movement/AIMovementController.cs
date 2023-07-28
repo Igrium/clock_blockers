@@ -114,7 +114,7 @@ public partial class AIMovementController : MovementComponent
 		base.FrameSimulate( cl );
 		if ( ShowBBox ) DebugOverlay.Box( Entity.Position, mins, maxs, Color.Yellow );
 		RestoreGroundAngles();
-		var pl = Entity as Player;
+		var pl = Entity as PlayerAgent;
 		SaveGroundAngles();
 		DuckFrameSimulate();
 	}
@@ -122,7 +122,7 @@ public partial class AIMovementController : MovementComponent
 
 	public override void Simulate( IClient? cl )
 	{
-		var pl = Entity as Player;
+		var pl = Entity as PlayerAgent;
 
 		Events?.Clear();
 		Tags?.Clear();
@@ -465,7 +465,7 @@ public partial class AIMovementController : MovementComponent
 	[Net] public float DuckAmount { get; set; } = 0;
 	public virtual void CheckDuck()
 	{
-		var pl = Entity as Player;
+		var pl = Entity as PlayerAgent;
 		bool wants = WantsDuck;
 
 		if ( wants != IsDucking )
@@ -517,7 +517,7 @@ public partial class AIMovementController : MovementComponent
 	void DuckFrameSimulate()
 	{
 
-		var pl = Entity as Player;
+		var pl = Entity as PlayerAgent;
 		if ( IsDucking )
 		{
 			LocalDuckAmount = LocalDuckAmount.LerpTo( (EyeHeight - DuckEyeHeight) * -1, 8 * Time.Delta );
@@ -761,7 +761,7 @@ public partial class AIMovementController : MovementComponent
 	Vector3 LastNonZeroWishLadderVelocity;
 	public virtual void CheckLadder()
 	{
-		var pl = Entity as Player;
+		var pl = Entity as PlayerAgent;
 
 		var wishvel = new Vector3( pl.InputDirection.x.Clamp( -1f, 1f ), pl.InputDirection.y.Clamp( -1f, 1f ), 0 );
 		if ( wishvel.Length > 0 )
@@ -1053,7 +1053,7 @@ public partial class AIMovementController : MovementComponent
 
 	void SaveGroundPos()
 	{
-		var ply = Entity as Player;
+		var ply = Entity as PlayerAgent;
 		if ( Entity.GroundEntity == null || Entity.GroundEntity.IsWorld )
 		{
 			OldGroundEntity = null;
@@ -1080,7 +1080,7 @@ public partial class AIMovementController : MovementComponent
 		if ( Entity.GroundEntity == null || Entity.GroundEntity.IsWorld || GroundTransformViewAngles == null || PreviousViewAngles == null )
 			return;
 
-		var ply = Entity as Player;
+		var ply = Entity as PlayerAgent;
 		var worldTrnsView = Entity.GroundEntity.Transform.ToWorld( GroundTransformViewAngles.Value );
 		ply.ViewAngles -= (PreviousViewAngles.Value.ToRotation() * worldTrnsView.Rotation.Inverse).Angles().WithPitch( 0 ).WithRoll( 0 );
 	}
@@ -1093,7 +1093,7 @@ public partial class AIMovementController : MovementComponent
 			return;
 		}
 
-		var ply = Entity as Player;
+		var ply = Entity as PlayerAgent;
 		GroundTransformViewAngles = Entity.GroundEntity.Transform.ToLocal( new Transform( Vector3.Zero, ply.ViewAngles.ToRotation() ) );
 		PreviousViewAngles = ply.ViewAngles;
 	}

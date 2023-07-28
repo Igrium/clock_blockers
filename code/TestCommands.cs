@@ -17,12 +17,12 @@ public static class TestCommands
 {
 	public static Animation? CachedAnimation { get; set; }
 
-	static Player? Caller
+	static PlayerAgent? Caller
 	{
 		get
 		{
 			var pawn = ConsoleSystem.Caller?.Pawn;
-			if ( pawn is Player player ) return player;
+			if ( pawn is PlayerAgent player ) return player;
 			else return null;
 		}
 	}
@@ -99,7 +99,7 @@ public static class TestCommands
 	[ConCmd.Server("spawn_player")]
 	public static void TestPlayer()
 	{
-		var player = new Player();
+		var player = new PlayerAgent();
 		player.Inventory?.AddItem( new Shotgun() );
 		var client = ConsoleSystem.Caller;
 
@@ -113,13 +113,13 @@ public static class TestCommands
 		}
 	}
 
-	public static Player PlayAnimation(Animation animation)
+	public static PlayerAgent PlayAnimation(Animation animation)
 	{
 		if (animation.IsEmpty)
 		{
 			throw new ArgumentException( "Animation must not be empty.", "animation" );
 		}
-		var player = new Player();
+		var player = new PlayerAgent();
 		player.SetControlMethod( AgentControlMethod.Playback );
 		player.Inventory.AddItem( new Pistol() );
 		player.CreateAnimPlayer().Play( animation );

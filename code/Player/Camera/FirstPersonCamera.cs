@@ -13,7 +13,7 @@ public class FirstPersonCamera : CameraComponent
 	public override void FrameSimulate( IClient cl )
 	{
 
-		var pl = Entity as Player;
+		var pl = Entity as PlayerAgent;
 		// Update rotation every frame, to keep things smooth  
 
 		pl.EyeRotation = pl.ViewAngles.ToRotation();
@@ -33,7 +33,7 @@ public class FirstPersonCamera : CameraComponent
 		if ( Game.LocalClient.Components.TryGet<DevCamera>( out var _ ) )
 			return;
 
-		var pl = Entity as Player;
+		var pl = Entity as PlayerAgent;
 		var viewAngles = (pl.ViewAngles + Input.AnalogLook).Normal;
 		pl.ViewAngles = viewAngles.WithPitch( viewAngles.pitch.Clamp( -89f, 89f ) );
 		return;

@@ -2,7 +2,7 @@
 
 using Sandbox;
 namespace ClockBlockers;
-public class UnstuckComponent : EntityComponent<Player>
+public class UnstuckComponent : EntityComponent<PlayerAgent>
 {
 	public bool Debug = false;
 	public bool IsActive; // replicate
@@ -27,7 +27,7 @@ public class UnstuckComponent : EntityComponent<Player>
 			lastPos = Entity.Position;
 			return false;
 		}
-		if ( Entity is Player player )
+		if ( Entity is PlayerAgent player )
 		{
 			if ( player.MovementController.HasTag( "noclip" ) ) return false;
 			//if ( player.DoUnstick != true )
@@ -161,14 +161,14 @@ public class UnstuckComponent : EntityComponent<Player>
 	/// </summary>
 	public virtual TraceResult TraceBBox( Vector3 start, Vector3 end, float liftFeet = 0.0f )
 	{
-		if ( Entity is Player ply )
+		if ( Entity is PlayerAgent ply )
 		{
 			if ( ply.MovementController is WalkController walk )
 			{
 				return TraceBBox( start, end, walk.mins, walk.maxs, liftFeet );
 			}
 		}
-		return TraceBBox( start, end, (Entity as Player).CollisionBounds.Mins, (Entity as Player).CollisionBounds.Maxs, liftFeet );
+		return TraceBBox( start, end, (Entity as PlayerAgent).CollisionBounds.Mins, (Entity as PlayerAgent).CollisionBounds.Maxs, liftFeet );
 	}
 
 	/// <summary>

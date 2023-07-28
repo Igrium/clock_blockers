@@ -19,7 +19,7 @@ public abstract partial class Carriable : AnimatedEntity, IUse, IUseNotCanon
 	public abstract string? WorldModelPath { get; }
 	public abstract string? ViewModelPath { get; }
 
-	public Player? Pawn => Owner is Player player ? player : null;
+	public PlayerAgent? Pawn => Owner is PlayerAgent player ? player : null;
 
 	/// <summary>
 	/// Whether this item is allowed to be dropped.
@@ -136,7 +136,7 @@ public abstract partial class Carriable : AnimatedEntity, IUse, IUseNotCanon
 	}
 	public virtual void OnActiveEnd()
 	{
-		if ( Parent is Player ) EnableDrawing = false;
+		if ( Parent is PlayerAgent ) EnableDrawing = false;
 		DestroyViewModel();
 		IsActive = false;
 	}
@@ -149,7 +149,7 @@ public abstract partial class Carriable : AnimatedEntity, IUse, IUseNotCanon
 
 	public bool OnUse( Entity user )
 	{
-		if ( user is not Player player )
+		if ( user is not PlayerAgent player )
 			return false;
 
 		player.Inventory.PickupItem( this );
@@ -159,6 +159,6 @@ public abstract partial class Carriable : AnimatedEntity, IUse, IUseNotCanon
 
 	public bool IsUsable( Entity user )
 	{
-		return (user is Player && Parent == null);
+		return (user is PlayerAgent && Parent == null);
 	}
 }

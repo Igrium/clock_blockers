@@ -1,7 +1,7 @@
 ﻿using Sandbox;
 namespace ClockBlockers;
 
-public partial class Player
+public partial class PlayerAgent
 {
 	// TODO - make ragdolls one per entity
 	// TODO - make ragdolls dissapear after a load of seconds

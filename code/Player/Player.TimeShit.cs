@@ -14,7 +14,7 @@ namespace ClockBlockers;
 
 // All the timey-wimey shit involving remnants.
 
-public partial class Player
+public partial class PlayerAgent
 {
 	public AnimCapture? AnimCapture => Components.Get<AnimCapture>();
 	public AnimPlayer? AnimPlayer => Components.Get<AnimPlayer>();

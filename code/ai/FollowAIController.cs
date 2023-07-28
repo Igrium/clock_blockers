@@ -61,7 +61,7 @@ public partial class FollowAIController : AIComponent
 
 	protected virtual bool CanTarget( Entity target )
 	{
-		if ( target is Player pawn )
+		if ( target is PlayerAgent pawn )
 		{
 			return pawn.IsFreeAgent && pawn.ControlMethod == AgentControlMethod.Player;
 		}

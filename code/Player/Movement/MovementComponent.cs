@@ -12,7 +12,7 @@ namespace ClockBlockers;
 /// In general, movement components should not store data intended to be used
 /// across multiple ticks, as they are swapped out often.
 /// </summary>
-public class MovementComponent : EntityComponent<Player>, ISingletonComponent
+public class MovementComponent : EntityComponent<PlayerAgent>, ISingletonComponent
 {
 
 	public virtual void Simulate( IClient? cl )

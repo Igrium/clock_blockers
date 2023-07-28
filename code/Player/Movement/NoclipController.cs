@@ -10,13 +10,13 @@ public partial class NoclipController : MovementComponent
 	[Net] public float EyeHeight { get; set; } = 64.0f;
 	public override void BuildInput()
 	{
-		var pl = Entity as Player;
+		var pl = Entity as PlayerAgent;
 		pl.InputDirection = Input.AnalogMove;
 	}
 	public override void Simulate( IClient? cl )
 	{
 
-		var pl = Entity as Player;
+		var pl = Entity as PlayerAgent;
 
 		Events?.Clear();
 		Tags?.Clear();

@@ -12,7 +12,7 @@ namespace ClockBlockers.Anim;
 /// <summary>
 /// Responsible for playing an animation back on a pawn.
 /// </summary>
-public class AnimPlayer : EntityComponent<Player>, ISingletonComponent
+public class AnimPlayer : EntityComponent<PlayerAgent>, ISingletonComponent
 {
 	public AnimPlayer()
 	{

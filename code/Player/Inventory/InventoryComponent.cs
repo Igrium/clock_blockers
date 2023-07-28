@@ -238,7 +238,7 @@ public partial class InventoryComponent : SimulatedComponent, ISingletonComponen
 	[ConCmd.Client]
 	public static void ConCmdSetActiveChild( int i )
 	{
-		if ( ConsoleSystem.Caller.Pawn is Player ply )
+		if ( ConsoleSystem.Caller.Pawn is PlayerAgent ply )
 		{
 		}
 	}

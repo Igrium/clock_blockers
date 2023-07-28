@@ -28,13 +28,13 @@ public interface IAction
 	/// </summary>
 	/// <param name="pawn">Pawn to use.</param>
 	/// <returns>If this action should act as a continuous action.</returns>
-	public bool Run( Player pawn );
+	public bool Run( PlayerAgent pawn );
 
 	/// <summary>
 	/// Stop this action. Called before any replacement action is started.
 	/// </summary>
 	/// <param name="pawn">The pawn stopping the action</param>
-	public void Stop( Player pawn ) { }
+	public void Stop( PlayerAgent pawn ) { }
 
 }
 
@@ -51,12 +51,12 @@ public struct StopAction : IAction
 		TargetID = targetID;
 	}
 
-	public bool Run( Player pawn ) { return false; }
+	public bool Run( PlayerAgent pawn ) { return false; }
 }
 
 public struct JumpAction : IAction
 {
-	public bool Run( Player pawn )
+	public bool Run( PlayerAgent pawn )
 	{
 		pawn.MovementController.AddEvent( "jump" );
 		return false;
@@ -77,7 +77,7 @@ public struct UseAction : IAction
 		TargetID = target.GetPersistentIDOrThrow( true );
 	}
 
-	public bool Run( Player pawn )
+	public bool Run( PlayerAgent pawn )
 	{
 		Entity? target = PersistentEntities.GetEntity( TargetID );
 		if ( target is not IUse )
@@ -89,7 +89,7 @@ public struct UseAction : IAction
 		return Continuous;
 	}
 
-	public void Stop( Player pawn )
+	public void Stop( PlayerAgent pawn )
 	{
 		pawn.UseComponent.StopUsing();
 	}
@@ -100,7 +100,7 @@ public struct DropWeaponAction : IAction
 	public Vector3 Velocity { get; set; }
 	public string? WeaponID { get; set; }
 
-	public bool Run( Player pawn )
+	public bool Run( PlayerAgent pawn )
 	{
 		var entity = WeaponID != null ? PersistentEntities.GetEntity( WeaponID ) : null;
 		if ( entity == null )
@@ -128,7 +128,7 @@ public struct PickupWeaponAction : IAction
 		WeaponID = weapon.GetPersistentIDOrCreate();
 	}
 
-	public bool Run( Player pawn )
+	public bool Run( PlayerAgent pawn )
 	{
 		var entity = PersistentEntities.GetEntity( WeaponID );
 		if ( entity is not Carriable carriable ) return false;
@@ -146,7 +146,7 @@ public struct ShootAction : IAction
 		Bullet = bullet;
 	}
 
-	public bool Run( Player pawn )
+	public bool Run( PlayerAgent pawn )
 	{
 		if ( pawn.ActiveWeapon is BaseFirearm firearm )
 		{
@@ -169,7 +169,7 @@ public struct ShootEffectsAction : IAction
 		IsContinuous = isContinuous;
 	}
 
-	public bool Run( Player pawn )
+	public bool Run( PlayerAgent pawn )
 	{
 		if ( pawn.ActiveWeapon is BaseFirearm firearm )
 		{
@@ -179,7 +179,7 @@ public struct ShootEffectsAction : IAction
 		return IsContinuous;
 	}
 
-	public void Stop( Player pawn )
+	public void Stop( PlayerAgent pawn )
 	{
 		if ( pawn.ActiveWeapon is BaseFirearm firearm )
 		{

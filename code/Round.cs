@@ -19,7 +19,7 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 {
 	public static readonly float ROUND_TIME = 23;
 
-	private LinkedList<Player> Pawns = new();
+	private LinkedList<PlayerAgent> Pawns = new();
 
 	private TaskCompletionSource<IEnumerable<TimelineBranch>> task = new();
 
@@ -80,7 +80,7 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 
 	public IEnumerable<TimelineBranch> EndRound()
 	{
-		foreach ( Player pawn in Pawns )
+		foreach ( PlayerAgent pawn in Pawns )
 		{
 			if ( pawn.Client != null )
 				pawn.Client.Pawn = SpectatorPawn.Create();
@@ -101,7 +101,7 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 	{
 		var oldPawn = cl.Pawn;
 
-		var pawn = new Player();
+		var pawn = new PlayerAgent();
 		cl.Pawn = pawn;
 
 		// chose a random one
@@ -144,7 +144,7 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 
 	protected void SpawnRemnant( TimelineBranch timeline )
 	{
-		var player = new Player();
+		var player = new PlayerAgent();
 		if ( timeline.PersistentID != null )
 		{
 			player.SetPersistentID( timeline.PersistentID );
@@ -187,7 +187,7 @@ public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonCompo
 	/// now so its not deleted as well.
 	/// </summary>
 	[Event( "Player.PostOnKilled" )]
-	protected void OnPlayerKilled(Player player)
+	protected void OnPlayerKilled(PlayerAgent player)
 	{
 		var t = player.ActiveTimeline;
 		if ( t != null ) finalBranches.AddLast( t );

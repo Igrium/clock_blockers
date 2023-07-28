@@ -2,7 +2,7 @@
 
 namespace ClockBlockers;
 
-public partial class Player
+public partial class PlayerAgent
 {
 	// Empty overrides for events.
 	public override void StartTouch( Entity other )

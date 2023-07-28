@@ -37,7 +37,7 @@ public struct PickupWeaponEvent : ITimelineEvent
 		Position = weapon.Position;
 	}
 
-	public bool IsValid( Player pawn )
+	public bool IsValid( PlayerAgent pawn )
 	{
 		if ( pawn.ActiveWeapon is Carriable carriable && !carriable.CanDrop ) return false;
 

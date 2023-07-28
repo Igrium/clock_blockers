@@ -19,7 +19,7 @@ public enum AgentControlMethod
 	Playback
 }
 
-partial class Player : AnimatedEntity
+partial class PlayerAgent : AnimatedEntity
 {
 	/// <summary>
 	/// Called when the entity is first created 

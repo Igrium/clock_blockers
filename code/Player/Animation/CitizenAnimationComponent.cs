@@ -7,7 +7,7 @@ public class CitizenAnimationComponent : AnimationComponent
 	Entity lastWeapon;
 	public override void Simulate( IClient cl )
 	{
-		var ply = Entity as Player;
+		var ply = Entity as PlayerAgent;
 		// where should we be rotated to
 		var turnSpeed = 0.02f;
 

@@ -50,7 +50,7 @@ public abstract partial class BaseFirearm : Carriable
 			tr.Surface.DoBulletImpact( tr );
 		}
 
-		if (Owner is Player player && player.IsRecording)
+		if (Owner is PlayerAgent player && player.IsRecording)
 		{
 			player.AnimCapture?.AddAction( new ShootAction( bullet ) );
 		}
@@ -103,13 +103,13 @@ public abstract partial class BaseFirearm : Carriable
 
 	public virtual void DoShootEffects()
 	{
-		if ( Owner is Player player && player.IsRecording )
+		if ( Owner is PlayerAgent player && player.IsRecording )
 			player.AnimCapture?.AddAction( new ShootEffectsAction( IsFireContinuous ) );
 	}
 
 	public virtual void StopShootEffects()
 	{
-		if ( Owner is Player player && player.IsRecording )
+		if ( Owner is PlayerAgent player && player.IsRecording )
 		{
 			player.AnimCapture?.AddAction( new StopAction( ShootEffectsAction.ID ) );
 		}

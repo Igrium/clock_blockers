@@ -1,12 +1,12 @@
 ﻿using Sandbox;
 
 namespace ClockBlockers;
-public partial class Player
+public partial class PlayerAgent
 {
 	[ConCmd.Admin( "noclip" )]
 	static void DoPlayerNoclip()
 	{
-		if ( ConsoleSystem.Caller.Pawn is Player basePlayer )
+		if ( ConsoleSystem.Caller.Pawn is PlayerAgent basePlayer )
 		{
 			if ( basePlayer.MovementController is NoclipController )
 			{
@@ -22,7 +22,7 @@ public partial class Player
 	[ConCmd.Admin( "kill" )]
 	static void DoPlayerSuicide()
 	{
-		if ( ConsoleSystem.Caller.Pawn is Player basePlayer )
+		if ( ConsoleSystem.Caller.Pawn is PlayerAgent basePlayer )
 		{
 			basePlayer.TakeDamage( new DamageInfo { Damage = basePlayer.Health * 99 } );
 		}
@@ -30,7 +30,7 @@ public partial class Player
 	[ConCmd.Admin( "respawn" )]
 	static void DoPlayerRespawn()
 	{
-		if ( ConsoleSystem.Caller.Pawn is Player basePlayer )
+		if ( ConsoleSystem.Caller.Pawn is PlayerAgent basePlayer )
 		{
 			basePlayer.Respawn();
 		}

@@ -1,7 +1,7 @@
 ﻿using Sandbox;
 namespace ClockBlockers;
 
-public partial class Player
+public partial class PlayerAgent
 {
 	public ClothingContainer Clothing { get; protected set; } = new();
 

@@ -35,7 +35,7 @@ public partial class TriggerUnlink : BaseTrigger, IHasTimelineState
 		base.Spawn();
 	}
 
-	public int GetState( Player pawn )
+	public int GetState( PlayerAgent pawn )
 	{
 		return State;
 	}
@@ -43,10 +43,10 @@ public partial class TriggerUnlink : BaseTrigger, IHasTimelineState
 	public override void OnTouchStart( Entity toucher )
 	{
 		base.OnTouchStart( toucher );
-		if ( toucher is Player pawn ) RecordPawnEvent( pawn );
+		if ( toucher is PlayerAgent pawn ) RecordPawnEvent( pawn );
 	}
 
-	public virtual void RecordPawnEvent( Player pawn )
+	public virtual void RecordPawnEvent( PlayerAgent pawn )
 	{
 		if ( !Game.IsServer ) return;
 		var capture = pawn.TimelineCapture;
@@ -79,7 +79,7 @@ public struct MapTimelineEvent : ITimelineEvent
 
 	public string Name { get; set; }
 
-	public bool IsValid( Player pawn )
+	public bool IsValid( PlayerAgent pawn )
 	{
 		var ent = PersistentEntities.GetEntity<Entity>( TriggerID );
 		if ( ent is IHasTimelineState trigger )
