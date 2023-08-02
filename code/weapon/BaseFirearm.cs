@@ -46,6 +46,7 @@ public abstract partial class BaseFirearm : Carriable
 
 		// Store the lag-compensated positions of all hit entities.
 		Dictionary<string, EntityTraceState> entityPositions = new();
+		ShootAction.Builder actionBuilder = new ShootAction.Builder();
 
 		foreach ( var tr in DoBulletTrace( start, end, radius ) )
 		{
@@ -57,21 +58,17 @@ public abstract partial class BaseFirearm : Carriable
 			var entity = tr.Entity;
 			if ( id != null && entity is ModelEntity modelEntity )
 			{
-				entityPositions.Add( id, new EntityTraceState().CopyFrom( modelEntity ));
-				Log.Info( $"Position of {id} is {tr.Entity.Position}" );
+				entityPositions.Add( id, new EntityTraceState().CopyFrom( modelEntity ) );
 			}
+			actionBuilder.AddHitResult( tr );
 			if ( Prediction.FirstTime )
 			{
-				DebugOverlay.TraceResult( tr, .5f );
 			}
 		}
 
-		if ( Owner is PlayerAgent player && player.IsRecording )
+		if ( Game.IsServer && Owner is PlayerAgent player && player.IsRecording )
 		{
-			player.AnimCapture?.AddAction( new ShootAction( bullet )
-			{
-				EntityPositions = entityPositions
-			} );
+			player.AnimCapture?.AddAction( actionBuilder.Build( bullet ) );
 		}
 	}
 
@@ -82,7 +79,7 @@ public abstract partial class BaseFirearm : Carriable
 	/// <param name="end">Trace end point</param>
 	/// <param name="radius">Trace radius</param>
 	/// <returns>All of the entities that were hit (or penetrated), in order.</returns>
-	protected IEnumerable<TraceResult> DoBulletTrace( Vector3 start, Vector3 end, float radius = 2f )
+	public IEnumerable<TraceResult> DoBulletTrace( Vector3 start, Vector3 end, Entity ignoreEntity, float radius = 2f )
 	{
 		var trace = Trace.Ray( start, end )
 			.Radius( radius )
@@ -99,7 +96,19 @@ public abstract partial class BaseFirearm : Carriable
 		}
 	}
 
-	protected virtual void DealDamage( TraceResult tr, BulletInfo bullet )
+	/// <summary>
+	/// Perform a bullet trace.
+	/// </summary>
+	/// <param name="start">Trace start point</param>
+	/// <param name="end">Trace end point</param>
+	/// <param name="radius">Trace radius</param>
+	/// <returns>All of the entities that were hit (or penetrated), in order.</returns>
+	protected IEnumerable<TraceResult> DoBulletTrace( Vector3 start, Vector3 end, float radius = 2f )
+	{
+		return DoBulletTrace( start, end, Owner, radius );
+	}
+
+	public virtual void DealDamage( TraceResult tr, BulletInfo bullet )
 	{
 		using ( Prediction.Off() )
 		{
