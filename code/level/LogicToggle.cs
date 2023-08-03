@@ -20,7 +20,7 @@ namespace ClockBlockers.Level;
 public partial class LogicToggle : Entity
 {
 	[Property( Title = "Default State" )]
-	public static bool State { get; set; }
+	public bool State { get; set; }
 
 	[Input]
 	public void SetState( bool state )

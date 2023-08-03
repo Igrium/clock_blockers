@@ -1,0 +1,36 @@
+{
+  "publish": {
+    "Allowed": true,
+    "Enabled": false,
+    "ProjectConfig": {
+      "Title": "crossfire",
+      "Type": "map",
+      "Org": "local",
+      "Ident": "crossfire",
+      "Tags": null,
+      "Schema": 0,
+      "HasAssets": false,
+      "AssetsPath": null,
+      "Resources": null,
+      "MenuResources": null,
+      "HasCode": false,
+      "CodePath": null,
+      "PackageReferences": [],
+      "EditorReferences": [
+        "facepunch.glass_c#19949",
+        "facepunch.metal_painted_b_hs#18370",
+        "facepunch.metal_painted_grey_a_hs#18377",
+        "facepunch.metal_painted_a_hs#18402",
+        "facepunch.access_button#29000",
+        "facepunch.metal_painted_a_hs#29195",
+        "facepunch.metal_painted_b_hs#28950",
+        "facepunch.metal_painted_grey_a_hs#28954",
+        "meihoff.garagebutton#26130",
+        "igrium.clock_blockers"
+      ],
+      "Metadata": {
+        "SingleAssetSource": "maps/crossfire.vmap"
+      }
+    }
+  }
+}

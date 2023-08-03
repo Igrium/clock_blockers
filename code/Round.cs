@@ -17,7 +17,7 @@ namespace ClockBlockers;
 
 public partial class Round : EntityComponent<ClockBlockersGame>, ISingletonComponent
 {
-	public static readonly float ROUND_TIME = 10;
+	public static readonly float ROUND_TIME = 30;
 
 	private LinkedList<PlayerAgent> Pawns = new();
 

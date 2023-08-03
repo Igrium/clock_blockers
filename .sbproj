@@ -46,6 +46,16 @@
         "Addons": "",
         "PreLaunchCommand": "",
         "PostLaunchCommand": ""
+      },
+      {
+        "Name": "Crossfire",
+        "GameIdent": "igrium.clock_blockers#local",
+        "MapName": "crossfire.vmap",
+        "MaxPlayers": 1,
+        "GameSettings": {},
+        "Addons": "",
+        "PreLaunchCommand": "",
+        "PostLaunchCommand": ""
       }
     ],
     "Collision": {
